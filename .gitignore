@@ -1,0 +1,6 @@
+.gradle/
+.idea/
+app/build/
+local.properties
+liveroom-android.iml
+app/app.iml
