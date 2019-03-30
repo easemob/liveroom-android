@@ -7,6 +7,10 @@
     <string name="confirmpassword">确认密码</string>
     <string name="register">注册</string>
 
+    <string name="title_room_list">房间</string>
+    <string name="title_create_room">新建</string>
+    <string name="title_settings">设置</string>
+
     <string name="Is_landing">正在登录 ……</string>
     <string name="Is_the_registered">正在注册……</string>
 
