@@ -8,4 +8,7 @@
     <color name="btn_login_pressed">#46678d</color>
     <color name="btn_register_normal">#ffffff</color>
     <color name="btn_register_pressed">#00acff</color>
+
+    <color name="text_normal">#FFFFFF</color>
+    <color name="text_hint">#99FFFFFF</color>
 </resources>

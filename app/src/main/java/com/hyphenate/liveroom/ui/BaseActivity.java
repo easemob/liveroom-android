@@ -19,7 +19,7 @@ public class BaseActivity extends Activity {
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
-    protected void hideSoftKeyboard() {
+    public void hideSoftKeyboard() {
         if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
             if (getCurrentFocus() != null)
                 inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),

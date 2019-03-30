@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +35,8 @@ public class EaseDialog {
     private FrameLayout container;
     private LinearLayout btnContainer;
 
+    private InputMethodManager inputManager;
+
     private List<View> buttons = new ArrayList<>();
 
     protected EaseDialog(Context context) {
@@ -48,6 +51,8 @@ public class EaseDialog {
 
         container = contentView.findViewById(R.id.container);
         btnContainer = contentView.findViewById(R.id.layout_btn);
+
+        inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     public static EaseDialog create(Context context) {
@@ -59,8 +64,8 @@ public class EaseDialog {
         return this;
     }
 
-    public EaseDialog addButton(String title, int color, OnClickListener listener) {
-        View button = createButton(title, color, v -> {
+    public EaseDialog addButton(String title, int textColor, int bgColor, OnClickListener listener) {
+        View button = createButton(title, textColor, bgColor, v -> {
             if (listener != null) {
                 listener.onClick(EaseDialog.this, v);
             }
@@ -109,6 +114,13 @@ public class EaseDialog {
     }
 
     public void dismiss() {
+        dismiss(true);
+    }
+
+    public void dismiss(boolean withKeyboard) {
+        if (withKeyboard) {
+            dismissKeyboard();
+        }
         dialog.dismiss();
     }
 
@@ -116,16 +128,21 @@ public class EaseDialog {
         return dialog.isShowing();
     }
 
-    private View createButton(String title, int color, View.OnClickListener listener) {
+    private View createButton(String title, int textColor, int bgColor, View.OnClickListener listener) {
         TextView button = new TextView(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
         params.weight = 1;
         button.setLayoutParams(params);
-        button.setBackgroundColor(color);
-        button.setText(title);
+        button.setBackgroundColor(bgColor);
+        button.setTextColor(textColor);
         button.setTextSize(16);
+        button.setText(title);
         button.setGravity(Gravity.CENTER);
         button.setOnClickListener(listener);
         return button;
+    }
+
+    private void dismissKeyboard() {
+        inputManager.hideSoftInputFromWindow(container.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }
