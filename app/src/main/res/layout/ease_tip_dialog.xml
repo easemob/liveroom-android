@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/em_bg_tip_dialog"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:id="@+id/iv_tip_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="#81d134"
+            android:scaleType="fitCenter"
+            android:padding="8dp"
+            android:src="@drawable/em_ic_ok"/>
+
+
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/em_ic_exit"
+            />
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="正确"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="账号注册成功"
+        android:textColor="#e4e4e4"
+        android:textSize="12sp"
+
+        />
+
+
+</LinearLayout>

@@ -2,52 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        >
 
-        <TextView
+        <ImageButton
             android:id="@+id/btn_search"
-            android:layout_width="80dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
             android:layout_alignParentRight="true"
-            android:layout_weight="0"
-            android:background="@drawable/rect_gray"
+            android:background="@android:color/white"
+            android:scaleType="fitCenter"
             android:gravity="center"
-            android:text="搜索"
-            android:textColor="@color/text_normal"
-            android:textSize="16sp" />
+            android:src="@drawable/em_ic_search"
+            />
 
         <EditText
             android:id="@+id/et_search"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginRight="4dp"
+            style="@style/login_input_style"
+            android:layout_marginRight="5dp"
             android:layout_toLeftOf="@+id/btn_search"
-            android:background="@drawable/rect_gray"
-            android:gravity="center_vertical"
             android:hint="输入房间名称"
-            android:paddingLeft="6dp"
-            android:textColor="@color/text_normal"
-            android:textColorHint="@color/text_hint"
-            android:textSize="16sp" />
+            />
     </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/layout_pull_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp">
+        android:layout_marginTop="10dp"
+        >
 
         <ListView
             android:id="@+id/list_room"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:cacheColorHint="@android:color/transparent"
             android:divider="@null" />
 
     </android.support.v4.widget.SwipeRefreshLayout>

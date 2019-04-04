@@ -1,6 +1,7 @@
 package com.hyphenate.liveroom.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,13 +15,19 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.hyphenate.EMValueCallBack;
+import com.hyphenate.chat.EMChatRoom;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCursorResult;
+import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.widgets.EaseDialog;
+import com.hyphenate.util.EMLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +41,7 @@ public class ChatRoomFragment extends BaseFragment {
     private View contentView;
 
     private EditText searchEdittext;
-    private TextView searchButton;
+    private ImageButton searchButton;
     private SwipeRefreshLayout pullToRefreshLayout;
     private ListView roomListView;
 
@@ -66,27 +73,31 @@ public class ChatRoomFragment extends BaseFragment {
                             R.layout.dialog_content_join, null))
                     .setText(R.id.txt_room_name, chatRoom.getName())
                     .setText(R.id.txt_introduce, chatRoom.getIntroduce())
-                    .setImage(R.id.image, R.drawable.em_icon_pwd)
+                    .setImage(R.id.image, R.drawable.em_ic_exit)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
-                    .addButton("创建",
+                    .addButton("观众加入",
                             Color.parseColor("#000000"),
                             Color.parseColor("#FFFFFF"),
                             (dialog, v) -> {
                                 String password = dialog.getText(R.id.edit);
-                                Toast.makeText(getContext(), password, Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), password, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                intent.putExtra(Constant.EXTRA_USER_ID, chatRoom.getId());
+                                intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
+                                startActivity(intent);
                             })
                     .show();
         });
 
-        dataList.add(new ChatRoom().setName("chatroom1").setIntroduce("introduce1"));
-        dataList.add(new ChatRoom().setName("chatroom2").setIntroduce("introduce2"));
-        dataList.add(new ChatRoom().setName("chatroom3").setIntroduce("introduce3"));
-        dataList.add(new ChatRoom().setName("chatroom4").setIntroduce("introduce4"));
-        dataList.add(new ChatRoom().setName("chatroom5").setIntroduce("introduce5"));
-        dataList.add(new ChatRoom().setName("chatroom6").setIntroduce("introduce6"));
-        dataList.add(new ChatRoom().setName("chatroom7").setIntroduce("introduce7"));
-        dataList.add(new ChatRoom().setName("chatroom8").setIntroduce("introduce8"));
+//        dataList.add(new ChatRoom().setName("chatroom1").setIntroduce("introduce1"));
+//        dataList.add(new ChatRoom().setName("chatroom2").setIntroduce("introduce2"));
+//        dataList.add(new ChatRoom().setName("chatroom3").setIntroduce("introduce3"));
+//        dataList.add(new ChatRoom().setName("chatroom4").setIntroduce("introduce4"));
+//        dataList.add(new ChatRoom().setName("chatroom5").setIntroduce("introduce5"));
+//        dataList.add(new ChatRoom().setName("chatroom6").setIntroduce("introduce6"));
+//        dataList.add(new ChatRoom().setName("chatroom7").setIntroduce("introduce7"));
+//        dataList.add(new ChatRoom().setName("chatroom8").setIntroduce("introduce8"));
 
         roomAdapter = new RoomAdapter(getContext(), dataList);
         roomListView.setAdapter(roomAdapter);
@@ -95,8 +106,40 @@ public class ChatRoomFragment extends BaseFragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        loadLiveRoomData();
+    }
+
+    private void loadLiveRoomData(){
+        EMClient.getInstance().chatroomManager().asyncFetchPublicChatRoomsFromServer(20, "", new EMValueCallBack<EMCursorResult<EMChatRoom>>() {
+            @Override
+            public void onSuccess(EMCursorResult<EMChatRoom> cursorResult) {
+                if (cursorResult != null) {
+                    List<EMChatRoom> chatRooms = cursorResult.getData();
+                    List<ChatRoom> liveRooms = new ArrayList<>();
+                    for (EMChatRoom chatRoom : chatRooms) {
+                        liveRooms.add(new ChatRoom().setName(chatRoom.getName()).setIntroduce(chatRoom.getDescription()).setId(chatRoom.getId()));
+                    }
+                    dataList.clear();
+                    dataList.addAll(liveRooms);
+                    roomAdapter.changeList(dataList);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            roomAdapter.notifyDataSetChanged();
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                EMLog.e(TAG, "onError:" + s);
+            }
+        });
+
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -106,47 +149,51 @@ public class ChatRoomFragment extends BaseFragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (roomAdapter != null) {
+                roomAdapter.getDataFilter().filter(s);
+            }
         }
 
         @Override
         public void afterTextChanged(Editable s) {
-            roomAdapter.filter(searchEdittext.getText().toString());
         }
     };
 
-    private static class RoomAdapter extends BaseAdapter {
+    private class RoomAdapter extends BaseAdapter {
 
-        private Context context;
-        private List<ChatRoom> fullDataList = new ArrayList<>();
-        private List<ChatRoom> dataList;
+        private LayoutInflater inflater;
         private ChatRoomFilter dataFilter;
+        private List<ChatRoom> chatRooms;
+        private List<ChatRoom> copyList;
 
-        public RoomAdapter(Context context, @NonNull List<ChatRoom> dataList) {
-            this.context = context;
-            this.dataList = dataList;
-            this.fullDataList.addAll(dataList);
+        public RoomAdapter(@NonNull Context context, List<ChatRoom> rooms) {
+            chatRooms = rooms;
+            copyList = new ArrayList<>();
+            copyList.addAll(chatRooms);
+            inflater = LayoutInflater.from(context);
         }
 
-        public synchronized void filter(CharSequence constraint) {
+        public ChatRoomFilter getDataFilter() {
             if (dataFilter == null) {
-                dataFilter = new ChatRoomFilter(fullDataList);
+                dataFilter = new ChatRoomFilter();
             }
+            return dataFilter;
+        }
 
-            dataFilter.filter(constraint, (ChatRoomFilter.OnFilterListener) result -> {
-                dataList.clear();
-                dataList.addAll(result);
-                notifyDataSetChanged();
-            });
+        public void changeList(List<ChatRoom> rooms){
+            this.chatRooms = rooms;
+            copyList.clear();
+            copyList.addAll(chatRooms);
         }
 
         @Override
         public int getCount() {
-            return dataList.size();
+            return chatRooms == null ? 0 : chatRooms.size();
         }
 
         @Override
-        public Object getItem(int position) {
-            return dataList.get(position);
+        public ChatRoom getItem(int position) {
+            return chatRooms == null ? null : chatRooms.get(position);
         }
 
         @Override
@@ -160,19 +207,22 @@ public class ChatRoomFragment extends BaseFragment {
             if (convertView != null) {
                 vh = (ViewHolder) convertView.getTag();
             } else {
-                convertView = LayoutInflater.from(context).inflate(R.layout.item_room, null);
+                convertView = inflater.inflate(R.layout.item_room, null);
                 vh = new ViewHolder(convertView);
                 convertView.setTag(vh);
             }
 
-            ChatRoom item = (ChatRoom) getItem(position);
-            vh.name.setText(item.getName());
-            vh.introduce.setText(item.getIntroduce());
+            ChatRoom item = getItem(position);
+
+            if (item != null) {
+                vh.name.setText(item.getName());
+                vh.introduce.setText(item.getIntroduce());
+            }
 
             return convertView;
         }
 
-        private static class ViewHolder {
+        class ViewHolder {
             TextView name;
             TextView introduce;
 
@@ -182,47 +232,41 @@ public class ChatRoomFragment extends BaseFragment {
             }
         }
 
-        private static class ChatRoomFilter extends Filter {
-            public interface OnFilterListener {
-                void onFilter(List<ChatRoom> result);
-            }
-
-            private static final String TAG = "ChatRoomFilter";
-
-            private List<ChatRoom> chatRooms;
-            private OnFilterListener filterListener;
-
-            public ChatRoomFilter(@NonNull List<ChatRoom> chatRooms) {
-                this.chatRooms = chatRooms;
-            }
-
-            public void filter(CharSequence constraint, OnFilterListener listener) {
-                filterListener = listener;
-                super.filter(constraint);
-            }
+        class ChatRoomFilter extends Filter {
 
             @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                List<ChatRoom> list = new ArrayList<>();
-                for (ChatRoom room : chatRooms) {
-                    if (room.getName().contains(constraint) || room.getIntroduce().contains(constraint)) {
-                        list.add(room);
-                    }
-                }
-
+            protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
-                results.count = list.size();
-                results.values = list;
-
+                if (prefix == null || prefix.length() == 0) {
+                    results.values = copyList;
+                    results.count = copyList.size();
+                } else {
+                    String prefixString = prefix.toString();
+                    List<ChatRoom> newValues = new ArrayList<>();
+                    for (ChatRoom chatRoom : chatRooms) {
+                        if ((chatRoom.getName() != null && chatRoom.getName().contains(prefixString))
+                                || (chatRoom.getIntroduce() != null && chatRoom.getIntroduce().contains(prefixString))) {
+                            newValues.add(chatRoom);
+                        }
+                    }
+                    results.values = newValues;
+                    results.count = newValues.size();
+                }
                 return results;
             }
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (filterListener != null) {
-                    filterListener.onFilter((List<ChatRoom>) results.values);
+                chatRooms.clear();
+                chatRooms.addAll((List<ChatRoom>) results.values);
+                if (chatRooms.size() > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
                 }
+
             }
         }
+
     }
 }

@@ -19,6 +19,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.hyphenate.chat.EMConversation;
+
 import java.util.List;
 
 public class CommonUtils {
@@ -69,5 +71,16 @@ public class CommonUtils {
             return runningTaskInfos.get(0).topActivity.getClassName();
         else
             return "";
+    }
+
+
+    public static EMConversation.EMConversationType getConversationType(int chatType) {
+        if (chatType == 1) {
+            return EMConversation.EMConversationType.Chat;
+        } else if (chatType == 2) {
+            return EMConversation.EMConversationType.GroupChat;
+        } else {
+            return EMConversation.EMConversationType.ChatRoom;
+        }
     }
 }
