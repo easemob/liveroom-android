@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@android:color/black"
+              android:orientation="vertical"
+              android:padding="15dp"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ASD123"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="shengxi"
+                android:textColor="#fefefe"
+                android:textSize="14sp"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:orientation="horizontal">
+
+            <ImageButton
+                style="@style/chat_controller_btn_style"
+                android:src="@drawable/em_ic_contacts"
+                />
+
+            <ImageButton
+                style="@style/chat_controller_btn_style"
+                android:src="@drawable/em_ic_music"
+                />
+
+            <ImageButton
+                style="@style/chat_controller_btn_style"
+                android:src="@drawable/em_ic_share"
+                />
+
+            <ImageButton
+                style="@style/chat_controller_btn_style"
+                android:src="@drawable/em_ic_equalizer"
+                />
+
+            <ImageButton
+                style="@style/chat_controller_btn_style"
+                android:onClick="exit"
+                android:src="@drawable/em_ic_exit"
+                />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="#1a1a1a"
+        android:orientation="vertical"
+        android:padding="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Breath of Life"
+            android:textColor="@color/text_color_gray"
+            android:textSize="18sp"
+            />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="00:34"
+                />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:progress="12"
+                android:secondaryProgressTint="#333333"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="3:12"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="抢麦模式"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="管理员和主播可以相互抢麦发言，管理员可以控制谁发言，主播仅能抢麦发言"
+            android:textColor="@color/text_color_gray"
+            android:textSize="8sp"
+            />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        >
+
+        <FrameLayout
+            android:id="@+id/chat_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#1a1a1a"
+            />
+
+        <ImageButton
+            android:layout_width="40dip"
+            android:layout_height="40dip"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/em_bg_btn_circle"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/em_ic_recorder"
+            />
+    </RelativeLayout>
+
+
+</LinearLayout>

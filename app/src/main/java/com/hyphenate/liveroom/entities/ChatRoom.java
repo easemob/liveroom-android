@@ -4,15 +4,15 @@ package com.hyphenate.liveroom.entities;
  * Created by zhangsong on 19-3-30
  */
 public class ChatRoom {
-    private int id;
+    private String id;
     private String name;
     private String introduce;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public ChatRoom setId(int id) {
+    public ChatRoom setId(String id) {
         this.id = id;
         return this;
     }

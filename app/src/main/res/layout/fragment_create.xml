@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="15dp"
+    >
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/rect_gray"
-        android:gravity="center_vertical"
-        android:hint="输入房间名称"
-        android:paddingLeft="6dp"
-        android:textColor="@color/text_normal"
-        android:textColorHint="@color/text_hint"
-        android:textSize="16sp" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/rect_gray"
-        android:gravity="center_vertical"
-        android:hint="输入密码"
-        android:paddingLeft="6dp"
-        android:textColor="@color/text_normal"
-        android:textColorHint="@color/text_hint"
-        android:textSize="16sp" />
+        style="@style/login_input_style"
+        android:hint="@string/voice_chatroom_id"
+        />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/rect_gray"
-        android:gravity="center"
-        android:hint="创建房间"
-        android:textColor="@color/text_normal"
-        android:textSize="16sp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="@string/room_number_must_consist_of_8_digit_letters_and_numbers"
+        android:textColor="@color/text_color_gray"
+        android:textSize="12sp"
+        />
+
+    <EditText
+        style="@style/login_input_style"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="@string/password_should_not_exceed_16_bits_at_most"
+        android:textColor="@color/text_color_gray"
+        android:textSize="12sp"
+        />
+
+    <Button
+        style="@style/login_button_style"
+        android:layout_marginTop="20dp"
+        android:text="@string/submit"
+        />
 </LinearLayout>

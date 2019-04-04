@@ -1,15 +1,15 @@
 package com.hyphenate.liveroom.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 /**
  * Created by zhangsong on 19-3-28
  */
-public class BaseActivity extends Activity {
+public class BaseActivity extends FragmentActivity {
 
     protected InputMethodManager inputMethodManager;
 

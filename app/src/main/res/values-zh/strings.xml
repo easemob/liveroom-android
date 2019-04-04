@@ -1,0 +1,77 @@
+<resources>
+    <string name="login">登录</string>
+    <string name="login_title">登录-环信语聊Demo</string>
+    <string name="hint_username">输入用户名</string>
+    <string name="hint_password">输入密码</string>
+    <string name="sign_in">登录</string>
+    <string name="sign_up">注册</string>
+    <string name="user_name">用户名</string>
+    <string name="password">密码</string>
+    <string name="username_or_pwd_is_wrong">账号或密码错误!</string>
+    <string name="username_not_found">用户名不存在!</string>
+    <string name="confirmpassword">确认密码</string>
+    <string name="register">注册</string>
+
+    <string name="title_room_list">房间</string>
+    <string name="title_create_room">新建</string>
+    <string name="title_settings">设置</string>
+
+    <string name="Is_landing">正在登录 ……</string>
+    <string name="Is_the_registered">正在注册……</string>
+
+    <!-- settings start -->
+    <string name="version">版本</string>
+    <string name="speaker_number_limited_default">默认创建语音聊天室互动主播数</string>
+    <string name="allow_apply_for_interact_default">允许观众申请连麦</string>
+    <string name="type_of_voice_chatroom">主持\抢麦\互动三种模式的默认参数</string>
+    <string name="audio_quality_default">默认音质参数</string>
+    <string name="auto_agree_to_apply_as_speaker">自动允许上麦申请</string>
+    <string name="automatically_turn_on_music">创建直播间默认开启背景音乐</string>
+
+
+
+    <string name="btn_logout">退出</string>
+    <!-- settings end -->
+
+
+    <!-- create voice chatroom start -->
+    <string name="create_voice_chat_room">创建</string>
+    <string name="voice_chatroom_id">房间号</string>
+    <string name="room_number_must_consist_of_8_digit_letters_and_numbers">房间号必须由8位的字母、数字组成。</string>
+    <string name="password_should_not_exceed_16_bits_at_most">密码最多不能超过16位。</string>
+    <string name="submit">提交</string>
+    <!-- create voice chatroom end -->
+
+    <!-- MainActivity start-->
+    <string name="connect_conflict">同一帐号已在其他设备登录</string>
+    <string name="em_user_remove">此用户已被移除</string>
+    <string name="user_forbidden">用户被服务器限制连接</string>
+    <!-- MainActivity end-->
+
+    <!-- ChatActivity start -->
+    <string name= "no_more_messages">没有更多的消息了</string>
+    <string name="joining">正在加入中.....</string>
+    <string name="the_current_chat_room_destroyed">当前聊天室已被创建者解散</string>
+    <string name="quiting_the_chat_room">正在退出聊天室……</string>
+    <string name="user_be_kicked_for_offline">用户离线被踢出</string>
+    <string name="rejoining_the_chat_room">正在重新加入聊天室……</string>
+    <string name="alert_kicked_for_offline">您已由于断线被踢出聊天室,点击重新加入.</string>
+
+    <!-- ChatActivity end -->
+
+
+    <string name="network_not_available">网络不可用</string>
+    <string name="User_name_cannot_be_empty">用户名不能为空！</string>
+    <string name="Password_cannot_be_empty">密码不能为空！</string>
+    <string name="Confirm_password_cannot_be_empty">确认密码不能为空!</string>
+    <string name="Two_input_password">两次输入的密码不一致，请重新输入!</string>
+    <string name="Login_failed">登录失败:</string>
+    <string name="Registered_successfully">注册成功</string>
+    <string name="Registered_failed">注册失败!</string>
+    <string name="network_anomalies">网络异常，请检查网络！</string>
+    <string name="User_already_exists">用户已存在！</string>
+    <string name="registration_failed_without_permission">注册失败，无权限！</string>
+    <string name="illegal_user_name">用户名不合法</string>
+    <string name="Registration_failed">注册失败</string>
+    <string name="register_exceed_service_limit">您的App用户注册数量已达上限,请升级至企业版</string>
+</resources>

@@ -1,30 +1,79 @@
 <resources>
     <string name="app_name">LiveRoom</string>
 
-    <string name="login">登录</string>
-    <string name="user_name">用户名</string>
-    <string name="password">密码</string>
-    <string name="confirmpassword">确认密码</string>
-    <string name="register">注册</string>
+    <!-- login start -->
+    <string name="login">login</string>
+    <string name="login_title">Login-Easemob voiceChatroom Demo</string>
+    <string name="hint_username">Input username</string>
+    <string name="hint_password">Input password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="user_name">username</string>
+    <string name="password">password</string>
+    <string name="username_or_pwd_is_wrong">username or password is wrong!</string>
+    <string name="username_not_found">username not found!</string>
+    <string name="confirmpassword">confirm password</string>
+    <string name="register">register</string>
+    <!-- login end -->
 
-    <string name="title_room_list">房间</string>
-    <string name="title_create_room">新建</string>
-    <string name="title_settings">设置</string>
+    <!-- settings start -->
+    <string name="version">Version</string>
+    <string name="speaker_number_limited_default">SpeakerNumberLimited default</string>
+    <string name="allow_apply_for_interact_default">Allow apply for interact default</string>
+    <string name="type_of_voice_chatroom">type of voiceChatroom</string>
+    <string name="audio_quality_default">audio quality default</string>
+    <string name="auto_agree_to_apply_as_speaker">auto agree to apply as speaker</string>
+    <string name="automatically_turn_on_music">Automatically turn on music</string>
 
-    <string name="Is_landing">正在登录 ……</string>
-    <string name="Is_the_registered">正在注册……</string>
 
-    <string name="network_not_available">网络不可用</string>
-    <string name="User_name_cannot_be_empty">用户名不能为空！</string>
-    <string name="Password_cannot_be_empty">密码不能为空！</string>
-    <string name="Confirm_password_cannot_be_empty">确认密码不能为空!</string>
-    <string name="Two_input_password">两次输入的密码不一致，请重新输入!</string>
-    <string name="Login_failed">登录失败:</string>
-    <string name="Registered_successfully">注册成功</string>
-    <string name="network_anomalies">网络异常，请检查网络！</string>
-    <string name="User_already_exists">用户已存在！</string>
-    <string name="registration_failed_without_permission">注册失败，无权限！</string>
-    <string name="illegal_user_name">用户名不合法</string>
-    <string name="Registration_failed">注册失败</string>
-    <string name="register_exceed_service_limit">您的App用户注册数量已达上限,请升级至企业版</string>
+
+    <string name="btn_logout">Logout</string>
+    <!-- settings end -->
+
+    <!-- create voice chatroom start -->
+    <string name="create_voice_chat_room">Create VoiceChatRoom</string>
+    <string name="voice_chatroom_id">voiceChatRoomId</string>
+    <string name="room_number_must_consist_of_8_digit_letters_and_numbers">Room number must consist of 8-digit letters and numbers。</string>
+    <string name="password_should_not_exceed_16_bits_at_most">Passwords should not exceed 16 bits at most。</string>
+    <string name="submit">Submit</string>
+    <!-- create voice chatroom end -->
+
+    <!-- MainActivity start-->
+    <string name="connect_conflict">The same account was loggedin in other device</string>
+    <string name="em_user_remove">This user has been removed</string>
+    <string name="user_forbidden">User is forbidden by server</string>
+    <!-- MainActivity end-->
+
+    <!-- ChatActivity start -->
+    <string name="no_more_messages">no more messages</string>
+    <string name="joining">Joining.....</string>
+    <string name="the_current_chat_room_destroyed">The current chat room has been dismissed</string>
+    <string name="quiting_the_chat_room">Exiting chat room</string>
+    <string name="user_be_kicked_for_offline">user be kicked for offline</string>
+    <string name="alert_kicked_for_offline">You\'ve been kicked for offline, click to rejoin again.</string>
+    <string name="rejoining_the_chat_room">Rejoining chat room</string>
+
+    <!-- ChatActivity end -->
+
+    <string name="title_room_list">Room</string>
+    <string name="title_create_room">Create</string>
+    <string name="title_settings">Settings</string>
+
+    <string name="Is_landing">logining ……</string>
+    <string name="Is_the_registered">Registering……</string>
+
+    <string name="network_not_available">network not available</string>
+    <string name="User_name_cannot_be_empty">username cannot be empty！</string>
+    <string name="Password_cannot_be_empty">password cannot be empty！</string>
+    <string name="Confirm_password_cannot_be_empty">confirm password cannot be empty!</string>
+    <string name="Two_input_password">Entered password diff，please input again!</string>
+    <string name="Login_failed">login failure!</string>
+    <string name="Registered_successfully">register success!</string>
+    <string name="Registered_failed">register fail!</string>
+    <string name="network_anomalies">network anomalies, please check network!</string>
+    <string name="User_already_exists">User already exists！</string>
+    <string name="registration_failed_without_permission">Registration failed, without permission！</string>
+    <string name="illegal_user_name">username is not legal</string>
+    <string name="Registration_failed">registration failed</string>
+    <string name="register_exceed_service_limit">has reached upper limit, please upgrade to the enterprise version.</string>
 </resources>

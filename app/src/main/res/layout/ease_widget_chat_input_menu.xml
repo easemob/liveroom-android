@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+    >
+
+    <EditText
+        android:id="@+id/et_sendmessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/em_edittext_border_login"
+        android:hint="say me to your heart"
+        android:imeOptions="actionSend"
+        android:singleLine="true"
+        android:maxLines="3"
+        android:minHeight="40dp"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/text_color_gray"
+        android:textSize="14sp"
+        />
+
+    <ImageButton
+        android:id="@+id/btn_heart"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/em_ic_heart"
+        />
+
+    <ImageButton
+        android:id="@+id/btn_gift"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/em_ic_gift"
+        />
+</LinearLayout>

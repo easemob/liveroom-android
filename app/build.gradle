@@ -24,6 +24,11 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     // To use webrtc71 lambda syntax
     compileOptions {
         sourceCompatibility 1.8

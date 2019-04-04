@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+    >
+
+    <RelativeLayout
+        android:id="@+id/bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_chatcontent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:autoLink="web"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/msg_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/bubble"
+        android:clickable="true"
+        android:src="@drawable/ease_msg_state_failed_resend"
+        android:visibility="gone"
+        />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/bubble"
+        android:visibility="visible"
+        />
+
+
+</RelativeLayout>
