@@ -2,3 +2,4 @@
 .idea/
 app/build/
 local.properties
+*.iml
