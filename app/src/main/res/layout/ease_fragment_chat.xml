@@ -1,37 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:animateLayoutChanges="true"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
     <LinearLayout
         android:id="@+id/layout_alert_kicked_off"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/ease_alert_click_bg"
         android:gravity="center_vertical"
-        android:visibility="gone"
-        >
+        android:visibility="gone">
+
         <TextView
             android:id="@+id/tv_error_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="@string/alert_kicked_for_offline"
-            android:textColor="#000"
-            />
+            android:textColor="#000" />
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layout_alert_kicked_off"
-        android:paddingBottom="45dp"
-        >
+        android:paddingBottom="45dp">
+
         <com.hyphenate.liveroom.widgets.EaseChatMessageList
             android:id="@+id/message_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 
@@ -40,7 +39,5 @@
         android:id="@+id/input_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        />
-
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

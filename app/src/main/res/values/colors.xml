@@ -20,4 +20,7 @@
     <color name="error_item_color">#F6EBE6</color>
     <color name="error_item_color_pressed">#9bac6c</color>
 
+    <color name="color_gray">#1a1a1a</color>
+    <color name="color_green">#499C54</color>
+
 </resources>

@@ -3,58 +3,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/txt_title"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/rect_gray"
-        android:gravity="center"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
-
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:weightSum="3">
 
         <TextView
             android:id="@+id/btn_room"
+            style="@style/activity_main_text_style"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/rect_gray"
-            android:gravity="center"
             android:onClick="onClick"
-            android:text="@string/title_room_list"
-            android:textColor="#FFF"
-            android:textSize="16sp" />
+            android:text="@string/title_room_list" />
 
         <TextView
             android:id="@+id/btn_create"
+            style="@style/activity_main_text_style"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/rect_gray"
-            android:gravity="center"
             android:onClick="onClick"
-            android:text="@string/title_create_room"
-            android:textColor="#FFF"
-            android:textSize="16sp" />
+            android:text="@string/title_create_room" />
 
         <TextView
             android:id="@+id/btn_settings"
+            style="@style/activity_main_text_style"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/rect_gray"
-            android:gravity="center"
             android:onClick="onClick"
-            android:text="@string/title_settings"
-            android:textColor="#FFF"
-            android:textSize="16sp" />
+            android:text="@string/title_settings" />
     </LinearLayout>
 
     <FrameLayout
@@ -62,6 +44,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom"
-        android:layout_below="@+id/txt_title"
-        android:background="#000000" />
+        android:background="#000000"
+        android:padding="13dp" />
 </RelativeLayout>

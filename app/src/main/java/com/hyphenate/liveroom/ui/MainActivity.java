@@ -16,8 +16,6 @@ import com.hyphenate.liveroom.R;
 
 public class MainActivity extends AppCompatActivity implements EMConnectionListener {
 
-    private TextView titleView;
-
     private Fragment[] fragments = new Fragment[3];
     private int currentIndex = -1;
 
@@ -26,22 +24,19 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        titleView = findViewById(R.id.txt_title);
-
         selectItem(0);
 
         registerIMConnectListener();
-
     }
 
-    private void registerIMConnectListener(){
-	    EMClient.getInstance().addConnectionListener(this);
+    private void registerIMConnectListener() {
+        EMClient.getInstance().addConnectionListener(this);
     }
 
-    private void exitLogin(){
-	    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-	    startActivity(intent);
-	    finish();
+    private void exitLogin() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     public void onClick(View v) {
@@ -61,14 +56,6 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
     private void selectItem(int p) {
         if (currentIndex == p) {
             return;
-        }
-
-        if (p == 0) {
-            titleView.setText(R.string.title_room_list);
-        } else if (p == 1) {
-            titleView.setText(R.string.title_create_room);
-        } else if (p == 2) {
-            titleView.setText(R.string.title_settings);
         }
 
         if (fragments[p] == null) {
@@ -95,33 +82,29 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
         currentIndex = p;
     }
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		EMClient.getInstance().removeConnectionListener(this);
-	}
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EMClient.getInstance().removeConnectionListener(this);
+    }
 
-	@Override
-	public void onConnected() {
+    @Override
+    public void onConnected() {
+    }
 
-	}
-
-	@Override
-	public void onDisconnected(final int error) {
-    	runOnUiThread(new Runnable() {
-		    @Override
-		    public void run() {
-			    if (error == EMError.USER_REMOVED) {
-				    Toast.makeText(getApplicationContext(), R.string.em_user_remove, Toast.LENGTH_LONG).show();
-				    exitLogin();
-			    } else if (error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
-				    Toast.makeText(getApplicationContext(), R.string.connect_conflict, Toast.LENGTH_LONG).show();
-				    exitLogin();
-			    } else if (error == EMError.SERVER_SERVICE_RESTRICTED) {
-				    Toast.makeText(getApplicationContext(), R.string.user_forbidden, Toast.LENGTH_LONG).show();
-				    exitLogin();
-			    }
-		    }
-	    });
-	}
+    @Override
+    public void onDisconnected(final int error) {
+        runOnUiThread(() -> {
+            if (error == EMError.USER_REMOVED) {
+                Toast.makeText(getApplicationContext(), R.string.em_user_remove, Toast.LENGTH_LONG).show();
+                exitLogin();
+            } else if (error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
+                Toast.makeText(getApplicationContext(), R.string.connect_conflict, Toast.LENGTH_LONG).show();
+                exitLogin();
+            } else if (error == EMError.SERVER_SERVICE_RESTRICTED) {
+                Toast.makeText(getApplicationContext(), R.string.user_forbidden, Toast.LENGTH_LONG).show();
+                exitLogin();
+            }
+        });
+    }
 }

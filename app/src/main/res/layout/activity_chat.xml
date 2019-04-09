@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@android:color/black"
-              android:orientation="vertical"
-              android:padding="15dp"
-    >
+    xmlns:hyphenate="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical"
+    android:padding="15dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -22,20 +20,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ASD123"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                />
+                android:textColor="@color/text_normal"
+                android:textSize="14sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="shengxi"
-                android:textColor="#fefefe"
-                android:textSize="14sp"
-                />
-
+                android:textColor="@color/text_hint"
+                android:textSize="12sp" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -43,136 +37,73 @@
             android:layout_alignParentRight="true"
             android:orientation="horizontal">
 
-            <ImageButton
+            <com.hyphenate.liveroom.widgets.StateImageButton
                 style="@style/chat_controller_btn_style"
                 android:src="@drawable/em_ic_contacts"
-                />
+                hyphenate:state="enable_off" />
 
-            <ImageButton
+            <com.hyphenate.liveroom.widgets.StateImageButton
                 style="@style/chat_controller_btn_style"
                 android:src="@drawable/em_ic_music"
-                />
+                hyphenate:state="enable_off" />
 
-            <ImageButton
+            <com.hyphenate.liveroom.widgets.StateImageButton
                 style="@style/chat_controller_btn_style"
                 android:src="@drawable/em_ic_share"
-                />
+                hyphenate:state="enable_off" />
 
-            <ImageButton
+            <com.hyphenate.liveroom.widgets.StateImageButton
                 style="@style/chat_controller_btn_style"
                 android:src="@drawable/em_ic_equalizer"
-                />
+                hyphenate:state="enable_off" />
 
-            <ImageButton
+            <com.hyphenate.liveroom.widgets.StateImageButton
                 style="@style/chat_controller_btn_style"
                 android:onClick="exit"
                 android:src="@drawable/em_ic_exit"
-                />
+                hyphenate:state="enable_off" />
         </LinearLayout>
     </RelativeLayout>
 
-    <LinearLayout
+    <com.hyphenate.liveroom.widgets.LayoutMusicController
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="#1a1a1a"
-        android:orientation="vertical"
-        android:padding="10dp"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Breath of Life"
-            android:textColor="@color/text_color_gray"
-            android:textSize="18sp"
-            />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:text="00:34"
-                />
-
-            <android.support.v7.widget.AppCompatSeekBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:progress="12"
-                android:secondaryProgressTint="#333333"/>
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:text="3:12"
-                />
-
-        </LinearLayout>
-
-    </LinearLayout>
+        android:layout_marginTop="6dp"
+        hyphenate:state="enable_off" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:orientation="vertical"
-        >
+        android:layout_marginTop="6dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="抢麦模式"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
-            />
+            android:textSize="14sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="4dp"
             android:text="管理员和主播可以相互抢麦发言，管理员可以控制谁发言，主播仅能抢麦发言"
             android:textColor="@color/text_color_gray"
-            android:textSize="8sp"
-            />
-
+            android:textSize="8sp" />
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/container_member"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="vertical" />
+
+    <FrameLayout
+        android:id="@+id/chat_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        >
-
-        <FrameLayout
-            android:id="@+id/chat_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#1a1a1a"
-            />
-
-        <ImageButton
-            android:layout_width="40dip"
-            android:layout_height="40dip"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="50dp"
-            android:background="@drawable/em_bg_btn_circle"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/em_ic_recorder"
-            />
-    </RelativeLayout>
-
-
+        android:background="@color/color_gray" />
 </LinearLayout>

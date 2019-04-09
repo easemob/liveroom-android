@@ -90,15 +90,6 @@ public class ChatRoomFragment extends BaseFragment {
                     .show();
         });
 
-//        dataList.add(new ChatRoom().setName("chatroom1").setIntroduce("introduce1"));
-//        dataList.add(new ChatRoom().setName("chatroom2").setIntroduce("introduce2"));
-//        dataList.add(new ChatRoom().setName("chatroom3").setIntroduce("introduce3"));
-//        dataList.add(new ChatRoom().setName("chatroom4").setIntroduce("introduce4"));
-//        dataList.add(new ChatRoom().setName("chatroom5").setIntroduce("introduce5"));
-//        dataList.add(new ChatRoom().setName("chatroom6").setIntroduce("introduce6"));
-//        dataList.add(new ChatRoom().setName("chatroom7").setIntroduce("introduce7"));
-//        dataList.add(new ChatRoom().setName("chatroom8").setIntroduce("introduce8"));
-
         roomAdapter = new RoomAdapter(getContext(), dataList);
         roomListView.setAdapter(roomAdapter);
 
@@ -111,7 +102,7 @@ public class ChatRoomFragment extends BaseFragment {
         loadLiveRoomData();
     }
 
-    private void loadLiveRoomData(){
+    private void loadLiveRoomData() {
         EMClient.getInstance().chatroomManager().asyncFetchPublicChatRoomsFromServer(20, "", new EMValueCallBack<EMCursorResult<EMChatRoom>>() {
             @Override
             public void onSuccess(EMCursorResult<EMChatRoom> cursorResult) {
@@ -124,13 +115,7 @@ public class ChatRoomFragment extends BaseFragment {
                     dataList.clear();
                     dataList.addAll(liveRooms);
                     roomAdapter.changeList(dataList);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            roomAdapter.notifyDataSetChanged();
-                        }
-                    });
-
+                    getActivity().runOnUiThread(() -> roomAdapter.notifyDataSetChanged());
                 }
             }
 
@@ -180,7 +165,7 @@ public class ChatRoomFragment extends BaseFragment {
             return dataFilter;
         }
 
-        public void changeList(List<ChatRoom> rooms){
+        public void changeList(List<ChatRoom> rooms) {
             this.chatRooms = rooms;
             copyList.clear();
             copyList.addAll(chatRooms);
@@ -264,9 +249,7 @@ public class ChatRoomFragment extends BaseFragment {
                 } else {
                     notifyDataSetInvalidated();
                 }
-
             }
         }
-
     }
 }

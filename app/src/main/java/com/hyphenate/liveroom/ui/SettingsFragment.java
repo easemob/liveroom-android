@@ -33,14 +33,11 @@ public class SettingsFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         btnLogout = getView().findViewById(R.id.btn_logout);
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EMClient.getInstance().logout(false);
-                if (getActivity() != null) {
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                    getActivity().finish();
-                }
+        btnLogout.setOnClickListener(v -> {
+            EMClient.getInstance().logout(false);
+            if (getActivity() != null) {
+                startActivity(new Intent(getActivity(), LoginActivity.class));
+                getActivity().finish();
             }
         });
     }
