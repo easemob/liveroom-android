@@ -13,6 +13,7 @@
         android:textSize="16sp" />
 
     <EditText
+        android:id="@+id/et_room_name"
         style="@style/login_input_style"
         android:layout_marginTop="18dp"
         android:hint="@string/voice_chatroom_id" />
@@ -26,6 +27,7 @@
         android:textSize="12sp" />
 
     <EditText
+        android:id="@+id/et_password"
         style="@style/login_input_style"
         android:layout_marginTop="10dp"
         android:hint="@string/password"
@@ -40,6 +42,7 @@
         android:textSize="12sp" />
 
     <Button
+        android:id="@+id/btn_create"
         style="@style/login_button_style"
         android:layout_marginTop="20dp"
         android:text="@string/submit" />

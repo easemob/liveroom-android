@@ -18,6 +18,7 @@ import android.widget.Filter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMChatRoom;
@@ -26,6 +27,7 @@ import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
+import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.util.EMLog;
 
@@ -64,15 +66,19 @@ public class ChatRoomFragment extends BaseFragment {
             hideSoftKeyboard();
         });
         pullToRefreshLayout.setOnRefreshListener(() -> {
-            pullToRefreshLayout.setRefreshing(false);
+            dataList.clear();
+            roomAdapter.changeList(dataList);
+            roomAdapter.notifyDataSetChanged();
+
+            loadLiveRoomData(true);
         });
         roomListView.setOnItemClickListener((parent, view, position, id) -> {
             final ChatRoom chatRoom = dataList.get(position);
             EaseDialog.create(getContext())
                     .setContentView(LayoutInflater.from(getContext()).inflate(
                             R.layout.dialog_content_join, null))
-                    .setText(R.id.txt_room_name, chatRoom.getName())
-                    .setText(R.id.txt_introduce, chatRoom.getIntroduce())
+                    .setText(R.id.txt_room_name, chatRoom.getRoomId())
+                    .setText(R.id.txt_introduce, chatRoom.getOwnerName())
                     .setImage(R.id.image, R.drawable.em_ic_exit)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
                     .addButton("观众加入",
@@ -80,12 +86,9 @@ public class ChatRoomFragment extends BaseFragment {
                             Color.parseColor("#FFFFFF"),
                             (dialog, v) -> {
                                 String password = dialog.getText(R.id.edit);
-//                                Toast.makeText(getContext(), password, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
-                                Intent intent = new Intent(getActivity(), ChatActivity.class);
-                                intent.putExtra(Constant.EXTRA_USER_ID, chatRoom.getId());
-                                intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
-                                startActivity(intent);
+                                ChatActivity.start(getActivity(), false, chatRoom.getRoomId(),
+                                        chatRoom.getRoomId(), chatRoom.getRtcConfrId(), password);
                             })
                     .show();
         });
@@ -99,32 +102,30 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadLiveRoomData();
+        loadLiveRoomData(false);
     }
 
-    private void loadLiveRoomData() {
-        EMClient.getInstance().chatroomManager().asyncFetchPublicChatRoomsFromServer(20, "", new EMValueCallBack<EMCursorResult<EMChatRoom>>() {
+    private void loadLiveRoomData(final boolean refresh) {
+        HttpRequestManager.getInstance().getChatRooms(0, 200, new HttpRequestManager.IRequestListener<List<ChatRoom>>() {
             @Override
-            public void onSuccess(EMCursorResult<EMChatRoom> cursorResult) {
-                if (cursorResult != null) {
-                    List<EMChatRoom> chatRooms = cursorResult.getData();
-                    List<ChatRoom> liveRooms = new ArrayList<>();
-                    for (EMChatRoom chatRoom : chatRooms) {
-                        liveRooms.add(new ChatRoom().setName(chatRoom.getName()).setIntroduce(chatRoom.getDescription()).setId(chatRoom.getId()));
-                    }
-                    dataList.clear();
-                    dataList.addAll(liveRooms);
+            public void onSuccess(List<ChatRoom> chatRooms) {
+                dataList.clear();
+                dataList.addAll(chatRooms);
+                getActivity().runOnUiThread(() -> {
                     roomAdapter.changeList(dataList);
-                    getActivity().runOnUiThread(() -> roomAdapter.notifyDataSetChanged());
-                }
+                    roomAdapter.notifyDataSetChanged();
+
+                    if (refresh) {
+                        pullToRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
 
             @Override
-            public void onError(int i, String s) {
-                EMLog.e(TAG, "onError:" + s);
+            public void onFailed(int errCode, String desc) {
+                Toast.makeText(getActivity(), errCode + " - " + desc, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -200,8 +201,8 @@ public class ChatRoomFragment extends BaseFragment {
             ChatRoom item = getItem(position);
 
             if (item != null) {
-                vh.name.setText(item.getName());
-                vh.introduce.setText(item.getIntroduce());
+                vh.name.setText(item.getRoomId());
+                vh.introduce.setText(item.getOwnerName());
             }
 
             return convertView;
@@ -229,8 +230,8 @@ public class ChatRoomFragment extends BaseFragment {
                     String prefixString = prefix.toString();
                     List<ChatRoom> newValues = new ArrayList<>();
                     for (ChatRoom chatRoom : chatRooms) {
-                        if ((chatRoom.getName() != null && chatRoom.getName().contains(prefixString))
-                                || (chatRoom.getIntroduce() != null && chatRoom.getIntroduce().contains(prefixString))) {
+                        if ((chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))
+                                || (chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))) {
                             newValues.add(chatRoom);
                         }
                     }

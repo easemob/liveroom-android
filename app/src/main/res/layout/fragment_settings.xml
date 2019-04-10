@@ -42,8 +42,6 @@
                 style="@style/settings_cell_right_text_style"
                 android:text="6" />
 
-            <ImageView style="@style/settings_cell_right_arrow_style" />
-
         </LinearLayout>
 
         <LinearLayout style="@style/settings_cell_style">
@@ -58,15 +56,17 @@
 
         </LinearLayout>
 
-        <LinearLayout style="@style/settings_cell_style">
+        <LinearLayout
+            android:id="@+id/btn_type"
+            style="@style/settings_cell_style">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/type_of_voice_chatroom" />
 
             <TextView
-                style="@style/settings_cell_right_text_style"
-                android:text="host" />
+                android:id="@+id/tv_type"
+                style="@style/settings_cell_right_text_style" />
 
             <ImageView style="@style/settings_cell_right_arrow_style" />
         </LinearLayout>
@@ -80,8 +80,6 @@
             <TextView
                 style="@style/settings_cell_right_text_style"
                 android:text="highlevel(unmix)" />
-
-            <ImageView style="@style/settings_cell_right_arrow_style" />
         </LinearLayout>
 
         <LinearLayout

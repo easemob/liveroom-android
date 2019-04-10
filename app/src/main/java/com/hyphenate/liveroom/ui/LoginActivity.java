@@ -32,7 +32,7 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.CommonUtils;
-import com.hyphenate.liveroom.utils.PreferenceManager;
+import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
 public class LoginActivity extends BaseActivity {

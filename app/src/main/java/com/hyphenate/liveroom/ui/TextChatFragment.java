@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -40,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EaseChatFragment extends BaseFragment implements EMMessageListener {
+public class TextChatFragment extends BaseFragment implements EMMessageListener {
 
     protected static final String TAG = "EaseChatFragment";
 
@@ -82,7 +80,7 @@ public class EaseChatFragment extends BaseFragment implements EMMessageListener 
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         fragmentArgs = getArguments();
         chatType = fragmentArgs.getInt(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_SINGLE);
-        toChatUsername = fragmentArgs.getString(Constant.EXTRA_USER_ID);
+        toChatUsername = fragmentArgs.getString(Constant.EXTRA_TEXT_CHATROOM_ID);
         super.onActivityCreated(savedInstanceState);
 
         initView();

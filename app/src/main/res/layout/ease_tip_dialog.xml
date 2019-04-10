@@ -46,4 +46,12 @@
         android:text="账号注册成功"
         android:textColor="#e4e4e4"
         android:textSize="12sp" />
+
+    <LinearLayout
+        android:id="@+id/container_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:visibility="gone" />
 </LinearLayout>

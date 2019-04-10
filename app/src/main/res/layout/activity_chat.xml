@@ -17,6 +17,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/txt_room_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ASD123"
@@ -24,6 +25,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/txt_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="shengxi"
@@ -65,16 +67,10 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <com.hyphenate.liveroom.widgets.LayoutMusicController
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        hyphenate:state="enable_off" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <TextView
@@ -93,17 +89,30 @@
             android:textSize="8sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/container_member"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="vertical" />
+        android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/chat_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:background="@color/color_gray" />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/container_chat"
+            android:layout_alignParentTop="true">
+
+            <FrameLayout
+                android:id="@+id/container_member"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <FrameLayout
+            android:id="@+id/container_chat"
+            android:layout_width="match_parent"
+            android:layout_height="156dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="10dp"
+            android:background="@color/color_gray" />
+    </RelativeLayout>
 </LinearLayout>

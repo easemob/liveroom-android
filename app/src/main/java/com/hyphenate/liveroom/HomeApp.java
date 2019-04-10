@@ -4,7 +4,8 @@ import android.app.Application;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
-import com.hyphenate.liveroom.utils.PreferenceManager;
+import com.hyphenate.liveroom.manager.HttpRequestManager;
+import com.hyphenate.liveroom.manager.PreferenceManager;
 
 /**
  * Created by zhangsong on 19-3-28
@@ -27,6 +28,7 @@ public class HomeApp extends Application {
         EMClient.getInstance().setDebugMode(BuildConfig.DEBUG);
 
         PreferenceManager.init(this);
+        HttpRequestManager.getInstance().init(this);
     }
 
     public Application getApp() {
