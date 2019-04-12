@@ -25,6 +25,8 @@ import com.hyphenate.chat.EMChatRoom;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chat.EMMessageBody;
+import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.chat.adapter.EMAChatRoomManagerListener;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.liveroom.Constant;
@@ -41,9 +43,12 @@ import java.util.concurrent.Executors;
 public class TextChatFragment extends BaseFragment implements EMMessageListener {
     protected static final String TAG = "TextChatFragment";
 
+    public static final int MSG_FAVOURITE = 0;
+    public static final int MSG_GIFT = 1;
+
     protected Bundle fragmentArgs;
     protected int chatType;
-    protected String toChatUsername;
+    protected String chatRoomId;
     protected EaseChatMessageList messageList;
     protected EaseChatInputMenu inputMenu;
 
@@ -70,18 +75,13 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         return inflater.inflate(R.layout.ease_fragment_chat, container, false);
     }
 
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState, boolean isroaming) {
-        isRoaming = isroaming;
-        return inflater.inflate(R.layout.ease_fragment_chat, container, false);
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         fragmentArgs = getArguments();
         chatType = fragmentArgs.getInt(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_SINGLE);
-        toChatUsername = fragmentArgs.getString(Constant.EXTRA_CHATROOM_ID);
-
-        super.onActivityCreated(savedInstanceState);
+        chatRoomId = fragmentArgs.getString(Constant.EXTRA_CHATROOM_ID);
 
         initView();
         setUpView();
@@ -103,12 +103,12 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
             @Override
             public void onHeartClicked(View view) {
-                sendTextMessage("heart+1");
+                sendTextMessage(Constant.MESSAGE_FAVOURITE);
             }
 
             @Override
             public void onGiftClicked(View view) {
-                sendTextMessage("gift+1");
+                sendTextMessage(Constant.MESSAGE_GIFT);
             }
 
             @Override
@@ -142,7 +142,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     }
 
     protected void onConversationInit() {
-        conversation = EMClient.getInstance().chatManager().getConversation(toChatUsername, CommonUtils.getConversationType(chatType), true);
+        conversation = EMClient.getInstance().chatManager().getConversation(chatRoomId, CommonUtils.getConversationType(chatType), true);
         conversation.markAllMessagesAsRead();
 
         if (!isRoaming) {
@@ -158,7 +158,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         } else {
             fetchQueue.execute(() -> {
                 try {
-                    EMClient.getInstance().chatManager().fetchHistoryMessages(toChatUsername, CommonUtils.getConversationType(chatType), pagesize, "");
+                    EMClient.getInstance().chatManager().fetchHistoryMessages(chatRoomId, CommonUtils.getConversationType(chatType), pagesize, "");
                     final List<EMMessage> msgs = conversation.getAllMessages();
                     int msgCount = msgs != null ? msgs.size() : 0;
                     if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
@@ -177,7 +177,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     }
 
     protected void onMessageListInit() {
-        messageList.init(toChatUsername, chatType, null);
+        messageList.init(chatRoomId, chatType, null);
         setListItemClickListener();
         messageList.getListView().setOnTouchListener((v, event) -> {
             hideSoftKeyboard();
@@ -246,7 +246,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
             fetchQueue.execute(() -> {
                 try {
                     List<EMMessage> messages = conversation.getAllMessages();
-                    EMClient.getInstance().chatManager().fetchHistoryMessages(toChatUsername, CommonUtils.getConversationType(chatType), pagesize,
+                    EMClient.getInstance().chatManager().fetchHistoryMessages(chatRoomId, CommonUtils.getConversationType(chatType), pagesize,
                             (messages != null && messages.size() > 0) ? messages.get(0).getMsgId() : "");
                 } catch (HyphenateException e) {
                     e.printStackTrace();
@@ -273,7 +273,6 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     public void onPause() {
         super.onPause();
         EMClient.getInstance().chatManager().removeMessageListener(this);
-
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -285,27 +284,27 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         }
 
         if (chatType == Constant.CHATTYPE_CHATROOM) {
-            EMClient.getInstance().chatroomManager().leaveChatRoom(toChatUsername);
+            EMClient.getInstance().chatroomManager().leaveChatRoom(chatRoomId);
         }
     }
 
     public void onBackPressed() {
         if (chatType == Constant.CHATTYPE_CHATROOM) {
-            EMClient.getInstance().chatroomManager().leaveChatRoom(toChatUsername);
+            EMClient.getInstance().chatroomManager().leaveChatRoom(chatRoomId);
         }
     }
 
     protected void onChatRoomViewCreation() {
         final ProgressDialog pd = ProgressDialog.show(getActivity(), "", getString(R.string.joining));
-        EMClient.getInstance().chatroomManager().joinChatRoom(toChatUsername, new EMValueCallBack<EMChatRoom>() {
+        EMClient.getInstance().chatroomManager().joinChatRoom(chatRoomId, new EMValueCallBack<EMChatRoom>() {
             @Override
             public void onSuccess(EMChatRoom emChatRoom) {
-                if (getActivity() == null || !toChatUsername.equals(emChatRoom.getId())) {
+                if (getActivity() == null || !chatRoomId.equals(emChatRoom.getId())) {
                     return;
                 }
                 getActivity().runOnUiThread(() -> {
                     pd.dismiss();
-                    EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(toChatUsername);
+                    EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(chatRoomId);
                     if (room != null) {
                         EMLog.d(TAG, "join room success, roomname:" + room.getName());
                     }
@@ -341,7 +340,19 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
             }
 
             // if the message is for current conversation
-            if (username.equals(toChatUsername) || message.getTo().equals(toChatUsername) || message.conversationId().equals(toChatUsername)) {
+            if (username.equals(chatRoomId) || message.getTo().equals(chatRoomId) || message.conversationId().equals(chatRoomId)) {
+                if (onEventCallback != null) {
+                    EMMessageBody body = message.getBody();
+                    if (body instanceof EMTextMessageBody) {
+                        String content = ((EMTextMessageBody) body).getMessage();
+                        if (Constant.MESSAGE_FAVOURITE.equals(content)) {
+                            onEventCallback.onEvent(MSG_FAVOURITE);
+                        } else if (Constant.MESSAGE_GIFT.equals(content)) {
+                            onEventCallback.onEvent(MSG_GIFT);
+                        }
+                    }
+                }
+
                 messageList.refreshSelectLast();
                 conversation.markMessageAsRead(message.getMsgId());
             }
@@ -382,7 +393,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     }
 
     protected void sendTextMessage(String content) {
-        EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        EMMessage message = EMMessage.createTxtSendMessage(content, chatRoomId);
         sendMessage(message);
     }
 
@@ -431,7 +442,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         @Override
         public void onChatRoomDestroyed(String roomId, String roomName) {
             executeOnUi(() -> {
-                if (roomId.equals(toChatUsername)) {
+                if (roomId.equals(chatRoomId)) {
                     Toast.makeText(getActivity(), R.string.the_current_chat_room_destroyed, Toast.LENGTH_LONG).show();
                     finishActivity();
                 }
@@ -441,7 +452,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         @Override
         public void onRemovedFromChatRoom(int reason, String roomId, String roomName, String participant) {
             executeOnUi(() -> {
-                if (roomId.equals(toChatUsername)) {
+                if (roomId.equals(chatRoomId)) {
                     if (reason == EMAChatRoomManagerListener.BE_KICKED) {
                         Toast.makeText(getActivity(), R.string.quiting_the_chat_room, Toast.LENGTH_LONG).show();
                         finishActivity();
@@ -455,7 +466,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
         @Override
         public void onMemberJoined(String roomId, String participant) {
-            if (roomId.equals(toChatUsername)) {
+            if (roomId.equals(chatRoomId)) {
                 executeOnUi(() ->
                         Toast.makeText(getActivity(), "member join:" + participant, Toast.LENGTH_LONG).show());
             }
@@ -463,7 +474,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
         @Override
         public void onMemberExited(String roomId, String roomName, String participant) {
-            if (roomId.equals(toChatUsername)) {
+            if (roomId.equals(chatRoomId)) {
                 executeOnUi(() ->
                         Toast.makeText(getActivity(), "member exit:" + participant, Toast.LENGTH_LONG).show());
             }

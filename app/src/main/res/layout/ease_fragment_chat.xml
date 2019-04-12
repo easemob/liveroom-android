@@ -21,17 +21,13 @@
             android:textColor="#000" />
     </LinearLayout>
 
-    <RelativeLayout
+    <com.hyphenate.liveroom.widgets.EaseChatMessageList
+        android:id="@+id/message_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/input_menu"
         android:layout_below="@id/layout_alert_kicked_off"
-        android:background="@color/color_gray">
-
-        <com.hyphenate.liveroom.widgets.EaseChatMessageList
-            android:id="@+id/message_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </RelativeLayout>
+        android:background="@color/color_gray" />
 
     <com.hyphenate.liveroom.widgets.EaseChatInputMenu
         android:id="@+id/input_menu"

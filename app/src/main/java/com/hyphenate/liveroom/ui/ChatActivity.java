@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +25,7 @@ import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
 
@@ -36,6 +40,8 @@ public class ChatActivity extends BaseActivity {
     private String textRoomId;
     private boolean isCreator;
 
+    private ImageView placeholder;
+
     public static class Builder {
         private Activity original;
         private Intent intent;
@@ -43,6 +49,7 @@ public class ChatActivity extends BaseActivity {
         public Builder(Activity original) {
             this.original = original;
             intent = new Intent(original, ChatActivity.class);
+            intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
         }
 
         public Builder setOwnerName(String name) {
@@ -86,6 +93,7 @@ public class ChatActivity extends BaseActivity {
         roomName = getIntent().getStringExtra(Constant.EXTRA_ROOM_NAME);
         textRoomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
 
+        placeholder = findViewById(R.id.placeholder);
         TextView roomNameView = findViewById(R.id.txt_room_name);
         TextView accountView = findViewById(R.id.txt_account);
         View tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
@@ -102,6 +110,34 @@ public class ChatActivity extends BaseActivity {
 
         TextChatFragment textChatFragment = new TextChatFragment();
         textChatFragment.setArguments(getIntent().getExtras());
+        textChatFragment.setOnEventCallback((operation, args) -> {
+            Log.i(TAG, "OnEventCallback: " + operation);
+            runOnUiThread(() -> {
+                placeholder.setVisibility(View.VISIBLE);
+                AnimationSet set = AnimationUtil.create();
+                set.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        placeholder.setVisibility(View.GONE);
+                        placeholder.setImageResource(0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                if (operation == TextChatFragment.MSG_FAVOURITE) {
+                    placeholder.setImageResource(R.drawable.em_ic_favorite);
+                } else if (operation == TextChatFragment.MSG_GIFT) {
+                    placeholder.setImageResource(R.drawable.em_ic_giftcard);
+                }
+                placeholder.startAnimation(set);
+            });
+        });
         getSupportFragmentManager().beginTransaction().add(R.id.container_chat, textChatFragment).commit();
 
         VoiceChatFragment voiceChatFragment = new VoiceChatFragment();

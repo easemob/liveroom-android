@@ -52,11 +52,11 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                         });
 
                         new ChatActivity.Builder(getActivity())
-                                .setOwnerName(PreferenceManager.getInstance().getCurrentUsername())
-                                .setRoomName(roomName)
+                                .setOwnerName(chatRoom.getOwnerName())
+                                .setRoomName(chatRoom.getRoomName())
                                 .setChatroomId(chatRoom.getRoomId())
                                 .setConferenceId(chatRoom.getRtcConfrId())
-                                .setPassword(password)
+                                .setPassword(chatRoom.getRtcConfrPassword())
                                 .start();
                     }
 

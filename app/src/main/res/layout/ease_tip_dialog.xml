@@ -43,9 +43,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="账号注册成功"
-        android:textColor="#e4e4e4"
-        android:textSize="12sp" />
+        android:textColor="@color/text_hint"
+        android:textSize="14sp" />
 
     <LinearLayout
         android:id="@+id/container_btn"

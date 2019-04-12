@@ -5,7 +5,7 @@ package com.hyphenate.liveroom.entities;
  */
 public class ChatRoom {
     private String roomId; // 服务端生成唯一的语聊室ID
-    private String roomname;
+    private String roomName;
     private String ownerName; // 创建这者name，jid中的username
     private String rtcConfrId; // 音视频会议ID
     private String rtcConfrPassword; // 会议密码
@@ -27,12 +27,12 @@ public class ChatRoom {
         this.roomId = roomId;
     }
 
-    public String getRoomname() {
-        return roomname;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomname(String roomname) {
-        this.roomname = roomname;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public String getOwnerName() {
@@ -111,6 +111,7 @@ public class ChatRoom {
     public String toString() {
         return "ChatRoom{" +
                 "roomId='" + roomId + '\'' +
+                ", roomName='" + roomName + '\'' +
                 ", ownerName='" + ownerName + '\'' +
                 ", rtcConfrId='" + rtcConfrId + '\'' +
                 ", rtcConfrPassword='" + rtcConfrPassword + '\'' +

@@ -78,8 +78,13 @@ public class ChatRoomFragment extends BaseFragment {
             EaseDialog.create(getContext())
                     .setContentView(LayoutInflater.from(getContext()).inflate(
                             R.layout.dialog_content_join, null))
-                    .setText(R.id.txt_room_name, chatRoom.getRoomId())
-                    .setText(R.id.txt_introduce, chatRoom.getOwnerName())
+                    .setText(R.id.txt_room_name, chatRoom.getRoomName())
+                    .setText(R.id.tv_admin, chatRoom.getOwnerName())
+                    .setText(R.id.tv_id_chatroom, chatRoom.getRoomId())
+                    .setText(R.id.tv_id_conference, chatRoom.getRtcConfrId())
+                    .setText(R.id.tv_mem_limit, chatRoom.getRtcConfrAudienceLimit() + "")
+                    .setText(R.id.tv_create_time, chatRoom.getRtcConfrCreateTime())
+                    .setText(R.id.tv_allow_request, chatRoom.isAllowAudienceTalk() + "")
                     .setImage(R.id.image, R.drawable.em_ic_exit)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
                     .addButton("观众加入",
@@ -90,7 +95,7 @@ public class ChatRoomFragment extends BaseFragment {
                                 dialog.dismiss();
                                 new ChatActivity.Builder(getActivity())
                                         .setOwnerName(chatRoom.getOwnerName())
-                                        .setRoomName(chatRoom.getRoomname())
+                                        .setRoomName(chatRoom.getRoomName())
                                         .setChatroomId(chatRoom.getRoomId())
                                         .setConferenceId(chatRoom.getRtcConfrId())
                                         .setPassword(password)
@@ -108,6 +113,11 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         loadLiveRoomData(false);
     }
 
@@ -207,7 +217,7 @@ public class ChatRoomFragment extends BaseFragment {
             ChatRoom item = getItem(position);
 
             if (item != null) {
-                vh.name.setText(item.getRoomname());
+                vh.name.setText(item.getRoomName());
                 vh.introduce.setText(item.getRoomId());
             }
 
@@ -236,7 +246,7 @@ public class ChatRoomFragment extends BaseFragment {
                     String prefixString = prefix.toString();
                     List<ChatRoom> newValues = new ArrayList<>();
                     for (ChatRoom chatRoom : chatRooms) {
-                        if ((chatRoom.getRoomname() != null && chatRoom.getRoomname().contains(prefixString))
+                        if ((chatRoom.getRoomName() != null && chatRoom.getRoomName().contains(prefixString))
                                 || (chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))) {
                             newValues.add(chatRoom);
                         }

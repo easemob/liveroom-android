@@ -24,4 +24,7 @@ public class Constant {
     public static final String ROOM_TYPE_HOST = "host";
     // 抢麦模式
     public static final String ROOM_TYPE_MONOPOLY = "monopoly";
+
+    public static final String MESSAGE_GIFT = "gift +1";
+    public static final String MESSAGE_FAVOURITE = "heart +1";
 }
