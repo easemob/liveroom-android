@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="28dp">
 
         <View
             android:id="@+id/indicator_talker"
@@ -26,9 +26,22 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/indicator_talker"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="Shengxi"
             android:textColor="@color/text_normal"
             android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/iv_king"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toLeftOf="@+id/indicator_talking"
+            android:layout_toRightOf="@+id/txt_name"
+            android:src="@drawable/em_ic_king"
+            android:visibility="gone" />
 
         <View
             android:id="@+id/indicator_talking"
@@ -36,15 +49,15 @@
             android:layout_height="6dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/em_dot_off"
+            android:background="@drawable/em_dot_on"
             android:visibility="gone" />
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/container_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_height="22dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="gone" />
 </LinearLayout>

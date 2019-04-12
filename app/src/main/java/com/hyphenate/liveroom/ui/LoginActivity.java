@@ -323,6 +323,7 @@ public class LoginActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     hidePd();
                     int errorCode = e.getErrorCode();
+                    Log.i(TAG, "register: " + errorCode);
                     if (errorCode == EMError.NETWORK_ERROR) {
                         tipDialog = new EaseTipDialog.Builder(LoginActivity.this)
                                 .setStyle(EaseTipDialog.TipDialogStyle.ERROR)

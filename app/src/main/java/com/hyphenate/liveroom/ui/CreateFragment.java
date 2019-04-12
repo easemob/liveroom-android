@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
+import com.hyphenate.liveroom.manager.PreferenceManager;
 
 /**
  * Created by zhangsong on 19-3-29
@@ -49,8 +50,14 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                             roomNameView.setText("");
                             passwordView.setText("");
                         });
-                        ChatActivity.start(getActivity(), true, chatRoom.getRoomId(), chatRoom.getRoomId(),
-                                chatRoom.getRtcConfrId(), chatRoom.getRtcConfrPassword());
+
+                        new ChatActivity.Builder(getActivity())
+                                .setOwnerName(PreferenceManager.getInstance().getCurrentUsername())
+                                .setRoomName(roomName)
+                                .setChatroomId(chatRoom.getRoomId())
+                                .setConferenceId(chatRoom.getRtcConfrId())
+                                .setPassword(password)
+                                .start();
                     }
 
                     @Override

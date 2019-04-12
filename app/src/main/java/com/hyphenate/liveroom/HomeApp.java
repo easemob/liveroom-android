@@ -21,7 +21,10 @@ public class HomeApp extends Application {
         app = this;
 
         EMOptions options = new EMOptions();
-        options.setAppKey("1100181024084247#voicechatroom"); //1100181024084247#voicechatroom  easemob-demo#chatdemoui
+        options.setAppKey("1100181023201864#voicechatroom"); //1100181024084247#voicechatroom  easemob-demo#chatdemoui  1100181023201864#voicechatroom
+        options.setRestServer("a1-hsb.easemob.com");
+        options.setIMServer("39.107.54.56");
+        options.setImPort(6717);
         // 初始化环信SDK
         EMClient.getInstance().init(app, options);
         //在做打包混淆时，关闭debug模式，避免消耗不必要的资源

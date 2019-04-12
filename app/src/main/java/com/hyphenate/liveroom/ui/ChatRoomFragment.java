@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,8 +88,13 @@ public class ChatRoomFragment extends BaseFragment {
                             (dialog, v) -> {
                                 String password = dialog.getText(R.id.edit);
                                 dialog.dismiss();
-                                ChatActivity.start(getActivity(), false, chatRoom.getRoomId(),
-                                        chatRoom.getRoomId(), chatRoom.getRtcConfrId(), password);
+                                new ChatActivity.Builder(getActivity())
+                                        .setOwnerName(chatRoom.getOwnerName())
+                                        .setRoomName(chatRoom.getRoomname())
+                                        .setChatroomId(chatRoom.getRoomId())
+                                        .setConferenceId(chatRoom.getRtcConfrId())
+                                        .setPassword(password)
+                                        .start();
                             })
                     .show();
         });
@@ -201,8 +207,8 @@ public class ChatRoomFragment extends BaseFragment {
             ChatRoom item = getItem(position);
 
             if (item != null) {
-                vh.name.setText(item.getRoomId());
-                vh.introduce.setText(item.getOwnerName());
+                vh.name.setText(item.getRoomname());
+                vh.introduce.setText(item.getRoomId());
             }
 
             return convertView;
@@ -230,7 +236,7 @@ public class ChatRoomFragment extends BaseFragment {
                     String prefixString = prefix.toString();
                     List<ChatRoom> newValues = new ArrayList<>();
                     for (ChatRoom chatRoom : chatRooms) {
-                        if ((chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))
+                        if ((chatRoom.getRoomname() != null && chatRoom.getRoomname().contains(prefixString))
                                 || (chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))) {
                             newValues.add(chatRoom);
                         }

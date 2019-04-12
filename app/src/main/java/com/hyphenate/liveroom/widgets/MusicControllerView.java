@@ -10,20 +10,20 @@ import com.hyphenate.liveroom.R;
 /**
  * Created by zhangsong on 19-4-8
  */
-public class LayoutMusicController extends FrameLayout implements IStateView {
+public class MusicControllerView extends FrameLayout implements IStateView {
     private static final String TAG = "LayoutMusicController";
 
     private StateHelper stateHelper;
 
-    public LayoutMusicController(Context context) {
+    public MusicControllerView(Context context) {
         this(context, null);
     }
 
-    public LayoutMusicController(Context context, AttributeSet attrs) {
+    public MusicControllerView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public LayoutMusicController(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MusicControllerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         LayoutInflater.from(context).inflate(R.layout.layout_music_controller, this);
         stateHelper = new StateHelper();
@@ -31,7 +31,7 @@ public class LayoutMusicController extends FrameLayout implements IStateView {
     }
 
     @Override
-    public LayoutMusicController setState(State state) {
+    public MusicControllerView setState(State state) {
         stateHelper.changeState(this, state);
         return this;
     }

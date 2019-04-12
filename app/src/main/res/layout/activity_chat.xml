@@ -114,5 +114,14 @@
             android:layout_alignParentBottom="true"
             android:layout_marginTop="10dp"
             android:background="@color/color_gray" />
+
+        <ImageView
+            android:id="@+id/iv_request_tobe_talker"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_above="@+id/container_chat"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/em_ic_tobe_talker"
+            android:visibility="gone" />
     </RelativeLayout>
 </LinearLayout>

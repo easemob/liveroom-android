@@ -39,8 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TextChatFragment extends BaseFragment implements EMMessageListener {
-
-    protected static final String TAG = "EaseChatFragment";
+    protected static final String TAG = "TextChatFragment";
 
     protected Bundle fragmentArgs;
     protected int chatType;
@@ -80,7 +79,8 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         fragmentArgs = getArguments();
         chatType = fragmentArgs.getInt(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_SINGLE);
-        toChatUsername = fragmentArgs.getString(Constant.EXTRA_TEXT_CHATROOM_ID);
+        toChatUsername = fragmentArgs.getString(Constant.EXTRA_CHATROOM_ID);
+
         super.onActivityCreated(savedInstanceState);
 
         initView();

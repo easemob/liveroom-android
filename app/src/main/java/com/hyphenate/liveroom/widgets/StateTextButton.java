@@ -8,6 +8,9 @@ import android.util.AttributeSet;
  * Created by zhangsong on 19-4-8
  */
 public class StateTextButton extends AppCompatTextView implements IStateView {
+    public interface OnClickListener {
+        void onClick(StateTextButton btn);
+    }
     private static final String TAG = "StateImageButton";
 
     private StateHelper stateHelper;

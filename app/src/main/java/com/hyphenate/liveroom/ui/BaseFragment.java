@@ -11,6 +11,11 @@ import android.view.inputmethod.InputMethodManager;
  * Created by zhangsong on 19-3-30
  */
 public class BaseFragment extends Fragment {
+    public interface OnEventCallback {
+        void onEvent(int operation, Object... args);
+    }
+
+    protected OnEventCallback onEventCallback;
     private InputMethodManager inputManager;
 
     @Override
@@ -25,5 +30,9 @@ public class BaseFragment extends Fragment {
                 inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    public void setOnEventCallback(OnEventCallback onEventCallback) {
+        this.onEventCallback = onEventCallback;
     }
 }
