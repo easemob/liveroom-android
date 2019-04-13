@@ -17,6 +17,10 @@ import com.hyphenate.liveroom.utils.DimensUtil;
  * Created by zhangsong on 19-4-8
  */
 public class TalkerView extends FrameLayout implements IStateView {
+    public interface OnClickListener {
+        void onClick(TalkerView talkerView, StateTextButton stateTextButton);
+    }
+
     private static final String TAG = "LayoutTalkerMember";
 
     private StateHelper stateHelper;
@@ -31,8 +35,8 @@ public class TalkerView extends FrameLayout implements IStateView {
         return new TalkerView(context);
     }
 
-    public static StateTextButton createButton(Context context, int btnId, String title, boolean enabled
-            , StateTextButton.OnClickListener listener) {
+    public StateTextButton createButton(Context context, int btnId, String title, boolean enabled
+            , OnClickListener listener) {
         StateTextButton button = new StateTextButton(context);
         button.setTag(btnId);
         button.setTextSize(10);
@@ -46,7 +50,7 @@ public class TalkerView extends FrameLayout implements IStateView {
         }
         button.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onClick(button);
+                listener.onClick(this, button);
             }
         });
         return button;
@@ -90,6 +94,10 @@ public class TalkerView extends FrameLayout implements IStateView {
         return this;
     }
 
+    public String getName() {
+        return nameView.getText().toString();
+    }
+
     public TalkerView canTalk(boolean can) {
         if (can) {
             talkerView.setBackgroundResource(R.drawable.em_dot_on);
@@ -129,7 +137,7 @@ public class TalkerView extends FrameLayout implements IStateView {
         return this;
     }
 
-    public TalkerView addButton(int btnId, String title, boolean enabled, StateTextButton.OnClickListener listener) {
+    public TalkerView addButton(int btnId, String title, boolean enabled, OnClickListener listener) {
         addButton(createButton(getContext(), btnId, title, enabled, listener));
         return this;
     }
@@ -145,6 +153,7 @@ public class TalkerView extends FrameLayout implements IStateView {
 
     public TalkerView clearButtons() {
         btnContainer.removeAllViews();
+        btnContainer.setVisibility(GONE);
         return this;
     }
 

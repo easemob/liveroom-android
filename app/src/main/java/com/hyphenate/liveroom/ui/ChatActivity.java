@@ -145,7 +145,12 @@ public class ChatActivity extends BaseActivity {
         voiceChatFragment.setOnEventCallback((op, args) -> {
             if (VoiceChatFragment.EVENT_TOBE_AUDIENCE == op) {
                 // TODO: 发送下麦申请
-                sendRequest(Constant.OP_REQUEST_TOBE_AUDIENCE);
+                if (isCreator) { // 管理员下线其他主播
+                    String username = (String) args[0];
+                    grantRole(username, EMConferenceManager.EMConferenceRole.Audience);
+                } else { // 主播向管理员发送下线的申请
+                    sendRequest(Constant.OP_REQUEST_TOBE_AUDIENCE);
+                }
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
@@ -213,6 +218,25 @@ public class ChatActivity extends BaseActivity {
         EMClient.getInstance().chatManager().sendMessage(msg);
     }
 
+    private void grantRole(String username, EMConferenceManager.EMConferenceRole targetRole) {
+        String jid = EasyUtils.getMediaRequestUid(EMClient.getInstance().getOptions().getAppKey(),
+                username);
+        EMClient.getInstance().conferenceManager().grantRole(
+                "", new EMConferenceMember(jid, "", ""),
+                targetRole, new EMValueCallBack<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Log.i(TAG, "grantRole onSuccess: " + s);
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        Log.i(TAG, "grantRole onError: " + i + " - " + s);
+                    }
+                }
+        );
+    }
+
     private EMMessageListener messageListener = new EMMessageListener() {
         @Override
         public void onMessageReceived(List<EMMessage> list) {
@@ -233,22 +257,7 @@ public class ChatActivity extends BaseActivity {
                                         (dialog, v) -> {
                                             dialog.dismiss();
 
-                                            String jid = EasyUtils.getMediaRequestUid(EMClient.getInstance().getOptions().getAppKey(),
-                                                    msg.getFrom());
-                                            EMClient.getInstance().conferenceManager().grantRole(
-                                                    "", new EMConferenceMember(jid, "", ""),
-                                                    EMConferenceManager.EMConferenceRole.Talker, new EMValueCallBack<String>() {
-                                                        @Override
-                                                        public void onSuccess(String s) {
-                                                            Log.i(TAG, "grantRole onSuccess: " + s);
-                                                        }
-
-                                                        @Override
-                                                        public void onError(int i, String s) {
-                                                            Log.i(TAG, "grantRole onError: " + i + " - " + s);
-                                                        }
-                                                    }
-                                            );
+                                            grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
                                         })
                                 .addButton("拒绝", Color.parseColor("#000000"), Color.parseColor("#FFFFFF"),
                                         (dialog, v) -> {
@@ -259,26 +268,7 @@ public class ChatActivity extends BaseActivity {
                                 .show();
                     });
                 } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) {
-                    String jid = EasyUtils.getMediaRequestUid(EMClient.getInstance().getOptions().getAppKey(),
-                            EMClient.getInstance().getCurrentUser());
-                    EMClient.getInstance().conferenceManager().grantRole(
-                            "", new EMConferenceMember(jid, "", ""),
-                            EMConferenceManager.EMConferenceRole.Audience, new EMValueCallBack<String>() {
-                                @Override
-                                public void onSuccess(String s) {
-                                    Log.i(TAG, "grantRole onSuccess: " + s);
-                                }
-
-                                @Override
-                                public void onError(int i, String s) {
-                                    Log.i(TAG, "grantRole onError: " + i + " - " + s);
-                                }
-                            }
-                    );
-
-                    runOnUiThread(() -> {
-                        Toast.makeText(ChatActivity.this, msg.getFrom() + " 申请下麦", Toast.LENGTH_SHORT).show();
-                    });
+                    grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Audience);
                 }
             }
         }

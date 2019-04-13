@@ -6,7 +6,9 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,14 +28,12 @@ import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
 import com.hyphenate.liveroom.widgets.IStateView;
-import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.liveroom.widgets.StateTextButton;
+import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.util.EMLog;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by zhangsong on 19-4-10
@@ -57,8 +57,9 @@ public class VoiceChatFragment extends BaseFragment {
     private EMStreamParam normalParam;
     private AudioManager audioManager;
 
-    // <username, talker view>
-    private Map<String, TalkerView> talkerMap = new HashMap<>();
+    // Pair<username, talker view>
+    private Pair<String, TalkerView>[] talkerViewList = new Pair[MAX_TALKERS];
+    private String publishId = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class VoiceChatFragment extends BaseFragment {
                     .setName("已下线")
                     .canTalk(false);
             addMemberView(talkerView);
-            talkerMap.put(generateKey(i), talkerView);
+            talkerViewList[i] = new Pair<>(null, talkerView);
         }
 
         normalParam = new EMStreamParam();
@@ -104,20 +105,20 @@ public class VoiceChatFragment extends BaseFragment {
             public void onSuccess(final EMConference value) {
                 EMLog.e(TAG, "join conference success");
                 if (isCreator) {
-                    publish();
-
                     String username = PreferenceManager.getInstance().getCurrentUsername();
                     // set channel attributes.
                     EMClient.getInstance().conferenceManager().setConferenceAttribute("admin", username, null);
                     // 管理员设置自己的TalkerView
                     runOnUiThread(() -> {
-                        updatePosition(generateKey(0), username)
-                                .setName(username)
+                        TalkerView talkerView = updatePositionValue(0, username);
+                        talkerView.setName(username)
                                 .canTalk(true)
                                 .setKing(true)
                                 .setState(IStateView.State.ENABLEOFF)
-                                .addButton(createButton(BUTTON_MIC, true));
+                                .addButton(createButton(talkerView, BUTTON_MIC, true));
                     });
+
+                    publish();
                 }
             }
 
@@ -153,6 +154,7 @@ public class VoiceChatFragment extends BaseFragment {
             EMClient.getInstance().conferenceManager().exitConference(new EMValueCallBack() {
                 @Override
                 public void onSuccess(Object value) {
+                    Log.i(TAG, "exitConference success");
                 }
 
                 @Override
@@ -167,11 +169,41 @@ public class VoiceChatFragment extends BaseFragment {
         EMClient.getInstance().conferenceManager().publish(normalParam, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
+                publishId = value;
             }
 
             @Override
             public void onError(int error, String errorMsg) {
                 EMLog.e(TAG, "publish failed: error=" + error + ", msg=" + errorMsg);
+            }
+        });
+    }
+
+    /**
+     * 停止推自己的数据
+     */
+    private void unpublish(final String publishId) {
+        if (TextUtils.isEmpty(publishId)) {
+            return;
+        }
+
+        EMClient.getInstance().conferenceManager().unpublish(publishId, new EMValueCallBack<String>() {
+            @Override
+            public void onSuccess(String value) {
+                final String username = PreferenceManager.getInstance().getCurrentUsername();
+                int existPosition = findExistPosition(username);
+                runOnUiThread(() -> {
+                    updatePositionValue(existPosition, null)
+                            .setName("已下线")
+                            .clearButtons()
+                            .canTalk(false)
+                            .setState(IStateView.State.DISABLE);
+                });
+            }
+
+            @Override
+            public void onError(int error, String errorMsg) {
+                EMLog.e(TAG, "unpublish failed: error=" + error + ", msg=" + errorMsg);
             }
         });
     }
@@ -182,10 +214,6 @@ public class VoiceChatFragment extends BaseFragment {
         }
     }
 
-    /**
-     * 关闭扬声器，即开启听筒播放模式
-     * 更多内容看{@link #openSpeaker()}
-     */
     private void closeSpeaker() {
         if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(false);
@@ -208,52 +236,49 @@ public class VoiceChatFragment extends BaseFragment {
         EMClient.getInstance().conferenceManager().subscribe(stream, null, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
+                Log.i(TAG, "Subscribe stream success");
             }
 
             @Override
             public void onError(int error, String errorMsg) {
+                Log.e(TAG, "Subscribe stream failed: " + error + " - " + errorMsg);
             }
         });
     }
 
-    private String findPosition() {
+    // 找一个未被使用的位置
+    private int findEmptyPosition() {
         for (int i = 0; i < MAX_TALKERS; ++i) {
-            String key = generateKey(i);
-            if (talkerMap.containsKey(key)) {
-                return key;
+            if (talkerViewList[i].first == null) {
+                return i;
             }
-        }
-        return null;
-    }
-
-    private int findPosition(String key) {
-        Set<String> set = talkerMap.keySet();
-        int index = 0;
-        for (String key1 : set) {
-            if (key1.equals(key)) {
-                return index;
-            }
-            index++;
         }
         return -1;
     }
 
-    private TalkerView updatePosition(String originalKey, String targetKey) {
-        TalkerView talkerView = talkerMap.get(originalKey);
-        talkerMap.put(targetKey, talkerView);
-        talkerMap.remove(originalKey);
+    private int findExistPosition(String key) {
+        for (int i = 0; i < MAX_TALKERS; ++i) {
+            if (key == null && talkerViewList[i].first == null) {
+                return i;
+            }
+            if (key != null && key.equals(talkerViewList[i].first)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private TalkerView updatePositionValue(int position, String targetKey) {
+        TalkerView talkerView = talkerViewList[position].second;
+        talkerViewList[position] = new Pair<>(targetKey, talkerView);
         return talkerView;
     }
 
-    private String generateKey(int index) {
-        return "_" + index;
-    }
-
-    private StateTextButton createButton(int id, boolean enabled) {
+    private StateTextButton createButton(TalkerView v, int id, boolean enabled) {
         if (id == BUTTON_MIC) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
-            return TalkerView.createButton(getContext(), BUTTON_MIC,
-                    enabled ? titles[1] : titles[0], enabled, (button) -> {
+            return v.createButton(getContext(), BUTTON_MIC,
+                    enabled ? titles[1] : titles[0], enabled, (view, button) -> {
                         if (button.getState() == IStateView.State.ENABLEOFF) {
                             button.setState(IStateView.State.ENABLEON).setText(titles[1]);
                             EMClient.getInstance().conferenceManager().openVoiceTransfer();
@@ -264,11 +289,11 @@ public class VoiceChatFragment extends BaseFragment {
                     });
         }
         if (id == BUTTON_DISCONN) {
-            return TalkerView.createButton(getContext(), BUTTON_DISCONN,
-                    "下线", enabled, (button) -> {
+            return v.createButton(getContext(), BUTTON_DISCONN,
+                    "下线", enabled, (view, button) -> {
                         // 发送下线申请给管理员
                         if (onEventCallback != null) {
-                            onEventCallback.onEvent(EVENT_TOBE_AUDIENCE);
+                            onEventCallback.onEvent(EVENT_TOBE_AUDIENCE, view.getName());
                         }
                     });
         }
@@ -298,47 +323,37 @@ public class VoiceChatFragment extends BaseFragment {
         @Override
         public void onStreamAdded(final EMConferenceStream stream) {
             Log.i(TAG, "onStreamAdded: ");
-
             subscribe(stream);
 
-            if (isCreator) {
-                String key = findPosition();
-                if (key == null) {
-                    Log.i(TAG, "onStreamAdded: No position left.");
+            // 更新名称已存在的TalkerView, 主要包含admin的TalkerView
+            int existPosition = findExistPosition(stream.getUsername());
+
+            TalkerView talkerView;
+            if (existPosition != -1) { // 创建Admin talker view。
+                talkerView = talkerViewList[existPosition].second;
+            } else {
+                // 寻找空位置放置其他主播
+                int emptyPosition = findEmptyPosition();
+                if (emptyPosition == -1) {
+                    Log.i(TAG, "No position left.");
                     return;
                 }
-
-                runOnUiThread(() -> {
-                    updatePosition(key, stream.getUsername())
-                            .setName(stream.getUsername())
-                            .canTalk(true)
-                            .setState(IStateView.State.ENABLEOFF)
-                            .addButton(createButton(BUTTON_MIC, true))
-                            .addButton(createButton(BUTTON_DISCONN, true));
-                });
-            } else {
-                runOnUiThread(() -> {
-                    if (talkerMap.containsKey(stream.getUsername())) { // 创建Admin talker view。
-                        TalkerView talkerView = talkerMap.get(stream.getUsername());
-                        talkerView.setName(stream.getUsername())
-                                .canTalk(!stream.isAudioOff())
-                                .setKing(true);
-                    } else {
-                        String key = findPosition();
-                        if (key == null) {
-                            Log.i(TAG, "No position left.");
-                            return;
-                        }
-
-                        updatePosition(key, stream.getUsername())
-                                .setName(stream.getUsername())
-                                .canTalk(!stream.isAudioOff());
-                    }
-                });
+                talkerView = updatePositionValue(emptyPosition, stream.getUsername());
             }
-            // TODO: update speakers view.
-            // 1. 谁是speaker
-            // 2. 该speaker mute状态
+
+            if (talkerView == null) {
+                Log.i(TAG, "onStreamAdded, target talkerView is null.");
+                return;
+            }
+
+            runOnUiThread(() -> {
+                talkerView.setName(stream.getUsername())
+                        .canTalk(!stream.isAudioOff());
+                if (isCreator) {
+                    talkerView.setKing(true)
+                            .addButton(createButton(talkerView, BUTTON_DISCONN, true));
+                }
+            });
         }
 
         @Override
@@ -346,16 +361,14 @@ public class VoiceChatFragment extends BaseFragment {
             Log.i(TAG, "onStreamRemoved: ");
 
             String username = stream.getUsername();
-            int index = findPosition(username);
+            int index = findExistPosition(username);
             runOnUiThread(() -> {
-                updatePosition(username, generateKey(index))
+                updatePositionValue(index, null)
                         .setName("已下线")
                         .clearButtons()
                         .canTalk(false)
                         .setState(IStateView.State.DISABLE);
             });
-
-            // TODO: update speakers view.
         }
 
         @Override
@@ -364,50 +377,43 @@ public class VoiceChatFragment extends BaseFragment {
 
             String username = stream.getUsername();
             runOnUiThread(() -> {
-                talkerMap.get(username).canTalk(!stream.isAudioOff());
+                int position = findExistPosition(username);
+                if (position != -1) {
+                    talkerViewList[position].second.canTalk(!stream.isAudioOff());
+                }
             });
-
-            // TODO: 修改静音state view
         }
 
         @Override
         public void onPassiveLeave(int i, String s) {
             Log.i(TAG, "onPassiveLeave: ");
-            // TODO: invoke to leave chatroom
             getActivity().finish();
         }
 
         @Override
         public void onConferenceState(ConferenceState conferenceState) {
-            Log.i(TAG, "onConferenceState: ");
         }
 
         @Override
         public void onStreamStatistics(EMStreamStatistics emStreamStatistics) {
-            Log.i(TAG, "onStreamStatistics: ");
         }
 
         @Override
         public void onStreamSetup(String s) {
-            Log.i(TAG, "onStreamSetup: ");
         }
 
         @Override
         public void onSpeakers(List<String> list) {
-            Log.i(TAG, "onSpeakers: ");
-
+            Log.i(TAG, "onSpeakers: " + Arrays.toString(list.toArray()));
             runOnUiThread(() -> {
-                Set<String> set = talkerMap.keySet();
-                for (String key : set) {
-                    if (list.contains(key)) {
-                        talkerMap.get(key).setTalking(true);
+                for (Pair<String, TalkerView> pair : talkerViewList) {
+                    if (list.contains(pair.first)) {
+                        pair.second.setTalking(true);
                     } else {
-                        talkerMap.get(key).setTalking(false);
+                        pair.second.setTalking(false);
                     }
                 }
             });
-
-            // TODO: 谁在说话
         }
 
         @Override
@@ -417,53 +423,36 @@ public class VoiceChatFragment extends BaseFragment {
         @Override
         public void onRoleChanged(EMConferenceManager.EMConferenceRole role) {
             Log.i(TAG, "onRoleChanged: ");
-            // TODO: request tobe talker, publish self stream
-
-            String username = PreferenceManager.getInstance().getCurrentUsername();
-
             if (role == EMConferenceManager.EMConferenceRole.Talker) { // 观众变成了主播
-                String key = findPosition();
-                if (key == null) {
+                int position = findEmptyPosition();
+                if (position == -1) {
                     Log.i(TAG, "No position left.");
                     return;
                 }
 
+                final String username = PreferenceManager.getInstance().getCurrentUsername();
                 runOnUiThread(() -> {
-                    updatePosition(key, username)
-                            .setName(username)
+                    TalkerView talkerView = updatePositionValue(position, username);
+                    talkerView.setName(username)
                             .canTalk(true)
                             .setState(IStateView.State.ENABLEOFF)
-                            .addButton(createButton(BUTTON_MIC, true))
-                            .addButton(createButton(BUTTON_DISCONN, true));
+                            .addButton(createButton(talkerView, BUTTON_MIC, true))
+                            .addButton(createButton(talkerView, BUTTON_DISCONN, true));
                 });
+
+                publish();
             } else { // 主播变成了观众
-                int index = findPosition(username);
-                runOnUiThread(() -> {
-                    updatePosition(username, generateKey(index))
-                            .setName("已下线")
-                            .clearButtons()
-                            .canTalk(false)
-                            .setState(IStateView.State.DISABLE);
-                });
+                unpublish(publishId);
             }
         }
 
         @Override
         public void onAttributeUpdated(EMAttributeAction action, String s, String s1) {
             Log.i(TAG, "onAttributeUpdated: " + action + " - " + s + " - " + s1);
-
+            // 把admin的名字绑定到第一个TalkerView
             if ("admin".equals(s)) {
-                updatePosition(generateKey(0), s1);
+                updatePositionValue(0, s1);
             }
-
-            // TODO: 1. 获取频道属性中的admin，根据onStreamAdded()添加TalkerView，标识出admin view
-            /**
-             * // 频道属性常驻存储内容：
-             * {"admin":"memberName","type":"host"}
-             * // Admin通知某人mute自己：
-             * {"mute":["memberName"]}
-             * //
-             */
         }
     };
 }

@@ -12,6 +12,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.hyphenate.chat.EMConferenceManager;
 import com.hyphenate.liveroom.entities.ChatRoom;
 
 import org.json.JSONArray;
@@ -66,6 +67,7 @@ public class HttpRequestManager {
             requestObj.put("allowAudienceTalk", allowAudienceTalk);
             requestObj.put("imChatRoomMaxusers", 200);
             requestObj.put("confrDelayMillis", 60000);
+            requestObj.put("memRole", EMConferenceManager.EMConferenceRole.Audience.code); // 1 - 观众，3 - 主播，7 - Admin
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -73,14 +75,11 @@ public class HttpRequestManager {
         String url = String.format("%s/app/%s/create/talk/room",
                 BASEURL,
                 PreferenceManager.getInstance().getCurrentUsername());
-        final Request request = new JsonObjectRequest(Request.Method.POST, url, requestObj.toString(), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.i(TAG, "createChatRoom onResponse: " + response);
-                if (listener == null) return;
-                ChatRoom chatRoom = new Gson().fromJson(response.toString(), ChatRoom.class);
-                listener.onSuccess(chatRoom);
-            }
+        final Request request = new JsonObjectRequest(Request.Method.POST, url, requestObj.toString(), response -> {
+            Log.i(TAG, "createChatRoom onResponse: " + response);
+            if (listener == null) return;
+            ChatRoom chatRoom = new Gson().fromJson(response.toString(), ChatRoom.class);
+            listener.onSuccess(chatRoom);
         }, error -> {
             if (listener == null) return;
             Pair<Integer, String> result = handleError(error);
