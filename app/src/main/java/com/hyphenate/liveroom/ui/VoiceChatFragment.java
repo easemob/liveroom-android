@@ -349,9 +349,11 @@ public class VoiceChatFragment extends BaseFragment {
             runOnUiThread(() -> {
                 talkerView.setName(stream.getUsername())
                         .canTalk(!stream.isAudioOff());
+                if (existPosition != -1) {
+                    talkerView.setKing(true);
+                }
                 if (isCreator) {
-                    talkerView.setKing(true)
-                            .addButton(createButton(talkerView, BUTTON_DISCONN, true));
+                    talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, true));
                 }
             });
         }
