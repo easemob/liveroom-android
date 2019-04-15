@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="15dp"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:text="创建房间"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 
     <EditText
+        android:id="@+id/et_room_name"
         style="@style/login_input_style"
-        android:hint="@string/voice_chatroom_id"
-        />
+        android:layout_marginTop="18dp"
+        android:hint="@string/voice_chatroom_id" />
 
     <TextView
         android:layout_width="match_parent"
@@ -17,14 +24,14 @@
         android:layout_marginTop="3dp"
         android:text="@string/room_number_must_consist_of_8_digit_letters_and_numbers"
         android:textColor="@color/text_color_gray"
-        android:textSize="12sp"
-        />
+        android:textSize="12sp" />
 
     <EditText
+        android:id="@+id/et_password"
         style="@style/login_input_style"
+        android:layout_marginTop="10dp"
         android:hint="@string/password"
-        android:inputType="textPassword"
-        />
+        android:inputType="textPassword" />
 
     <TextView
         android:layout_width="match_parent"
@@ -32,12 +39,11 @@
         android:layout_marginTop="3dp"
         android:text="@string/password_should_not_exceed_16_bits_at_most"
         android:textColor="@color/text_color_gray"
-        android:textSize="12sp"
-        />
+        android:textSize="12sp" />
 
     <Button
+        android:id="@+id/btn_create"
         style="@style/login_button_style"
         android:layout_marginTop="20dp"
-        android:text="@string/submit"
-        />
+        android:text="@string/submit" />
 </LinearLayout>

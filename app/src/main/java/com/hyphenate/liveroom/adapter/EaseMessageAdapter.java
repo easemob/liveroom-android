@@ -3,6 +3,7 @@ package com.hyphenate.liveroom.adapter;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -52,6 +53,7 @@ public class EaseMessageAdapter extends BaseAdapter {
 		private void refreshList() {
 			List<EMMessage> var = conversation.getAllMessages();
 			messages = var.toArray(new EMMessage[var.size()]);
+			Log.i(TAG, "refreshList: " + messages.length);
 			conversation.markAllMessagesAsRead();
 			notifyDataSetChanged();
 		}

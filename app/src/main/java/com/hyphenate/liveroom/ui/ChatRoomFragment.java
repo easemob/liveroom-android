@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.widget.Filter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMChatRoom;
@@ -26,6 +28,7 @@ import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
+import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.util.EMLog;
 
@@ -64,15 +67,24 @@ public class ChatRoomFragment extends BaseFragment {
             hideSoftKeyboard();
         });
         pullToRefreshLayout.setOnRefreshListener(() -> {
-            pullToRefreshLayout.setRefreshing(false);
+            dataList.clear();
+            roomAdapter.changeList(dataList);
+            roomAdapter.notifyDataSetChanged();
+
+            loadLiveRoomData(true);
         });
         roomListView.setOnItemClickListener((parent, view, position, id) -> {
             final ChatRoom chatRoom = dataList.get(position);
             EaseDialog.create(getContext())
                     .setContentView(LayoutInflater.from(getContext()).inflate(
                             R.layout.dialog_content_join, null))
-                    .setText(R.id.txt_room_name, chatRoom.getName())
-                    .setText(R.id.txt_introduce, chatRoom.getIntroduce())
+                    .setText(R.id.txt_room_name, chatRoom.getRoomName())
+                    .setText(R.id.tv_admin, chatRoom.getOwnerName())
+                    .setText(R.id.tv_id_chatroom, chatRoom.getRoomId())
+                    .setText(R.id.tv_id_conference, chatRoom.getRtcConfrId())
+                    .setText(R.id.tv_mem_limit, chatRoom.getRtcConfrAudienceLimit() + "")
+                    .setText(R.id.tv_create_time, chatRoom.getRtcConfrCreateTime())
+                    .setText(R.id.tv_allow_request, chatRoom.isAllowAudienceTalk() + "")
                     .setImage(R.id.image, R.drawable.em_ic_exit)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
                     .addButton("观众加入",
@@ -80,24 +92,17 @@ public class ChatRoomFragment extends BaseFragment {
                             Color.parseColor("#FFFFFF"),
                             (dialog, v) -> {
                                 String password = dialog.getText(R.id.edit);
-//                                Toast.makeText(getContext(), password, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
-                                Intent intent = new Intent(getActivity(), ChatActivity.class);
-                                intent.putExtra(Constant.EXTRA_USER_ID, chatRoom.getId());
-                                intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
-                                startActivity(intent);
+                                new ChatActivity.Builder(getActivity())
+                                        .setOwnerName(chatRoom.getOwnerName())
+                                        .setRoomName(chatRoom.getRoomName())
+                                        .setChatroomId(chatRoom.getRoomId())
+                                        .setConferenceId(chatRoom.getRtcConfrId())
+                                        .setPassword(password)
+                                        .start();
                             })
                     .show();
         });
-
-//        dataList.add(new ChatRoom().setName("chatroom1").setIntroduce("introduce1"));
-//        dataList.add(new ChatRoom().setName("chatroom2").setIntroduce("introduce2"));
-//        dataList.add(new ChatRoom().setName("chatroom3").setIntroduce("introduce3"));
-//        dataList.add(new ChatRoom().setName("chatroom4").setIntroduce("introduce4"));
-//        dataList.add(new ChatRoom().setName("chatroom5").setIntroduce("introduce5"));
-//        dataList.add(new ChatRoom().setName("chatroom6").setIntroduce("introduce6"));
-//        dataList.add(new ChatRoom().setName("chatroom7").setIntroduce("introduce7"));
-//        dataList.add(new ChatRoom().setName("chatroom8").setIntroduce("introduce8"));
 
         roomAdapter = new RoomAdapter(getContext(), dataList);
         roomListView.setAdapter(roomAdapter);
@@ -108,38 +113,35 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadLiveRoomData();
     }
 
-    private void loadLiveRoomData(){
-        EMClient.getInstance().chatroomManager().asyncFetchPublicChatRoomsFromServer(20, "", new EMValueCallBack<EMCursorResult<EMChatRoom>>() {
-            @Override
-            public void onSuccess(EMCursorResult<EMChatRoom> cursorResult) {
-                if (cursorResult != null) {
-                    List<EMChatRoom> chatRooms = cursorResult.getData();
-                    List<ChatRoom> liveRooms = new ArrayList<>();
-                    for (EMChatRoom chatRoom : chatRooms) {
-                        liveRooms.add(new ChatRoom().setName(chatRoom.getName()).setIntroduce(chatRoom.getDescription()).setId(chatRoom.getId()));
-                    }
-                    dataList.clear();
-                    dataList.addAll(liveRooms);
-                    roomAdapter.changeList(dataList);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            roomAdapter.notifyDataSetChanged();
-                        }
-                    });
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadLiveRoomData(false);
+    }
 
-                }
+    private void loadLiveRoomData(final boolean refresh) {
+        HttpRequestManager.getInstance().getChatRooms(0, 200, new HttpRequestManager.IRequestListener<List<ChatRoom>>() {
+            @Override
+            public void onSuccess(List<ChatRoom> chatRooms) {
+                dataList.clear();
+                dataList.addAll(chatRooms);
+                getActivity().runOnUiThread(() -> {
+                    roomAdapter.changeList(dataList);
+                    roomAdapter.notifyDataSetChanged();
+
+                    if (refresh) {
+                        pullToRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
 
             @Override
-            public void onError(int i, String s) {
-                EMLog.e(TAG, "onError:" + s);
+            public void onFailed(int errCode, String desc) {
+                Toast.makeText(getActivity(), errCode + " - " + desc, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -180,7 +182,7 @@ public class ChatRoomFragment extends BaseFragment {
             return dataFilter;
         }
 
-        public void changeList(List<ChatRoom> rooms){
+        public void changeList(List<ChatRoom> rooms) {
             this.chatRooms = rooms;
             copyList.clear();
             copyList.addAll(chatRooms);
@@ -215,8 +217,8 @@ public class ChatRoomFragment extends BaseFragment {
             ChatRoom item = getItem(position);
 
             if (item != null) {
-                vh.name.setText(item.getName());
-                vh.introduce.setText(item.getIntroduce());
+                vh.name.setText(item.getRoomName());
+                vh.introduce.setText(item.getRoomId());
             }
 
             return convertView;
@@ -244,8 +246,8 @@ public class ChatRoomFragment extends BaseFragment {
                     String prefixString = prefix.toString();
                     List<ChatRoom> newValues = new ArrayList<>();
                     for (ChatRoom chatRoom : chatRooms) {
-                        if ((chatRoom.getName() != null && chatRoom.getName().contains(prefixString))
-                                || (chatRoom.getIntroduce() != null && chatRoom.getIntroduce().contains(prefixString))) {
+                        if ((chatRoom.getRoomName() != null && chatRoom.getRoomName().contains(prefixString))
+                                || (chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))) {
                             newValues.add(chatRoom);
                         }
                     }
@@ -264,9 +266,7 @@ public class ChatRoomFragment extends BaseFragment {
                 } else {
                     notifyDataSetInvalidated();
                 }
-
             }
         }
-
     }
 }

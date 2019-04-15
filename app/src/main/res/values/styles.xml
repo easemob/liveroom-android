@@ -1,8 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar"></style>
 
     <style name="MyDialogStyle">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -15,28 +14,28 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
-    
+
     <style name="login_input_style">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">45dp</item>
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textColorHint">#505050</item>
         <item name="android:background">@drawable/em_edittext_border_login</item>
         <item name="android:paddingLeft">10dp</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
+
     <style name="login_button_style">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">45dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:gravity">center</item>
         <item name="android:typeface">serif</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@android:color/white</item>
         <item name="android:textColor">@android:color/black</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <!-- settings -->
@@ -44,7 +43,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:padding">15dp</item>
+        <item name="android:padding">10dp</item>
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:background">#1a1a1a</item>
         <item name="android:gravity">center_vertical</item>
@@ -53,7 +52,7 @@
     <style name="settings_cell_right_text_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/text_color_gray</item>
     </style>
 
@@ -61,6 +60,7 @@
         <item name="android:layout_weight">1</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
+
     <style name="settings_cell_right_arrow_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -74,13 +74,35 @@
 
     <!-- chat activity -->
     <style name="chat_controller_btn_style">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@drawable/em_bg_btn_controller</item>
     </style>
     <!-- chat activity -->
+
+    <style name="activity_main_text_style">
+        <item name="android:background">@drawable/rect_gray</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/text_normal</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="dialog_join_text_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_hint</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="dialog_join_layout_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginTop">2dp</item>
+    </style>
 
 </resources>

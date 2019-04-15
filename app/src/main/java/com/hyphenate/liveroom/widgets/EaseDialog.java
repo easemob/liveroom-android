@@ -135,7 +135,7 @@ public class EaseDialog {
         button.setLayoutParams(params);
         button.setBackgroundColor(bgColor);
         button.setTextColor(textColor);
-        button.setTextSize(16);
+        button.setTextSize(14);
         button.setText(title);
         button.setGravity(Gravity.CENTER);
         button.setOnClickListener(listener);

@@ -32,7 +32,7 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.CommonUtils;
-import com.hyphenate.liveroom.utils.PreferenceManager;
+import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
 public class LoginActivity extends BaseActivity {
@@ -74,12 +74,12 @@ public class LoginActivity extends BaseActivity {
     /**
      * Initialize views
      */
-    private void initViews(){
+    private void initViews() {
         etUsername = findViewById(R.id.et_username);
         etPassword = findViewById(R.id.et_password);
     }
 
-    private void initListener(){
+    private void initListener() {
         // if user changed, clear the password
         etUsername.addTextChangedListener(new TextWatcher() {
             @Override
@@ -111,7 +111,7 @@ public class LoginActivity extends BaseActivity {
     /**
      * Set Last login username
      */
-    private void loadLastLoginUsername(){
+    private void loadLastLoginUsername() {
         if (PreferenceManager.getInstance().getCurrentUsername() != null) {
             etUsername.setText(PreferenceManager.getInstance().getCurrentUsername());
         }
@@ -125,9 +125,10 @@ public class LoginActivity extends BaseActivity {
 
     /**
      * check Input error
+     *
      * @return Return true is has error, otherwise Return false.
      */
-    private boolean checkInputError(){
+    private boolean checkInputError() {
         String currentUsername = getInputUsername();
         String currentPassword = getInputPassword();
 
@@ -150,9 +151,10 @@ public class LoginActivity extends BaseActivity {
 
     /**
      * check network error
-     * @return  Return true is has no network, otherwise Return false.
+     *
+     * @return Return true is has no network, otherwise Return false.
      */
-    private boolean checkNetworkError(){
+    private boolean checkNetworkError() {
         if (!CommonUtils.isNetWorkConnected(this)) {
             tipDialog = new EaseTipDialog.Builder(this)
                     .setStyle(EaseTipDialog.TipDialogStyle.INFO)
@@ -164,15 +166,15 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-    private String getInputUsername(){
+    private String getInputUsername() {
         return etUsername.getText().toString().trim();
     }
 
-    private String getInputPassword(){
+    private String getInputPassword() {
         return etPassword.getText().toString().trim();
     }
 
-    private void showLoginPd(){
+    private void showLoginPd() {
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setCanceledOnTouchOutside(false);
@@ -188,7 +190,7 @@ public class LoginActivity extends BaseActivity {
         progressDialog.show();
     }
 
-    private void showRegisterPd(){
+    private void showRegisterPd() {
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setCanceledOnTouchOutside(false);
@@ -204,7 +206,7 @@ public class LoginActivity extends BaseActivity {
         progressDialog.show();
     }
 
-    private void hidePd(){
+    private void hidePd() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -217,7 +219,7 @@ public class LoginActivity extends BaseActivity {
      */
     public void login(View view) {
 
-        if (checkNetworkError() || checkInputError()){
+        if (checkNetworkError() || checkInputError()) {
             return;
         }
         showLoginPd();
@@ -233,19 +235,16 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "login: onSuccess");
-                if (isFinishing()){
+                if (isFinishing()) {
                     return;
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hidePd();
-                        hideSoftKeyboard();
-                        PreferenceManager.getInstance().setCurrentUserName(inputUsername);
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
+                runOnUiThread(() -> {
+                    hidePd();
+                    hideSoftKeyboard();
+                    PreferenceManager.getInstance().setCurrentUserName(inputUsername);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 });
             }
 
@@ -266,7 +265,7 @@ public class LoginActivity extends BaseActivity {
                                 .setStyle(EaseTipDialog.TipDialogStyle.ERROR)
                                 .setTitle(R.string.Login_failed)
                                 .setMessage(R.string.username_or_pwd_is_wrong).build();
-                    } else if(code == EMError.USER_NOT_FOUND){
+                    } else if (code == EMError.USER_NOT_FOUND) {
                         tipDialog = new EaseTipDialog.Builder(LoginActivity.this)
                                 .setStyle(EaseTipDialog.TipDialogStyle.ERROR)
                                 .setTitle(R.string.Login_failed)
@@ -290,7 +289,7 @@ public class LoginActivity extends BaseActivity {
      */
     public void register(View view) {
 
-        if (checkNetworkError() || checkInputError()){
+        if (checkNetworkError() || checkInputError()) {
             return;
         }
 
@@ -324,6 +323,7 @@ public class LoginActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     hidePd();
                     int errorCode = e.getErrorCode();
+                    Log.i(TAG, "register: " + errorCode);
                     if (errorCode == EMError.NETWORK_ERROR) {
                         tipDialog = new EaseTipDialog.Builder(LoginActivity.this)
                                 .setStyle(EaseTipDialog.TipDialogStyle.ERROR)

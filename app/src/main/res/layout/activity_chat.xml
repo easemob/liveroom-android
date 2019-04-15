@@ -1,178 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@android:color/black"
-              android:orientation="vertical"
-              android:padding="15dp"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:hyphenate="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txt_room_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ASD123"
+                    android:textColor="@color/text_normal"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txt_account"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="shengxi"
+                    android:textColor="@color/text_hint"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:orientation="horizontal">
+
+                <com.hyphenate.liveroom.widgets.StateImageButton
+                    style="@style/chat_controller_btn_style"
+                    android:src="@drawable/em_ic_contacts"
+                    hyphenate:state="enable_off" />
+
+                <com.hyphenate.liveroom.widgets.StateImageButton
+                    style="@style/chat_controller_btn_style"
+                    android:src="@drawable/em_ic_music"
+                    hyphenate:state="enable_off" />
+
+                <com.hyphenate.liveroom.widgets.StateImageButton
+                    style="@style/chat_controller_btn_style"
+                    android:src="@drawable/em_ic_share"
+                    hyphenate:state="enable_off" />
+
+                <com.hyphenate.liveroom.widgets.StateImageButton
+                    style="@style/chat_controller_btn_style"
+                    android:src="@drawable/em_ic_equalizer"
+                    hyphenate:state="enable_off" />
+
+                <com.hyphenate.liveroom.widgets.StateImageButton
+                    style="@style/chat_controller_btn_style"
+                    android:onClick="exit"
+                    android:src="@drawable/em_ic_exit"
+                    hyphenate:state="enable_off" />
+            </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ASD123"
+                android:text="抢麦模式"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"
-                />
+                android:textSize="14sp" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="shengxi"
-                android:textColor="#fefefe"
-                android:textSize="14sp"
-                />
-
+                android:layout_marginTop="4dp"
+                android:text="管理员和主播可以相互抢麦发言，管理员可以控制谁发言，主播仅能抢麦发言"
+                android:textColor="@color/text_color_gray"
+                android:textSize="8sp" />
         </LinearLayout>
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:orientation="horizontal">
-
-            <ImageButton
-                style="@style/chat_controller_btn_style"
-                android:src="@drawable/em_ic_contacts"
-                />
-
-            <ImageButton
-                style="@style/chat_controller_btn_style"
-                android:src="@drawable/em_ic_music"
-                />
-
-            <ImageButton
-                style="@style/chat_controller_btn_style"
-                android:src="@drawable/em_ic_share"
-                />
-
-            <ImageButton
-                style="@style/chat_controller_btn_style"
-                android:src="@drawable/em_ic_equalizer"
-                />
-
-            <ImageButton
-                style="@style/chat_controller_btn_style"
-                android:onClick="exit"
-                android:src="@drawable/em_ic_exit"
-                />
-        </LinearLayout>
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="#1a1a1a"
-        android:orientation="vertical"
-        android:padding="10dp"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Breath of Life"
-            android:textColor="@color/text_color_gray"
-            android:textSize="18sp"
-            />
-
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <ScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:text="00:34"
-                />
+                android:layout_above="@+id/container_chat"
+                android:layout_alignParentTop="true">
 
-            <android.support.v7.widget.AppCompatSeekBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:progress="12"
-                android:secondaryProgressTint="#333333"/>
+                <FrameLayout
+                    android:id="@+id/container_member"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical" />
+            </ScrollView>
 
+            <FrameLayout
+                android:id="@+id/container_chat"
+                android:layout_width="match_parent"
+                android:layout_height="156dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="10dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:text="3:12"
-                />
-
-        </LinearLayout>
-
+            <ImageView
+                android:id="@+id/iv_request_tobe_talker"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_above="@+id/container_chat"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/em_ic_tobe_talker"
+                android:visibility="gone" />
+        </RelativeLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/placeholder"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:orientation="vertical"
-        >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="抢麦模式"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="管理员和主播可以相互抢麦发言，管理员可以控制谁发言，主播仅能抢麦发言"
-            android:textColor="@color/text_color_gray"
-            android:textSize="8sp"
-            />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        >
-
-        <FrameLayout
-            android:id="@+id/chat_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#1a1a1a"
-            />
-
-        <ImageButton
-            android:layout_width="40dip"
-            android:layout_height="40dip"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="50dp"
-            android:background="@drawable/em_bg_btn_circle"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/em_ic_recorder"
-            />
-    </RelativeLayout>
-
-
-</LinearLayout>
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+</RelativeLayout>

@@ -1,45 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@android:color/black"
-              android:orientation="vertical"
-              android:padding="15dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical"
+    android:padding="13dp">
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical|start"
         android:text="@string/login_title"
-        android:textSize="16sp"
         android:textColor="@android:color/white"
-        />
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/et_username"
         style="@style/login_input_style"
-        android:hint="@string/hint_username"
-        />
+        android:layout_marginTop="18dp"
+        android:hint="@string/hint_username" />
 
     <EditText
         android:id="@+id/et_password"
         style="@style/login_input_style"
+        android:layout_marginTop="10dp"
         android:hint="@string/hint_password"
         android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        />
+        android:inputType="textPassword" />
 
     <Button
         style="@style/login_button_style"
         android:onClick="login"
-        android:text="@string/sign_in"
-        />
+        android:text="@string/sign_in" />
 
     <Button
         style="@style/login_button_style"
         android:onClick="register"
-        android:text="@string/sign_up"
-        />
-
-
+        android:text="@string/sign_up" />
 </LinearLayout>

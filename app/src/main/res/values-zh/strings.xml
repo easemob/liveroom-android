@@ -23,11 +23,10 @@
     <string name="version">版本</string>
     <string name="speaker_number_limited_default">默认创建语音聊天室互动主播数</string>
     <string name="allow_apply_for_interact_default">允许观众申请连麦</string>
-    <string name="type_of_voice_chatroom">主持\抢麦\互动三种模式的默认参数</string>
+    <string name="type_of_voice_chatroom">创建语聊室默认类型</string>
     <string name="audio_quality_default">默认音质参数</string>
     <string name="auto_agree_to_apply_as_speaker">自动允许上麦申请</string>
     <string name="automatically_turn_on_music">创建直播间默认开启背景音乐</string>
-
 
 
     <string name="btn_logout">退出</string>
@@ -49,7 +48,7 @@
     <!-- MainActivity end-->
 
     <!-- ChatActivity start -->
-    <string name= "no_more_messages">没有更多的消息了</string>
+    <string name="no_more_messages">没有更多的消息了</string>
     <string name="joining">正在加入中.....</string>
     <string name="the_current_chat_room_destroyed">当前聊天室已被创建者解散</string>
     <string name="quiting_the_chat_room">正在退出聊天室……</string>

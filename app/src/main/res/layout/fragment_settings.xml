@@ -1,150 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/black"
-            android:padding="15dp"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:text="选择房间"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <LinearLayout
             style="@style/settings_cell_style"
-            >
+            android:layout_marginTop="18dp">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/version"
-                />
+                android:text="@string/version" />
 
             <TextView
                 style="@style/settings_cell_right_text_style"
-                android:text="1.01"
-                />
+                android:text="1.01" />
         </LinearLayout>
 
         <LinearLayout
             style="@style/settings_cell_style"
-            >
+            android:layout_marginTop="20dp">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/speaker_number_limited_default"
-                />
+                android:text="@string/speaker_number_limited_default" />
 
             <TextView
                 style="@style/settings_cell_right_text_style"
-                android:text="6"
-                />
-
-            <ImageView
-                style="@style/settings_cell_right_arrow_style"
-                />
+                android:text="6" />
 
         </LinearLayout>
 
-        <LinearLayout
-            style="@style/settings_cell_style"
-            >
+        <LinearLayout style="@style/settings_cell_style">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/allow_apply_for_interact_default"
-                />
+                android:text="@string/allow_apply_for_interact_default" />
 
             <android.support.v7.widget.SwitchCompat
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
         <LinearLayout
-            style="@style/settings_cell_style"
-            >
+            android:id="@+id/btn_type"
+            style="@style/settings_cell_style">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/type_of_voice_chatroom"
-                />
+                android:text="@string/type_of_voice_chatroom" />
+
+            <TextView
+                android:id="@+id/tv_type"
+                style="@style/settings_cell_right_text_style" />
+
+            <ImageView style="@style/settings_cell_right_arrow_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/settings_cell_style">
+
+            <TextView
+                style="@style/settings_cell_left_text_style"
+                android:text="@string/audio_quality_default" />
 
             <TextView
                 style="@style/settings_cell_right_text_style"
-                android:text="host"
-                />
-
-            <ImageView
-                style="@style/settings_cell_right_arrow_style"
-                />
-
-
+                android:text="highlevel(unmix)" />
         </LinearLayout>
 
         <LinearLayout
             style="@style/settings_cell_style"
-            >
+            android:layout_marginTop="20dp">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/audio_quality_default"
-                />
-
-            <TextView
-                style="@style/settings_cell_right_text_style"
-                android:text="highlevel(unmix)"
-                />
-
-            <ImageView
-                style="@style/settings_cell_right_arrow_style"
-                />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/settings_cell_style"
-            android:layout_marginTop="20dp"
-            >
-
-            <TextView
-                style="@style/settings_cell_left_text_style"
-                android:text="@string/auto_agree_to_apply_as_speaker"
-                />
+                android:text="@string/auto_agree_to_apply_as_speaker" />
 
             <android.support.v7.widget.SwitchCompat
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <LinearLayout
-            style="@style/settings_cell_style"
-            >
+        <LinearLayout style="@style/settings_cell_style">
 
             <TextView
                 style="@style/settings_cell_left_text_style"
-                android:text="@string/automatically_turn_on_music"
-                />
+                android:text="@string/automatically_turn_on_music" />
 
             <android.support.v7.widget.SwitchCompat
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_logout"
             style="@style/login_button_style"
-            android:text="@string/btn_logout"
-            />
-
+            android:text="@string/btn_logout" />
     </LinearLayout>
-
 </ScrollView>
