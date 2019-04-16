@@ -39,5 +39,5 @@
         android:paddingRight="4dp"
         android:text="踢出"
         android:visibility="gone"
-        hyphenate:state="enable_on" />
+        hyphenate:border="green" />
 </RelativeLayout>

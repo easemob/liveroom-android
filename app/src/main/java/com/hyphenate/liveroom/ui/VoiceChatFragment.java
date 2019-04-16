@@ -27,7 +27,7 @@ import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
-import com.hyphenate.liveroom.widgets.IStateView;
+import com.hyphenate.liveroom.widgets.IBorderView;
 import com.hyphenate.liveroom.widgets.StateTextButton;
 import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.util.EMLog;
@@ -120,8 +120,8 @@ public class VoiceChatFragment extends BaseFragment {
                         talkerView.setName(username)
                                 .canTalk(true)
                                 .setKing(true)
-                                .setState(IStateView.State.ENABLEOFF)
-                                .addButton(createButton(talkerView, BUTTON_MIC, true));
+                                .setBorder(IBorderView.Border.GRAY)
+                                .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
                     });
 
                     publish();
@@ -184,9 +184,9 @@ public class VoiceChatFragment extends BaseFragment {
             TalkerView talkerView = updatePositionValue(p, username);
             talkerView.setName(username)
                     .canTalk(true)
-                    .setState(IStateView.State.ENABLEOFF)
-                    .addButton(createButton(talkerView, BUTTON_MIC, true))
-                    .addButton(createButton(talkerView, BUTTON_DISCONN, true));
+                    .setBorder(IBorderView.Border.GRAY)
+                    .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN))
+                    .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
 
             return RESULT_ALREADY_TALKER;
         }
@@ -226,7 +226,7 @@ public class VoiceChatFragment extends BaseFragment {
                             .setName("已下线")
                             .clearButtons()
                             .canTalk(false)
-                            .setState(IStateView.State.DISABLE);
+                            .setBorder(IBorderView.Border.NONE);
                 });
             }
 
@@ -303,23 +303,23 @@ public class VoiceChatFragment extends BaseFragment {
         return talkerView;
     }
 
-    private StateTextButton createButton(TalkerView v, int id, boolean enabled) {
+    private StateTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
         if (id == BUTTON_MIC) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
             return v.createButton(getContext(), BUTTON_MIC,
-                    enabled ? titles[1] : titles[0], enabled, (view, button) -> {
-                        if (button.getState() == IStateView.State.ENABLEOFF) {
-                            button.setState(IStateView.State.ENABLEON).setText(titles[1]);
+                    border != IBorderView.Border.GRAY ? titles[1] : titles[0], border, (view, button) -> {
+                        if (button.getBorder() == IBorderView.Border.GRAY) {
+                            button.setBorder(IBorderView.Border.GREEN).setText(titles[1]);
                             EMClient.getInstance().conferenceManager().openVoiceTransfer();
                         } else {
-                            button.setState(IStateView.State.ENABLEOFF).setText(titles[0]);
+                            button.setBorder(IBorderView.Border.GRAY).setText(titles[0]);
                             EMClient.getInstance().conferenceManager().closeVoiceTransfer();
                         }
                     });
         }
         if (id == BUTTON_DISCONN) {
             return v.createButton(getContext(), BUTTON_DISCONN,
-                    "下线", enabled, (view, button) -> {
+                    "下线", border, (view, button) -> {
                         // 发送下线申请给管理员
                         if (onEventCallback != null) {
                             onEventCallback.onEvent(EVENT_TOBE_AUDIENCE, view.getName());
@@ -382,7 +382,7 @@ public class VoiceChatFragment extends BaseFragment {
                     talkerView.setKing(true);
                 }
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) {
-                    talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, true));
+                    talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 }
             });
         }
@@ -398,7 +398,7 @@ public class VoiceChatFragment extends BaseFragment {
                         .setName("已下线")
                         .clearButtons()
                         .canTalk(false)
-                        .setState(IStateView.State.DISABLE);
+                        .setBorder(IBorderView.Border.NONE);
             });
         }
 
@@ -470,9 +470,9 @@ public class VoiceChatFragment extends BaseFragment {
                     TalkerView talkerView = updatePositionValue(position, username);
                     talkerView.setName(username)
                             .canTalk(true)
-                            .setState(IStateView.State.ENABLEOFF)
-                            .addButton(createButton(talkerView, BUTTON_MIC, true))
-                            .addButton(createButton(talkerView, BUTTON_DISCONN, true));
+                            .setBorder(IBorderView.Border.GRAY)
+                            .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN))
+                            .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 });
 
             } else { // 主播变成了观众

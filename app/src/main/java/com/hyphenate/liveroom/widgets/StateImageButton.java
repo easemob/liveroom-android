@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 /**
  * Created by zhangsong on 19-4-8
  */
-public class StateImageButton extends AppCompatImageButton implements IStateView {
+public class StateImageButton extends AppCompatImageButton implements IBorderView {
     private static final String TAG = "StateImageButton";
 
     private StateHelper stateHelper;
@@ -27,13 +27,13 @@ public class StateImageButton extends AppCompatImageButton implements IStateView
     }
 
     @Override
-    public StateImageButton setState(State state) {
-        stateHelper.changeState(this, state);
+    public StateImageButton setBorder(Border state) {
+        stateHelper.changeBorder(this, state);
         return this;
     }
 
     @Override
-    public State getState() {
-        return stateHelper.getState();
+    public Border getBorder() {
+        return stateHelper.getBorder();
     }
 }

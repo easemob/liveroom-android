@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 /**
  * Created by zhangsong on 19-4-8
  */
-public class StateTextButton extends AppCompatTextView implements IStateView {
+public class StateTextButton extends AppCompatTextView implements IBorderView {
     public interface OnClickListener {
         void onClick(StateTextButton btn);
     }
@@ -30,13 +30,13 @@ public class StateTextButton extends AppCompatTextView implements IStateView {
     }
 
     @Override
-    public StateTextButton setState(State state) {
-        stateHelper.changeState(this, state);
+    public StateTextButton setBorder(Border state) {
+        stateHelper.changeBorder(this, state);
         return this;
     }
 
     @Override
-    public State getState() {
-        return stateHelper.getState();
+    public Border getBorder() {
+        return stateHelper.getBorder();
     }
 }
