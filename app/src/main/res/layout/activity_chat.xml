@@ -45,12 +45,14 @@
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
                     style="@style/chat_controller_btn_style"
-                    android:src="@drawable/em_ic_contacts"
+                    android:src="@drawable/em_ic_music"
                     hyphenate:state="enable_off" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
+                    android:id="@+id/btn_contacts"
                     style="@style/chat_controller_btn_style"
-                    android:src="@drawable/em_ic_music"
+                    android:onClick="onClick"
+                    android:src="@drawable/em_ic_contacts"
                     hyphenate:state="enable_off" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton

@@ -133,7 +133,7 @@ public class VoiceChatFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
 
-        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        audioManager.setMode(AudioManager.MODE_NORMAL);
         closeSpeaker();
 
         EMClient.getInstance().conferenceManager().removeConferenceListener(conferenceListener);
@@ -432,6 +432,8 @@ public class VoiceChatFragment extends BaseFragment {
                     return;
                 }
 
+                publish();
+
                 final String username = PreferenceManager.getInstance().getCurrentUsername();
                 runOnUiThread(() -> {
                     TalkerView talkerView = updatePositionValue(position, username);
@@ -442,7 +444,6 @@ public class VoiceChatFragment extends BaseFragment {
                             .addButton(createButton(talkerView, BUTTON_DISCONN, true));
                 });
 
-                publish();
             } else { // 主播变成了观众
                 unpublish(publishId);
             }

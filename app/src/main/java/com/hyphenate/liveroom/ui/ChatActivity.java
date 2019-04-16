@@ -170,9 +170,24 @@ public class ChatActivity extends BaseActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        // hook back menu.
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         EMClient.getInstance().chatManager().removeMessageListener(messageListener);
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_contacts:
+                Intent i = new Intent(ChatActivity.this, MembersActivity.class);
+                i.putExtra(Constant.EXTRA_CHATROOM_ID, textRoomId);
+                startActivity(i);
+                break;
+        }
     }
 
     public void exit(View view) {

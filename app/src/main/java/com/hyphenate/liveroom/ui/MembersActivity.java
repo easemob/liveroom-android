@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.hyphenate.chat.EMChatRoom;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
@@ -34,7 +35,7 @@ public class MembersActivity extends BaseActivity {
 
     private EditText searchEdittext;
     private ImageButton searchButton;
-    private ListView roomListView;
+    private ListView memberListView;
 
     private String roomId;
     private String ownerName;
@@ -45,12 +46,13 @@ public class MembersActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_members);
 
         roomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
 
         searchEdittext = findViewById(R.id.et_search);
         searchButton = findViewById(R.id.btn_search);
-        roomListView = findViewById(R.id.list_room);
+        memberListView = findViewById(R.id.list_member);
 
         searchEdittext.addTextChangedListener(textWatcher);
         searchButton.setOnClickListener((v) -> {
@@ -58,30 +60,40 @@ public class MembersActivity extends BaseActivity {
         });
 
         memberAdapter = new MemberAdapter(this, dataList);
-        roomListView.setAdapter(memberAdapter);
-    }
+        memberListView.setAdapter(memberAdapter);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         refreshMembers();
     }
 
     private void refreshMembers() {
-        EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(roomId);
-        if (room == null) {
-            return;
-        }
+        new Thread(() -> {
+            EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(roomId);
+            if (room == null) {
+                return;
+            }
 
-        ownerName = room.getOwner();
-        isAdmin = PreferenceManager.getInstance().getCurrentUsername().equals(ownerName);
+            ownerName = room.getOwner();
+            isAdmin = PreferenceManager.getInstance().getCurrentUsername().equals(ownerName);
 
-        dataList.add(ownerName);
-        dataList.addAll(room.getAdminList());
-        dataList.addAll(room.getMemberList());
+            dataList.clear();
+            dataList.add(ownerName);
+            dataList.addAll(room.getAdminList());
 
-        memberAdapter.changeList(dataList);
-        memberAdapter.notifyDataSetChanged();
+            EMCursorResult<String> result = new EMCursorResult<String>();
+            do {
+                try {
+                    result = EMClient.getInstance().chatroomManager().fetchChatRoomMembers(roomId, result.getCursor(), 20);
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+                dataList.addAll(result.getData());
+            } while (result.getCursor() != null && !result.getCursor().isEmpty());
+
+            runOnUiThread(() -> {
+                memberAdapter.changeList(dataList);
+                memberAdapter.notifyDataSetChanged();
+            });
+        }).start();
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -162,22 +174,29 @@ public class MembersActivity extends BaseActivity {
                 vh.kingView.setVisibility(View.GONE);
 
                 if (isAdmin) {
+                    vh.kickOffBtn.setVisibility(View.VISIBLE);
                     vh.kickOffBtn.setOnClickListener((v) -> {
-                        // 把某人踢出聊天室
-                        try {
-                            EMClient.getInstance().chatroomManager().removeChatRoomMembers(roomId,
-                                    new ArrayList<String>() {{
-                                        add(username);
-                                    }});
-
-                            refreshMembers();
-                        } catch (HyphenateException e) {
-                            e.printStackTrace();
-                        }
+                        handleKickAction(username);
                     });
                 }
             }
             return convertView;
+        }
+
+        private void handleKickAction(String username) {
+            // 把某人踢出聊天室
+            new Thread(() -> {
+                try {
+                    EMClient.getInstance().chatroomManager().removeChatRoomMembers(roomId,
+                            new ArrayList<String>() {{
+                                add(username);
+                            }});
+
+                    refreshMembers();
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
 
         class ViewHolder {
