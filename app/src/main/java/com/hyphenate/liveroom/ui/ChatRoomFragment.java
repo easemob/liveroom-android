@@ -2,7 +2,6 @@ package com.hyphenate.liveroom.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,16 +20,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hyphenate.EMValueCallBack;
-import com.hyphenate.chat.EMChatRoom;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMCursorResult;
+import com.hyphenate.EMError;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.widgets.EaseDialog;
-import com.hyphenate.util.EMLog;
+import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +36,8 @@ import java.util.List;
  */
 public class ChatRoomFragment extends BaseFragment {
     private static final String TAG = "ChatRoomFragment";
+
+    private static final int REQUEST_JOIN = 100;
 
     private View contentView;
 
@@ -91,15 +89,16 @@ public class ChatRoomFragment extends BaseFragment {
                             Constant.COLOR_BLACK,
                             Constant.COLOR_WHITE,
                             (dialog, v) -> {
-                                String password = dialog.getText(R.id.edit);
                                 dialog.dismiss();
-                                new ChatActivity.Builder(getActivity())
+                                String password = dialog.getText(R.id.edit);
+                                Intent i = new ChatActivity.Builder(getActivity())
                                         .setOwnerName(chatRoom.getOwnerName())
                                         .setRoomName(chatRoom.getRoomName())
                                         .setChatroomId(chatRoom.getRoomId())
                                         .setConferenceId(chatRoom.getRtcConfrId())
                                         .setPassword(password)
-                                        .start();
+                                        .build();
+                                startActivityForResult(i, REQUEST_JOIN);
                             })
                     .show();
         });
@@ -111,14 +110,26 @@ public class ChatRoomFragment extends BaseFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         loadLiveRoomData(false);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_JOIN) {
+            int error = resultCode;
+            EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
+                    .setStyle(EaseTipDialog.TipDialogStyle.ERROR)
+                    .setTitle("错误");
+            if (error == EMError.INVALID_PASSWORD) {
+                builder.setMessage("加入语聊房间失败, 密码错误.");
+            } else {
+                builder.setMessage("加入语聊房间失败: " + error);
+            }
+            builder.build().show();
+        }
     }
 
     private void loadLiveRoomData(final boolean refresh) {

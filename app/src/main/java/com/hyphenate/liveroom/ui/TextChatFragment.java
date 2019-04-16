@@ -317,13 +317,14 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
             @Override
             public void onError(int error, String errorMsg) {
-                EMLog.d(TAG, "join room failure : " + error);
+                EMLog.d(TAG, "join room failure : " + error + " - " + errorMsg);
                 if (getActivity() == null) {
                     return;
                 }
                 getActivity().runOnUiThread(() -> {
                     pd.dismiss();
-//                    getActivity().finish();
+                    getActivity().setResult(error);
+                    getActivity().finish();
                 });
             }
         });

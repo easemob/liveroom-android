@@ -79,8 +79,8 @@ public class ChatActivity extends BaseActivity {
             return this;
         }
 
-        public void start() {
-            original.startActivity(intent);
+        public Intent build() {
+            return intent;
         }
     }
 

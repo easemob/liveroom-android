@@ -131,6 +131,8 @@ public class VoiceChatFragment extends BaseFragment {
             @Override
             public void onError(final int error, final String errorMsg) {
                 EMLog.e(TAG, "join conference failed error " + error + ", msg " + errorMsg);
+                getActivity().setResult(error);
+                getActivity().finish();
             }
         });
     }
