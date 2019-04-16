@@ -42,6 +42,8 @@ public class ChatActivity extends BaseActivity {
 
     private ImageView placeholder;
 
+    private VoiceChatFragment voiceChatFragment;
+
     public static class Builder {
         private Activity original;
         private Intent intent;
@@ -100,8 +102,21 @@ public class ChatActivity extends BaseActivity {
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
-                // TODO: 发送上麦申请
-                sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
+                int result = voiceChatFragment.handleTalkerRequest();
+                if (result == VoiceChatFragment.RESULT_NO_POSITION) {
+                    new EaseTipDialog.Builder(this)
+                            .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                            .setTitle("提示")
+                            .setMessage("该聊天室主播人数已满,请稍后重试 ...")
+                            .addButton("确定", Constant.COLOR_BLACK, Constant.COLOR_WHITE, (dialog, view) -> {
+                                dialog.dismiss();
+                            })
+                            .build()
+                            .show();
+                } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
+                    // 发送上麦申请
+                    sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
+                }
             });
         }
 
@@ -140,7 +155,7 @@ public class ChatActivity extends BaseActivity {
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_chat, textChatFragment).commit();
 
-        VoiceChatFragment voiceChatFragment = new VoiceChatFragment();
+        voiceChatFragment = new VoiceChatFragment();
         voiceChatFragment.setArguments(getIntent().getExtras());
         voiceChatFragment.setOnEventCallback((op, args) -> {
             if (VoiceChatFragment.EVENT_TOBE_AUDIENCE == op) {
@@ -268,13 +283,12 @@ public class ChatActivity extends BaseActivity {
                                 .setStyle(EaseTipDialog.TipDialogStyle.INFO)
                                 .setTitle("提示")
                                 .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
-                                .addButton("同意", Color.parseColor("#000000"), Color.parseColor("#FFFFFF"),
+                                .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                         (dialog, v) -> {
                                             dialog.dismiss();
-
                                             grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
                                         })
-                                .addButton("拒绝", Color.parseColor("#000000"), Color.parseColor("#FFFFFF"),
+                                .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                         (dialog, v) -> {
                                             dialog.dismiss();
                                             sendRequest(Constant.OP_REQUEST_TOBE_REJECTED);

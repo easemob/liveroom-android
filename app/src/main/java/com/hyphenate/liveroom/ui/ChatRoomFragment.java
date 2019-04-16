@@ -88,8 +88,8 @@ public class ChatRoomFragment extends BaseFragment {
                     .setImage(R.id.image, R.drawable.em_ic_exit)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
                     .addButton("观众加入",
-                            Color.parseColor("#000000"),
-                            Color.parseColor("#FFFFFF"),
+                            Constant.COLOR_BLACK,
+                            Constant.COLOR_WHITE,
                             (dialog, v) -> {
                                 String password = dialog.getText(R.id.edit);
                                 dialog.dismiss();

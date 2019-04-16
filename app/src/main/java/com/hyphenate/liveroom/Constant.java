@@ -1,5 +1,7 @@
 package com.hyphenate.liveroom;
 
+import android.graphics.Color;
+
 public class Constant {
     public static final String EXTRA_OWNER_NAME = "ownerName";
     public static final String EXTRA_ROOM_NAME = "roomName";
@@ -27,4 +29,7 @@ public class Constant {
 
     public static final String MESSAGE_GIFT = "gift +1";
     public static final String MESSAGE_FAVOURITE = "heart +1";
+
+    public static final int COLOR_WHITE = Color.parseColor("#FFFFFF");
+    public static final int COLOR_BLACK = Color.parseColor("#000000");
 }

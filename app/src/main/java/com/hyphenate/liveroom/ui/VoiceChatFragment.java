@@ -43,6 +43,10 @@ public class VoiceChatFragment extends BaseFragment {
 
     public static final int EVENT_TOBE_AUDIENCE = 1;
 
+    public static final int RESULT_NO_HANDLED = 0;
+    public static final int RESULT_NO_POSITION = 1;
+    public static final int RESULT_ALREADY_TALKER = 2;
+
     private static final int BUTTON_MIC = 0;
     private static final int BUTTON_DISCONN = 1;
 
@@ -50,10 +54,11 @@ public class VoiceChatFragment extends BaseFragment {
 
     private LinearLayout memberContainer;
 
-    private boolean isCreator;
+    // private boolean isCreator;
     private String confId;
     private String password;
 
+    private EMConferenceManager.EMConferenceRole conferenceRole;
     private EMStreamParam normalParam;
     private AudioManager audioManager;
 
@@ -77,8 +82,8 @@ public class VoiceChatFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        String ownerName = getArguments().getString(Constant.EXTRA_OWNER_NAME);
-        isCreator = PreferenceManager.getInstance().getCurrentUsername().equalsIgnoreCase(ownerName);
+//        String ownerName = getArguments().getString(Constant.EXTRA_OWNER_NAME);
+//        isCreator = PreferenceManager.getInstance().getCurrentUsername().equalsIgnoreCase(ownerName);
         confId = getArguments().getString(Constant.EXTRA_CONFERENCE_ID);
         password = getArguments().getString(Constant.EXTRA_PASSWORD);
 
@@ -103,8 +108,9 @@ public class VoiceChatFragment extends BaseFragment {
         EMClient.getInstance().conferenceManager().joinConference(confId, password, new EMValueCallBack<EMConference>() {
             @Override
             public void onSuccess(final EMConference value) {
-                EMLog.e(TAG, "join conference success");
-                if (isCreator) {
+                conferenceRole = value.getConferenceRole();
+                EMLog.e(TAG, "join conference success, role: " + conferenceRole);
+                if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员加入会议,默认publish 语音流.
                     String username = PreferenceManager.getInstance().getCurrentUsername();
                     // set channel attributes.
                     EMClient.getInstance().conferenceManager().setConferenceAttribute("admin", username, null);
@@ -138,7 +144,7 @@ public class VoiceChatFragment extends BaseFragment {
 
         EMClient.getInstance().conferenceManager().removeConferenceListener(conferenceListener);
 
-        if (isCreator) { // 管理员退出时销毁会议
+        if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员退出时销毁会议
             EMClient.getInstance().conferenceManager().destroyConference(new EMValueCallBack() {
                 @Override
                 public void onSuccess(Object value) {
@@ -163,6 +169,29 @@ public class VoiceChatFragment extends BaseFragment {
                 }
             });
         }
+    }
+
+    public int handleTalkerRequest() {
+        int p = findEmptyPosition();
+        if (p == -1) {
+            return RESULT_NO_POSITION;
+        }
+
+        if (conferenceRole == EMConferenceManager.EMConferenceRole.Talker) {
+            publish();
+
+            final String username = PreferenceManager.getInstance().getCurrentUsername();
+            TalkerView talkerView = updatePositionValue(p, username);
+            talkerView.setName(username)
+                    .canTalk(true)
+                    .setState(IStateView.State.ENABLEOFF)
+                    .addButton(createButton(talkerView, BUTTON_MIC, true))
+                    .addButton(createButton(talkerView, BUTTON_DISCONN, true));
+
+            return RESULT_ALREADY_TALKER;
+        }
+
+        return RESULT_NO_HANDLED;
     }
 
     private void publish() {
@@ -352,7 +381,7 @@ public class VoiceChatFragment extends BaseFragment {
                 if (existPosition != -1) {
                     talkerView.setKing(true);
                 }
-                if (isCreator) {
+                if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) {
                     talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, true));
                 }
             });
@@ -424,7 +453,9 @@ public class VoiceChatFragment extends BaseFragment {
 
         @Override
         public void onRoleChanged(EMConferenceManager.EMConferenceRole role) {
-            Log.i(TAG, "onRoleChanged: ");
+            conferenceRole = role;
+            Log.i(TAG, "onRoleChanged: " + conferenceRole);
+
             if (role == EMConferenceManager.EMConferenceRole.Talker) { // 观众变成了主播
                 int position = findEmptyPosition();
                 if (position == -1) {
