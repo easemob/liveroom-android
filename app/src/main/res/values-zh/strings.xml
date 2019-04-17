@@ -51,7 +51,7 @@
     <string name="no_more_messages">没有更多的消息了</string>
     <string name="joining">正在加入中.....</string>
     <string name="the_current_chat_room_destroyed">当前聊天室已被创建者解散</string>
-    <string name="quiting_the_chat_room">正在退出聊天室……</string>
+    <string name="quiting_the_chat_room">您被踢出聊天室……</string>
     <string name="user_be_kicked_for_offline">用户离线被踢出</string>
     <string name="rejoining_the_chat_room">正在重新加入聊天室……</string>
     <string name="alert_kicked_for_offline">您已由于断线被踢出聊天室,点击重新加入.</string>

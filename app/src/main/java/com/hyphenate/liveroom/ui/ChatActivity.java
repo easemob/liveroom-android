@@ -2,7 +2,6 @@ package com.hyphenate.liveroom.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,12 +41,12 @@ public class ChatActivity extends BaseActivity {
 
     private ImageView placeholder;
 
+    private VoiceChatFragment voiceChatFragment;
+
     public static class Builder {
-        private Activity original;
         private Intent intent;
 
         public Builder(Activity original) {
-            this.original = original;
             intent = new Intent(original, ChatActivity.class);
             intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
         }
@@ -77,8 +76,8 @@ public class ChatActivity extends BaseActivity {
             return this;
         }
 
-        public void start() {
-            original.startActivity(intent);
+        public Intent build() {
+            return intent;
         }
     }
 
@@ -100,8 +99,21 @@ public class ChatActivity extends BaseActivity {
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
-                // TODO: 发送上麦申请
-                sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
+                int result = voiceChatFragment.handleTalkerRequest();
+                if (result == VoiceChatFragment.RESULT_NO_POSITION) {
+                    new EaseTipDialog.Builder(this)
+                            .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                            .setTitle("提示")
+                            .setMessage("该聊天室主播人数已满,请稍后重试 ...")
+                            .addButton("确定", Constant.COLOR_BLACK, Constant.COLOR_WHITE, (dialog, view) -> {
+                                dialog.dismiss();
+                            })
+                            .build()
+                            .show();
+                } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
+                    // 发送上麦申请
+                    sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
+                }
             });
         }
 
@@ -140,7 +152,7 @@ public class ChatActivity extends BaseActivity {
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_chat, textChatFragment).commit();
 
-        VoiceChatFragment voiceChatFragment = new VoiceChatFragment();
+        voiceChatFragment = new VoiceChatFragment();
         voiceChatFragment.setArguments(getIntent().getExtras());
         voiceChatFragment.setOnEventCallback((op, args) -> {
             if (VoiceChatFragment.EVENT_TOBE_AUDIENCE == op) {
@@ -170,9 +182,24 @@ public class ChatActivity extends BaseActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        // hook back menu.
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         EMClient.getInstance().chatManager().removeMessageListener(messageListener);
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_contacts:
+                Intent i = new Intent(ChatActivity.this, MembersActivity.class);
+                i.putExtra(Constant.EXTRA_CHATROOM_ID, textRoomId);
+                startActivity(i);
+                break;
+        }
     }
 
     public void exit(View view) {
@@ -253,13 +280,12 @@ public class ChatActivity extends BaseActivity {
                                 .setStyle(EaseTipDialog.TipDialogStyle.INFO)
                                 .setTitle("提示")
                                 .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
-                                .addButton("同意", Color.parseColor("#000000"), Color.parseColor("#FFFFFF"),
+                                .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                         (dialog, v) -> {
                                             dialog.dismiss();
-
                                             grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
                                         })
-                                .addButton("拒绝", Color.parseColor("#000000"), Color.parseColor("#FFFFFF"),
+                                .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                         (dialog, v) -> {
                                             dialog.dismiss();
                                             sendRequest(Constant.OP_REQUEST_TOBE_REJECTED);

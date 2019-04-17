@@ -48,6 +48,7 @@
 
         <activity
             android:name=".ui.LoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateVisible">
             <intent-filter>
@@ -59,6 +60,7 @@
 
         <activity
             android:name=".ui.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 
@@ -68,6 +70,12 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name=".ui.MembersActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
 
         <!-- 设置环信应用的AppKey -->
         <!--<meta-data-->

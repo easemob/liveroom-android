@@ -16,7 +16,7 @@ import com.hyphenate.liveroom.utils.DimensUtil;
 /**
  * Created by zhangsong on 19-4-8
  */
-public class TalkerView extends FrameLayout implements IStateView {
+public class TalkerView extends FrameLayout implements IBorderView {
     public interface OnClickListener {
         void onClick(TalkerView talkerView, StateTextButton stateTextButton);
     }
@@ -35,7 +35,7 @@ public class TalkerView extends FrameLayout implements IStateView {
         return new TalkerView(context);
     }
 
-    public StateTextButton createButton(Context context, int btnId, String title, boolean enabled
+    public StateTextButton createButton(Context context, int btnId, String title, Border border
             , OnClickListener listener) {
         StateTextButton button = new StateTextButton(context);
         button.setTag(btnId);
@@ -43,11 +43,7 @@ public class TalkerView extends FrameLayout implements IStateView {
         int padding = DimensUtil.dp2px(context, 4);
         button.setPadding(padding, padding, padding, padding);
         button.setText(title);
-        if (enabled) {
-            button.setState(State.ENABLEON);
-        } else {
-            button.setState(State.ENABLEOFF);
-        }
+        button.setBorder(border);
         button.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onClick(this, button);
@@ -79,14 +75,14 @@ public class TalkerView extends FrameLayout implements IStateView {
     }
 
     @Override
-    public TalkerView setState(State state) {
-        stateHelper.changeState(this, state);
+    public TalkerView setBorder(Border state) {
+        stateHelper.changeBorder(this, state);
         return this;
     }
 
     @Override
-    public State getState() {
-        return stateHelper.getState();
+    public Border getBorder() {
+        return stateHelper.getBorder();
     }
 
     public TalkerView setName(String name) {
@@ -137,8 +133,8 @@ public class TalkerView extends FrameLayout implements IStateView {
         return this;
     }
 
-    public TalkerView addButton(int btnId, String title, boolean enabled, OnClickListener listener) {
-        addButton(createButton(getContext(), btnId, title, enabled, listener));
+    public TalkerView addButton(int btnId, String title, Border border, OnClickListener listener) {
+        addButton(createButton(getContext(), btnId, title, border, listener));
         return this;
     }
 

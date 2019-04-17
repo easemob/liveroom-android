@@ -10,7 +10,7 @@ import com.hyphenate.liveroom.R;
 /**
  * Created by zhangsong on 19-4-8
  */
-public class MusicControllerView extends FrameLayout implements IStateView {
+public class MusicControllerView extends FrameLayout implements IBorderView {
     private static final String TAG = "LayoutMusicController";
 
     private StateHelper stateHelper;
@@ -31,13 +31,13 @@ public class MusicControllerView extends FrameLayout implements IStateView {
     }
 
     @Override
-    public MusicControllerView setState(State state) {
-        stateHelper.changeState(this, state);
+    public MusicControllerView setBorder(Border state) {
+        stateHelper.changeBorder(this, state);
         return this;
     }
 
     @Override
-    public State getState() {
-        return stateHelper.getState();
+    public Border getBorder() {
+        return stateHelper.getBorder();
     }
 }

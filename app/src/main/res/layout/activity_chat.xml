@@ -45,29 +45,31 @@
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
                     style="@style/chat_controller_btn_style"
-                    android:src="@drawable/em_ic_contacts"
-                    hyphenate:state="enable_off" />
+                    android:src="@drawable/em_ic_music"
+                    hyphenate:border="gray" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
+                    android:id="@+id/btn_contacts"
                     style="@style/chat_controller_btn_style"
-                    android:src="@drawable/em_ic_music"
-                    hyphenate:state="enable_off" />
+                    android:onClick="onClick"
+                    android:src="@drawable/em_ic_contacts"
+                    hyphenate:border="gray" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
                     style="@style/chat_controller_btn_style"
                     android:src="@drawable/em_ic_share"
-                    hyphenate:state="enable_off" />
+                    hyphenate:border="gray" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
                     style="@style/chat_controller_btn_style"
                     android:src="@drawable/em_ic_equalizer"
-                    hyphenate:state="enable_off" />
+                    hyphenate:border="gray" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton
                     style="@style/chat_controller_btn_style"
                     android:onClick="exit"
                     android:src="@drawable/em_ic_exit"
-                    hyphenate:state="enable_off" />
+                    hyphenate:border="gray" />
             </LinearLayout>
         </RelativeLayout>
 

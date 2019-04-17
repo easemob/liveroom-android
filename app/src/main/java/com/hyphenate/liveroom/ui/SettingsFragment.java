@@ -56,24 +56,24 @@ public class SettingsFragment extends BaseFragment {
                     .setTitle("提示")
                     .setMessage("切换房间互动模式会初始化麦序。主播模式为当前只有管理员能发言；抢麦模式为当前只有管理员可以发言；互动模式为全部主播均可发言。请确认切换的模式。")
                     .addButton("主持模式",
-                            Color.parseColor("#000000"),
-                            Color.parseColor("#FFFFFF"),
+                            Constant.COLOR_BLACK,
+                            Constant.COLOR_WHITE,
                             (dialog, view) -> {
                                 dialog.dismiss();
                                 PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_HOST);
                                 typeView.setText("主持模式");
                             })
                     .addButton("抢麦模式",
-                            Color.parseColor("#000000"),
-                            Color.parseColor("#FFFFFF"),
+                            Constant.COLOR_BLACK,
+                            Constant.COLOR_WHITE,
                             (dialog, view) -> {
                                 dialog.dismiss();
                                 PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_MONOPOLY);
                                 typeView.setText("抢麦模式");
                             })
                     .addButton("互动模式",
-                            Color.parseColor("#000000"),
-                            Color.parseColor("#FFFFFF"),
+                            Constant.COLOR_BLACK,
+                            Constant.COLOR_WHITE,
                             (dialog, view) -> {
                                 dialog.dismiss();
                                 PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_COMMUNICATION);

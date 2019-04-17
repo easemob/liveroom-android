@@ -26,7 +26,6 @@
     <string name="automatically_turn_on_music">Automatically turn on music</string>
 
 
-
     <string name="btn_logout">Logout</string>
     <!-- settings end -->
 
@@ -48,7 +47,7 @@
     <string name="no_more_messages">no more messages</string>
     <string name="joining">Joining.....</string>
     <string name="the_current_chat_room_destroyed">The current chat room has been dismissed</string>
-    <string name="quiting_the_chat_room">Exiting chat room</string>
+    <string name="quiting_the_chat_room">You be kicked out off the chat room ...</string>
     <string name="user_be_kicked_for_offline">user be kicked for offline</string>
     <string name="alert_kicked_for_offline">You\'ve been kicked for offline, click to rejoin again.</string>
     <string name="rejoining_the_chat_room">Rejoining chat room</string>
