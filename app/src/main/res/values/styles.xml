@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar"></style>
@@ -103,6 +103,23 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:layout_marginTop">2dp</item>
+    </style>
+
+    <style name="SwitchStyle" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">#00000000</item>
+        <item name="colorSwitchThumbNormal">#00000000</item>
+        <item name="android:colorForeground">#00000000</item>
+    </style>
+
+    <style name="settings_switch_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/em_bg_switch</item>
+        <item name="showText">false</item>
+        <item name="splitTrack">false</item>
+        <item name="theme">@style/SwitchStyle</item>
+        <item name="thumbTint">#00000000</item>
+        <item name="trackTint">#00000000</item>
     </style>
 
 </resources>

@@ -2,7 +2,6 @@ package com.hyphenate.liveroom.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,11 +44,9 @@ public class ChatActivity extends BaseActivity {
     private VoiceChatFragment voiceChatFragment;
 
     public static class Builder {
-        private Activity original;
         private Intent intent;
 
         public Builder(Activity original) {
-            this.original = original;
             intent = new Intent(original, ChatActivity.class);
             intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
         }

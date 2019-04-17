@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
@@ -13,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical|start"
-            android:text="选择房间"
+            android:text="设置"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
 
@@ -50,9 +51,7 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/allow_apply_for_interact_default" />
 
-            <android.support.v7.widget.SwitchCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
 
         </LinearLayout>
 
@@ -90,9 +89,7 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/auto_agree_to_apply_as_speaker" />
 
-            <android.support.v7.widget.SwitchCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
         </LinearLayout>
 
         <LinearLayout style="@style/settings_cell_style">
@@ -101,9 +98,7 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/automatically_turn_on_music" />
 
-            <android.support.v7.widget.SwitchCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
         </LinearLayout>
 
         <Button
