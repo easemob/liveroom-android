@@ -32,9 +32,12 @@ import com.hyphenate.liveroom.widgets.IBorderView;
 import com.hyphenate.liveroom.widgets.StateTextButton;
 import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.util.EMLog;
+import com.superrtc.mediamanager.EMediaStream;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangsong on 19-4-10
@@ -65,6 +68,8 @@ public class VoiceChatFragment extends BaseFragment {
     private EMStreamParam normalParam;
     private AudioManager audioManager;
 
+    // Map<streamId, username>
+    private Map<String, String> streamMap = new HashMap<>();
     // Pair<username, talker view>
     private Pair<String, TalkerView>[] talkerViewList = new Pair[MAX_TALKERS];
     private String publishId = null;
@@ -115,6 +120,9 @@ public class VoiceChatFragment extends BaseFragment {
             public void onSuccess(final EMConference value) {
                 conferenceRole = value.getConferenceRole();
                 EMLog.e(TAG, "join conference success, role: " + conferenceRole);
+
+                startAudioTalkingMonitor();
+
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员加入会议,默认publish 语音流.
                     // set channel attributes.
                     EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_ADMIN, currentUsername, null);
@@ -159,6 +167,8 @@ public class VoiceChatFragment extends BaseFragment {
         audioManager.setMode(AudioManager.MODE_NORMAL);
         closeSpeaker();
 
+        stopAudioTalkingMonitor();
+
         EMClient.getInstance().conferenceManager().removeConferenceListener(conferenceListener);
 
         if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员退出时销毁会议
@@ -200,10 +210,14 @@ public class VoiceChatFragment extends BaseFragment {
             publish(roomType == RoomType.HOST);
 
             TalkerView talkerView = updatePositionValue(p, currentUsername);
+            if (roomType == RoomType.HOST) {
+                talkerView.canTalk(false);
+            } else {
+                talkerView.canTalk(true)
+                        .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+            }
             talkerView.setName(currentUsername)
-                    .canTalk(true)
                     .setBorder(IBorderView.Border.GRAY)
-                    .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN))
                     .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
 
             return RESULT_ALREADY_TALKER;
@@ -217,6 +231,7 @@ public class VoiceChatFragment extends BaseFragment {
             @Override
             public void onSuccess(String value) {
                 publishId = value;
+                streamMap.put(publishId, currentUsername);
                 // 主持模式下,新晋主播默认闭麦
                 if (pauseVoice) {
                     EMClient.getInstance().conferenceManager().closeVoiceTransfer();
@@ -268,6 +283,14 @@ public class VoiceChatFragment extends BaseFragment {
         if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(false);
         }
+    }
+
+    private void startAudioTalkingMonitor() {
+        EMClient.getInstance().conferenceManager().startMonitorSpeaker(300);
+    }
+
+    private void stopAudioTalkingMonitor() {
+        EMClient.getInstance().conferenceManager().stopMonitorSpeaker();
     }
 
     private void addMemberView(TalkerView memberView) {
@@ -381,7 +404,8 @@ public class VoiceChatFragment extends BaseFragment {
 
         @Override
         public void onStreamAdded(final EMConferenceStream stream) {
-            Log.i(TAG, "onStreamAdded: ");
+            streamMap.put(stream.getStreamId(), stream.getUsername());
+            Log.i(TAG, "onStreamAdded: " + streamMap.toString());
             subscribe(stream);
 
             // 更新名称已存在的TalkerView, 主要包含admin的TalkerView
@@ -423,6 +447,7 @@ public class VoiceChatFragment extends BaseFragment {
         @Override
         public void onStreamRemoved(EMConferenceStream stream) {
             Log.i(TAG, "onStreamRemoved: ");
+            streamMap.remove(stream.getStreamId());
 
             String username = stream.getUsername();
             int index = findExistPosition(username);
@@ -470,11 +495,16 @@ public class VoiceChatFragment extends BaseFragment {
         public void onSpeakers(List<String> list) {
             Log.i(TAG, "onSpeakers: " + Arrays.toString(list.toArray()));
             runOnUiThread(() -> {
-                for (Pair<String, TalkerView> pair : talkerViewList) {
-                    if (list.contains(pair.first)) {
-                        pair.second.setTalking(true);
+                for (String streamId : streamMap.keySet()) {
+                    int p = findExistPosition(streamMap.get(streamId));
+                    if (p == -1) {
+                        continue;
+                    }
+
+                    if (list.contains(streamId)) {
+                        talkerViewList[p].second.setTalking(true);
                     } else {
-                        pair.second.setTalking(false);
+                        talkerViewList[p].second.setTalking(false);
                     }
                 }
             });
@@ -500,16 +530,15 @@ public class VoiceChatFragment extends BaseFragment {
 
                 runOnUiThread(() -> {
                     TalkerView talkerView = updatePositionValue(position, currentUsername);
-                    talkerView.setName(currentUsername)
-                            .setBorder(IBorderView.Border.GRAY)
-                            .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
-
                     if (roomType == RoomType.HOST) {
                         talkerView.canTalk(false);
                     } else {
                         talkerView.canTalk(true)
                                 .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
                     }
+                    talkerView.setName(currentUsername)
+                            .setBorder(IBorderView.Border.GRAY)
+                            .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 });
 
             } else { // 主播变成了观众

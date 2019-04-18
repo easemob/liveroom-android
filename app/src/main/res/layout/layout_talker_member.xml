@@ -38,7 +38,6 @@
             android:layout_height="15dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
-            android:layout_toLeftOf="@+id/indicator_talking"
             android:layout_toRightOf="@+id/txt_name"
             android:src="@drawable/em_ic_king"
             android:visibility="gone" />
