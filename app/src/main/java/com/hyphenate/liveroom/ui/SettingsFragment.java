@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
@@ -51,36 +52,29 @@ public class SettingsFragment extends BaseFragment {
         });
 
         getView().findViewById(R.id.btn_type).setOnClickListener(v -> {
-            new EaseTipDialog.Builder(getContext())
+            StringBuilder stringBuilder = new StringBuilder("切换房间互动模式会初始化麦序。");
+            for (RoomType roomType : RoomType.values()) {
+                stringBuilder.append(roomType.getDesc()).append(";");
+            }
+            stringBuilder.append("请确认切换的模式。");
+
+            EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
                     .setStyle(EaseTipDialog.TipDialogStyle.INFO)
                     .setTitle("提示")
-                    .setMessage("切换房间互动模式会初始化麦序。主播模式为当前只有管理员能发言；抢麦模式为当前只有管理员可以发言；互动模式为全部主播均可发言。请确认切换的模式。")
-                    .addButton("主持模式",
-                            Constant.COLOR_BLACK,
-                            Constant.COLOR_WHITE,
-                            (dialog, view) -> {
-                                dialog.dismiss();
-                                PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_HOST);
-                                typeView.setText("主持模式");
-                            })
-                    .addButton("抢麦模式",
-                            Constant.COLOR_BLACK,
-                            Constant.COLOR_WHITE,
-                            (dialog, view) -> {
-                                dialog.dismiss();
-                                PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_MONOPOLY);
-                                typeView.setText("抢麦模式");
-                            })
-                    .addButton("互动模式",
-                            Constant.COLOR_BLACK,
-                            Constant.COLOR_WHITE,
-                            (dialog, view) -> {
-                                dialog.dismiss();
-                                PreferenceManager.getInstance().setRoomType(Constant.ROOM_TYPE_COMMUNICATION);
-                                typeView.setText("互动模式");
-                            })
-                    .build()
-                    .show();
+                    .setMessage(stringBuilder.toString());
+
+            for (RoomType roomType : RoomType.values()) {
+                builder.addButton(roomType.getName(),
+                        Constant.COLOR_BLACK,
+                        Constant.COLOR_WHITE,
+                        (dialog, view) -> {
+                            dialog.dismiss();
+                            PreferenceManager.getInstance().setRoomType(roomType.getId());
+                            typeView.setText(roomType.getName());
+                        });
+            }
+
+            builder.build().show();
         });
     }
 }

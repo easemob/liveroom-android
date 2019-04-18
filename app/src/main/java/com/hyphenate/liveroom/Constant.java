@@ -32,4 +32,8 @@ public class Constant {
 
     public static final int COLOR_WHITE = Color.parseColor("#FFFFFF");
     public static final int COLOR_BLACK = Color.parseColor("#000000");
+
+    public static final String PROPERTY_ADMIN = "admin";
+    public static final String PROPERTY_TYPE = "type";
+    public static final String PROPERTY_TALKER = "talker";
 }

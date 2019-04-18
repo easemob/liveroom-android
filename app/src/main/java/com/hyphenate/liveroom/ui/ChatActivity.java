@@ -22,6 +22,7 @@ import com.hyphenate.chat.EMConferenceMember;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.AnimationUtil;
@@ -39,7 +40,10 @@ public class ChatActivity extends BaseActivity {
     private String textRoomId;
     private boolean isCreator;
 
+    // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
+    private TextView roomTypeView;
+    private TextView roomTypeDescView;
 
     private VoiceChatFragment voiceChatFragment;
 
@@ -93,9 +97,12 @@ public class ChatActivity extends BaseActivity {
         textRoomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
 
         placeholder = findViewById(R.id.placeholder);
+        roomTypeView = findViewById(R.id.tv_room_type);
+        roomTypeDescView = findViewById(R.id.tv_type_desc);
         TextView roomNameView = findViewById(R.id.txt_room_name);
         TextView accountView = findViewById(R.id.txt_account);
         View tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
+
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
@@ -115,6 +122,10 @@ public class ChatActivity extends BaseActivity {
                     sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
                 }
             });
+        } else {
+            RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
+            roomTypeView.setText(roomType.getName());
+            roomTypeDescView.setText(roomType.getDesc());
         }
 
         roomNameView.setText(roomName);
@@ -163,6 +174,12 @@ public class ChatActivity extends BaseActivity {
                 } else { // 主播向管理员发送下线的申请
                     sendRequest(Constant.OP_REQUEST_TOBE_AUDIENCE);
                 }
+            } else if (VoiceChatFragment.EVENT_ROOM_TYPE_CHANGED == op) {
+                runOnUiThread(() -> {
+                    RoomType roomType = (RoomType) args[0];
+                    roomTypeView.setText(roomType.getName());
+                    roomTypeDescView.setText(roomType.getDesc());
+                });
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();

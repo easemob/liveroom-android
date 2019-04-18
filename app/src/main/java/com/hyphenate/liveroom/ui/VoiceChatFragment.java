@@ -25,6 +25,7 @@ import com.hyphenate.chat.EMStreamParam;
 import com.hyphenate.chat.EMStreamStatistics;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
 import com.hyphenate.liveroom.widgets.IBorderView;
@@ -42,6 +43,7 @@ public class VoiceChatFragment extends BaseFragment {
     private static final String TAG = "VoiceChatFragment";
 
     public static final int EVENT_TOBE_AUDIENCE = 1;
+    public static final int EVENT_ROOM_TYPE_CHANGED = 2;
 
     public static final int RESULT_NO_HANDLED = 0;
     public static final int RESULT_NO_POSITION = 1;
@@ -49,6 +51,7 @@ public class VoiceChatFragment extends BaseFragment {
 
     private static final int BUTTON_MIC = 0;
     private static final int BUTTON_DISCONN = 1;
+    private static final int BUTTON_TALK = 2;
 
     private static final int MAX_TALKERS = 6;
 
@@ -65,6 +68,9 @@ public class VoiceChatFragment extends BaseFragment {
     // Pair<username, talker view>
     private Pair<String, TalkerView>[] talkerViewList = new Pair[MAX_TALKERS];
     private String publishId = null;
+    // 模式
+    private RoomType roomType;
+    private String currentUsername;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,10 +88,9 @@ public class VoiceChatFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-//        String ownerName = getArguments().getString(Constant.EXTRA_OWNER_NAME);
-//        isCreator = PreferenceManager.getInstance().getCurrentUsername().equalsIgnoreCase(ownerName);
         confId = getArguments().getString(Constant.EXTRA_CONFERENCE_ID);
         password = getArguments().getString(Constant.EXTRA_PASSWORD);
+        currentUsername = PreferenceManager.getInstance().getCurrentUsername();
 
         memberContainer = getView().findViewById(R.id.container_member);
 
@@ -111,20 +116,30 @@ public class VoiceChatFragment extends BaseFragment {
                 conferenceRole = value.getConferenceRole();
                 EMLog.e(TAG, "join conference success, role: " + conferenceRole);
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员加入会议,默认publish 语音流.
-                    String username = PreferenceManager.getInstance().getCurrentUsername();
                     // set channel attributes.
-                    EMClient.getInstance().conferenceManager().setConferenceAttribute("admin", username, null);
+                    EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_ADMIN, currentUsername, null);
+                    roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
+                    EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_TYPE, roomType.getId(), null);
+                    if (roomType == RoomType.HOST) {
+                        EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_TALKER, currentUsername, null);
+                    }
+
+                    // 不管任何模式,管理员加入默认开始推流且不静音
+                    publish(false);
+
                     // 管理员设置自己的TalkerView
                     runOnUiThread(() -> {
-                        TalkerView talkerView = updatePositionValue(0, username);
-                        talkerView.setName(username)
+                        TalkerView talkerView = updatePositionValue(0, currentUsername);
+                        talkerView.setName(currentUsername)
                                 .canTalk(true)
                                 .setKing(true)
                                 .setBorder(IBorderView.Border.GRAY)
                                 .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
-                    });
 
-                    publish();
+                        if (roomType == RoomType.HOST) {
+                            talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
+                        }
+                    });
                 }
             }
 
@@ -176,15 +191,16 @@ public class VoiceChatFragment extends BaseFragment {
     public int handleTalkerRequest() {
         int p = findEmptyPosition();
         if (p == -1) {
+            Log.i(TAG, "No position left.");
             return RESULT_NO_POSITION;
         }
 
         if (conferenceRole == EMConferenceManager.EMConferenceRole.Talker) {
-            publish();
+            Log.i(TAG, "Current role is talker, publish directly.");
+            publish(roomType == RoomType.HOST);
 
-            final String username = PreferenceManager.getInstance().getCurrentUsername();
-            TalkerView talkerView = updatePositionValue(p, username);
-            talkerView.setName(username)
+            TalkerView talkerView = updatePositionValue(p, currentUsername);
+            talkerView.setName(currentUsername)
                     .canTalk(true)
                     .setBorder(IBorderView.Border.GRAY)
                     .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN))
@@ -196,11 +212,15 @@ public class VoiceChatFragment extends BaseFragment {
         return RESULT_NO_HANDLED;
     }
 
-    private void publish() {
+    private void publish(boolean pauseVoice) {
         EMClient.getInstance().conferenceManager().publish(normalParam, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
                 publishId = value;
+                // 主持模式下,新晋主播默认闭麦
+                if (pauseVoice) {
+                    EMClient.getInstance().conferenceManager().closeVoiceTransfer();
+                }
             }
 
             @Override
@@ -221,8 +241,7 @@ public class VoiceChatFragment extends BaseFragment {
         EMClient.getInstance().conferenceManager().unpublish(publishId, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
-                final String username = PreferenceManager.getInstance().getCurrentUsername();
-                int existPosition = findExistPosition(username);
+                int existPosition = findExistPosition(currentUsername);
                 runOnUiThread(() -> {
                     updatePositionValue(existPosition, null)
                             .setName("已下线")
@@ -309,7 +328,8 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_MIC) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
             return v.createButton(getContext(), BUTTON_MIC,
-                    border != IBorderView.Border.GRAY ? titles[1] : titles[0], border, (view, button) -> {
+                    border != IBorderView.Border.GRAY ? titles[1] : titles[0], border,
+                    (view, button) -> {
                         if (button.getBorder() == IBorderView.Border.GRAY) {
                             button.setBorder(IBorderView.Border.GREEN).setText(titles[1]);
                             EMClient.getInstance().conferenceManager().openVoiceTransfer();
@@ -326,6 +346,14 @@ public class VoiceChatFragment extends BaseFragment {
                         if (onEventCallback != null) {
                             onEventCallback.onEvent(EVENT_TOBE_AUDIENCE, view.getName());
                         }
+                    });
+        }
+        if (id == BUTTON_TALK) {
+            return v.createButton(getContext(), BUTTON_TALK,
+                    "发言", border, (view, button) -> {
+                        // 设置频道属性
+                        EMClient.getInstance().conferenceManager().setConferenceAttribute(
+                                Constant.PROPERTY_TALKER, view.getName(), null);
                     });
         }
 
@@ -384,6 +412,9 @@ public class VoiceChatFragment extends BaseFragment {
                     talkerView.setKing(true);
                 }
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) {
+                    if (roomType == RoomType.HOST) { // 主持模式下,管理员视角其他主播view中都有一个发言的按钮
+                        talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
+                    }
                     talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 }
             });
@@ -465,16 +496,20 @@ public class VoiceChatFragment extends BaseFragment {
                     return;
                 }
 
-                publish();
+                publish(roomType == RoomType.HOST);
 
-                final String username = PreferenceManager.getInstance().getCurrentUsername();
                 runOnUiThread(() -> {
-                    TalkerView talkerView = updatePositionValue(position, username);
-                    talkerView.setName(username)
-                            .canTalk(true)
+                    TalkerView talkerView = updatePositionValue(position, currentUsername);
+                    talkerView.setName(currentUsername)
                             .setBorder(IBorderView.Border.GRAY)
-                            .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN))
                             .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
+
+                    if (roomType == RoomType.HOST) {
+                        talkerView.canTalk(false);
+                    } else {
+                        talkerView.canTalk(true)
+                                .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                    }
                 });
 
             } else { // 主播变成了观众
@@ -483,11 +518,40 @@ public class VoiceChatFragment extends BaseFragment {
         }
 
         @Override
-        public void onAttributeUpdated(EMAttributeAction action, String s, String s1) {
-            Log.i(TAG, "onAttributeUpdated: " + action + " - " + s + " - " + s1);
+        public void onAttributeUpdated(EMAttributeAction action, String key, String value) {
+            Log.i(TAG, "onAttributeUpdated: " + action + " - " + key + " - " + value);
             // 把admin的名字绑定到第一个TalkerView
-            if ("admin".equals(s)) {
-                updatePositionValue(0, s1);
+            if (Constant.PROPERTY_ADMIN.equals(key)) {
+                updatePositionValue(0, value);
+            }
+            // 第一次加入房间时会获取到当前语聊房间的互动模式
+            if (Constant.PROPERTY_TYPE.equals(key)) {
+                roomType = RoomType.from(value);
+                if (onEventCallback != null) {
+                    onEventCallback.onEvent(EVENT_ROOM_TYPE_CHANGED, roomType);
+                }
+            }
+
+            if (Constant.PROPERTY_TALKER.equals(key) && action == EMAttributeAction.UPDATE) {
+                if (conferenceRole == EMConferenceManager.EMConferenceRole.Audience) {
+                    return;
+                }
+
+                if (currentUsername.equals(value)) {
+                    EMClient.getInstance().conferenceManager().openVoiceTransfer();
+                    // 更新自己canTalk的状态
+                    int p = findExistPosition(currentUsername);
+                    if (p != -1) {
+                        runOnUiThread(() -> talkerViewList[p].second.canTalk(true));
+                    }
+                } else {
+                    EMClient.getInstance().conferenceManager().closeVoiceTransfer();
+                    // 更新自己canTalk的状态
+                    int p = findExistPosition(currentUsername);
+                    if (p != -1) {
+                        runOnUiThread(() -> talkerViewList[p].second.canTalk(false));
+                    }
+                }
             }
         }
     };

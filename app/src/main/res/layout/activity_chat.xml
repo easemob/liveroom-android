@@ -24,7 +24,6 @@
                     android:id="@+id/txt_room_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ASD123"
                     android:textColor="@color/text_normal"
                     android:textSize="14sp" />
 
@@ -32,7 +31,6 @@
                     android:id="@+id/txt_account"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="shengxi"
                     android:textColor="@color/text_hint"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -80,19 +78,19 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_room_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="抢麦模式"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/tv_type_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="管理员和主播可以相互抢麦发言，管理员可以控制谁发言，主播仅能抢麦发言"
                 android:textColor="@color/text_color_gray"
-                android:textSize="8sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <RelativeLayout

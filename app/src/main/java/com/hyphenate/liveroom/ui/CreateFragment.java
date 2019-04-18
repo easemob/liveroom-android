@@ -45,7 +45,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_JOIN) {
+        if (requestCode == REQUEST_JOIN && resultCode != EMError.EM_NO_ERROR) {
             int error = resultCode;
             EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
                     .setStyle(EaseTipDialog.TipDialogStyle.ERROR)

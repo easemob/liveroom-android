@@ -2,6 +2,7 @@ package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
         button.setTextSize(10);
         int padding = DimensUtil.dp2px(context, 4);
         button.setPadding(padding, padding, padding, padding);
+        button.setGravity(Gravity.CENTER);
+        button.setMinWidth(DimensUtil.dp2px(context, 60));
         button.setText(title);
         button.setBorder(border);
         button.setOnClickListener(v -> {
