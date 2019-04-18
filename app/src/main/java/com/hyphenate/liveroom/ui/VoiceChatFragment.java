@@ -76,6 +76,8 @@ public class VoiceChatFragment extends BaseFragment {
     // 模式
     private RoomType roomType;
     private String currentUsername;
+    // 主持模式下的当前说话者
+    private String currentTalker;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -129,6 +131,7 @@ public class VoiceChatFragment extends BaseFragment {
                     roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
                     EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_TYPE, roomType.getId(), null);
                     if (roomType == RoomType.HOST) {
+                        currentTalker = currentUsername;
                         EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_TALKER, currentUsername, null);
                     }
 
@@ -141,10 +144,11 @@ public class VoiceChatFragment extends BaseFragment {
                         talkerView.setName(currentUsername)
                                 .canTalk(true)
                                 .setKing(true)
-                                .setBorder(IBorderView.Border.GRAY)
-                                .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                                .setBorder(IBorderView.Border.GRAY);
 
-                        if (roomType == RoomType.HOST) {
+                        if (roomType == RoomType.COMMUNICATION) {
+                            talkerView.addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                        } else if (roomType == RoomType.HOST) {
                             talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
                         }
                     });
@@ -371,9 +375,16 @@ public class VoiceChatFragment extends BaseFragment {
                         }
                     });
         }
-        if (id == BUTTON_TALK) {
+        if (id == BUTTON_TALK) { // 只存在于主持模式下
             return v.createButton(getContext(), BUTTON_TALK,
                     "发言", border, (view, button) -> {
+                        // 把上一个发言人的发言按钮border颜色设置为gray
+                        talkerViewList[findExistPosition(currentTalker)].second.findButton(BUTTON_TALK)
+                                .setBorder(IBorderView.Border.GRAY);
+                        // 把当前被点击人的发言按钮border颜色设置为green
+                        button.setBorder(IBorderView.Border.GREEN);
+
+                        currentTalker = view.getName();
                         // 设置频道属性
                         EMClient.getInstance().conferenceManager().setConferenceAttribute(
                                 Constant.PROPERTY_TALKER, view.getName(), null);
@@ -437,7 +448,7 @@ public class VoiceChatFragment extends BaseFragment {
                 }
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) {
                     if (roomType == RoomType.HOST) { // 主持模式下,管理员视角其他主播view中都有一个发言的按钮
-                        talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
+                        talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GRAY));
                     }
                     talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 }
@@ -566,20 +577,20 @@ public class VoiceChatFragment extends BaseFragment {
                     return;
                 }
 
+                int p = findExistPosition(currentUsername);
+                if (p == -1) {
+                    Log.e(TAG, "onAttributeUpdated: Can not found target TalkerView by name: " + currentUsername);
+                    return;
+                }
+
                 if (currentUsername.equals(value)) {
                     EMClient.getInstance().conferenceManager().openVoiceTransfer();
                     // 更新自己canTalk的状态
-                    int p = findExistPosition(currentUsername);
-                    if (p != -1) {
-                        runOnUiThread(() -> talkerViewList[p].second.canTalk(true));
-                    }
+                    runOnUiThread(() -> talkerViewList[p].second.canTalk(true));
                 } else {
                     EMClient.getInstance().conferenceManager().closeVoiceTransfer();
                     // 更新自己canTalk的状态
-                    int p = findExistPosition(currentUsername);
-                    if (p != -1) {
-                        runOnUiThread(() -> talkerViewList[p].second.canTalk(false));
-                    }
+                    runOnUiThread(() -> talkerViewList[p].second.canTalk(false));
                 }
             }
         }
