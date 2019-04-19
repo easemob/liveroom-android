@@ -10,6 +10,7 @@ public class Constant {
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_CHATROOM_ID = "chatroomId";
     public static final String EXTRA_CONFERENCE_ID = "conferenceId";
+    public static final String EXTRA_ALLOW_REQUEST = "allowRequest";
 
     public static final int CHATTYPE_SINGLE = 1;
     public static final int CHATTYPE_GROUP = 2;
@@ -32,4 +33,8 @@ public class Constant {
 
     public static final int COLOR_WHITE = Color.parseColor("#FFFFFF");
     public static final int COLOR_BLACK = Color.parseColor("#000000");
+
+    public static final String PROPERTY_ADMIN = "admin";
+    public static final String PROPERTY_TYPE = "type";
+    public static final String PROPERTY_TALKER = "talker";
 }

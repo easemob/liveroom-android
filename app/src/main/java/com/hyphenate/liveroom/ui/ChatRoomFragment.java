@@ -97,6 +97,7 @@ public class ChatRoomFragment extends BaseFragment {
                                         .setChatroomId(chatRoom.getRoomId())
                                         .setConferenceId(chatRoom.getRtcConfrId())
                                         .setPassword(password)
+                                        .setAllowRequest(chatRoom.isAllowAudienceTalk())
                                         .build();
                                 startActivityForResult(i, REQUEST_JOIN);
                             })
@@ -118,7 +119,7 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_JOIN) {
+        if (requestCode == REQUEST_JOIN && resultCode != EMError.EM_NO_ERROR) {
             int error = resultCode;
             EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
                     .setStyle(EaseTipDialog.TipDialogStyle.ERROR)
