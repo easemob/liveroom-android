@@ -11,6 +11,8 @@ public class Constant {
     public static final String EXTRA_CHATROOM_ID = "chatroomId";
     public static final String EXTRA_CONFERENCE_ID = "conferenceId";
     public static final String EXTRA_ALLOW_REQUEST = "allowRequest";
+    public static final String EXTRA_CHAT_ROOM = "chatRoomEntity";
+    public static final String EXTRA_ROOM_TYPE = "roomType";
 
     public static final int CHATTYPE_SINGLE = 1;
     public static final int CHATTYPE_GROUP = 2;

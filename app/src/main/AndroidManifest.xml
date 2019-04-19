@@ -77,6 +77,12 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|stateHidden" />
 
+        <activity
+            android:name=".ui.RoomDetailsActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+
         <!-- 设置环信应用的AppKey -->
         <!--<meta-data-->
         <!--android:name="EASEMOB_APPKEY"-->

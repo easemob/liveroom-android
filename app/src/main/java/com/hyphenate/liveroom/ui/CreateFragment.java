@@ -75,12 +75,8 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                         });
 
                         Intent i = new ChatActivity.Builder(getActivity())
-                                .setOwnerName(chatRoom.getOwnerName())
-                                .setRoomName(chatRoom.getRoomName())
-                                .setChatroomId(chatRoom.getRoomId())
-                                .setConferenceId(chatRoom.getRtcConfrId())
+                                .setChatRoomEntity(chatRoom)
                                 .setPassword(chatRoom.getRtcConfrPassword())
-                                .setAllowRequest(PreferenceManager.getInstance().isAllowRequest())
                                 .build();
                         startActivityForResult(i, REQUEST_JOIN);
                     }

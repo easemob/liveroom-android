@@ -25,6 +25,7 @@ import com.hyphenate.chat.EMStreamParam;
 import com.hyphenate.chat.EMStreamStatistics;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
@@ -60,10 +61,6 @@ public class VoiceChatFragment extends BaseFragment {
 
     private LinearLayout memberContainer;
 
-    // private boolean isCreator;
-    private String confId;
-    private String password;
-
     private EMConferenceManager.EMConferenceRole conferenceRole;
     private EMStreamParam normalParam;
     private AudioManager audioManager;
@@ -95,8 +92,9 @@ public class VoiceChatFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        confId = getArguments().getString(Constant.EXTRA_CONFERENCE_ID);
-        password = getArguments().getString(Constant.EXTRA_PASSWORD);
+        // private boolean isCreator;
+        final String confId = ((ChatRoom) getArguments().getSerializable(Constant.EXTRA_CHAT_ROOM)).getRtcConfrId();
+        final String password = getArguments().getString(Constant.EXTRA_PASSWORD);
         currentUsername = PreferenceManager.getInstance().getCurrentUsername();
 
         memberContainer = getView().findViewById(R.id.container_member);

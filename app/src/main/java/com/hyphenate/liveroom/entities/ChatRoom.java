@@ -1,9 +1,11 @@
 package com.hyphenate.liveroom.entities;
 
+import java.io.Serializable;
+
 /**
  * Created by zhangsong on 19-3-30
  */
-public class ChatRoom {
+public class ChatRoom implements Serializable {
     private String roomId; // 服务端生成唯一的语聊室ID
     private String roomName;
     private String ownerName; // 创建这者name，jid中的username

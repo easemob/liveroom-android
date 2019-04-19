@@ -31,6 +31,7 @@ import com.hyphenate.chat.adapter.EMAChatRoomManagerListener;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.utils.CommonUtils;
 import com.hyphenate.liveroom.widgets.EaseChatInputMenu;
 import com.hyphenate.liveroom.widgets.EaseChatMessageList;
@@ -81,7 +82,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
         fragmentArgs = getArguments();
         chatType = fragmentArgs.getInt(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_SINGLE);
-        chatRoomId = fragmentArgs.getString(Constant.EXTRA_CHATROOM_ID);
+        chatRoomId = ((ChatRoom) fragmentArgs.getSerializable(Constant.EXTRA_CHAT_ROOM)).getRoomId();
 
         initView();
         setUpView();

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical"
+    android:padding="13dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:text="房间详情"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@color/color_gray"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="房主：" />
+
+            <TextView
+                android:id="@+id/tv_admin"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="密码：" />
+
+            <TextView
+                android:id="@+id/tv_password"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="聊天室ID：" />
+
+            <TextView
+                android:id="@+id/tv_id_chatroom"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="音视频会议ID：" />
+
+            <TextView
+                android:id="@+id/tv_id_conference"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="房间最大人数：" />
+
+            <TextView
+                android:id="@+id/tv_mem_limit"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="创建时间：" />
+
+            <TextView
+                android:id="@+id/tv_create_time"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="允许观众上麦：" />
+
+            <TextView
+                android:id="@+id/tv_allow_request"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/dialog_join_layout_style">
+
+            <TextView
+                style="@style/dialog_join_text_style"
+                android:text="房间互动模式：" />
+
+            <TextView
+                android:id="@+id/tv_type"
+                style="@style/dialog_join_text_style" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
