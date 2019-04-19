@@ -97,6 +97,7 @@ public class ChatRoomFragment extends BaseFragment {
                                         .setChatroomId(chatRoom.getRoomId())
                                         .setConferenceId(chatRoom.getRtcConfrId())
                                         .setPassword(password)
+                                        .setAllowRequest(chatRoom.isAllowAudienceTalk())
                                         .build();
                                 startActivityForResult(i, REQUEST_JOIN);
                             })

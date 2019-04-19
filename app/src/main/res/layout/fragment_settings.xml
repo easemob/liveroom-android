@@ -51,7 +51,9 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/allow_apply_for_interact_default" />
 
-            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switch_allow_request"
+                style="@style/settings_switch_style" />
 
         </LinearLayout>
 
@@ -89,7 +91,9 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/auto_agree_to_apply_as_speaker" />
 
-            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switch_auto_agree"
+                style="@style/settings_switch_style" />
         </LinearLayout>
 
         <LinearLayout style="@style/settings_cell_style">
@@ -98,7 +102,9 @@
                 style="@style/settings_cell_left_text_style"
                 android:text="@string/automatically_turn_on_music" />
 
-            <android.support.v7.widget.SwitchCompat style="@style/settings_switch_style" />
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switch_bg_music"
+                style="@style/settings_switch_style" />
         </LinearLayout>
 
         <Button

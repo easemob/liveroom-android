@@ -39,6 +39,7 @@ public class ChatActivity extends BaseActivity {
     private String roomName;
     private String textRoomId;
     private boolean isCreator;
+    private boolean isAllowRequest;
 
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
@@ -80,6 +81,11 @@ public class ChatActivity extends BaseActivity {
             return this;
         }
 
+        public Builder setAllowRequest(boolean allow) {
+            intent.putExtra(Constant.EXTRA_ALLOW_REQUEST, allow);
+            return this;
+        }
+
         public Intent build() {
             return intent;
         }
@@ -95,6 +101,7 @@ public class ChatActivity extends BaseActivity {
         isCreator = PreferenceManager.getInstance().getCurrentUsername().equalsIgnoreCase(ownerName);
         roomName = getIntent().getStringExtra(Constant.EXTRA_ROOM_NAME);
         textRoomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
+        isAllowRequest = getIntent().getBooleanExtra(Constant.EXTRA_ALLOW_REQUEST, true);
 
         placeholder = findViewById(R.id.placeholder);
         roomTypeView = findViewById(R.id.tv_room_type);
@@ -106,6 +113,11 @@ public class ChatActivity extends BaseActivity {
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
+                if (!isAllowRequest) {
+                    Toast.makeText(this, "该语聊房间不允许申请连麦 ~", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 int result = voiceChatFragment.handleTalkerRequest();
                 if (result == VoiceChatFragment.RESULT_NO_POSITION) {
                     new EaseTipDialog.Builder(this)
@@ -292,24 +304,29 @@ public class ChatActivity extends BaseActivity {
                 String operation = msg.getStringAttribute(Constant.EM_CONFERENCE_OP, null);
                 Log.i(TAG, "onCmdMessageReceived: " + operation);
                 if (Constant.OP_REQUEST_TOBE_SPEAKER.equals(operation)) {
-                    runOnUiThread(() -> {
-                        new EaseTipDialog.Builder(ChatActivity.this)
-                                .setStyle(EaseTipDialog.TipDialogStyle.INFO)
-                                .setTitle("提示")
-                                .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
-                                .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
-                                        (dialog, v) -> {
-                                            dialog.dismiss();
-                                            grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
-                                        })
-                                .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
-                                        (dialog, v) -> {
-                                            dialog.dismiss();
-                                            sendRequest(Constant.OP_REQUEST_TOBE_REJECTED);
-                                        })
-                                .build()
-                                .show();
-                    });
+                    boolean autoAgreeRequest = PreferenceManager.getInstance().isAutoAgree();
+                    if (autoAgreeRequest) {
+                        grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
+                    } else {
+                        runOnUiThread(() -> {
+                            new EaseTipDialog.Builder(ChatActivity.this)
+                                    .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                                    .setTitle("提示")
+                                    .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
+                                    .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+                                            (dialog, v) -> {
+                                                dialog.dismiss();
+                                                grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
+                                            })
+                                    .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+                                            (dialog, v) -> {
+                                                dialog.dismiss();
+                                                sendRequest(Constant.OP_REQUEST_TOBE_REJECTED);
+                                            })
+                                    .build()
+                                    .show();
+                        });
+                    }
                 } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) {
                     grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Audience);
                 }

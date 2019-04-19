@@ -65,7 +65,8 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         String password = passwordView.getText().toString();
 
         HttpRequestManager.getInstance().createChatRoom(roomName, password, "",
-                true, new HttpRequestManager.IRequestListener<ChatRoom>() {
+                PreferenceManager.getInstance().isAllowRequest(),
+                new HttpRequestManager.IRequestListener<ChatRoom>() {
                     @Override
                     public void onSuccess(ChatRoom chatRoom) {
                         getActivity().runOnUiThread(() -> {
@@ -79,6 +80,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                                 .setChatroomId(chatRoom.getRoomId())
                                 .setConferenceId(chatRoom.getRtcConfrId())
                                 .setPassword(chatRoom.getRtcConfrPassword())
+                                .setAllowRequest(PreferenceManager.getInstance().isAllowRequest())
                                 .build();
                         startActivityForResult(i, REQUEST_JOIN);
                     }

@@ -1,13 +1,14 @@
 package com.hyphenate.liveroom.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.hyphenate.chat.EMClient;
@@ -34,14 +35,9 @@ public class SettingsFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         final TextView typeView = getView().findViewById(R.id.tv_type);
-        String type = PreferenceManager.getInstance().getRoomType();
-        if (Constant.ROOM_TYPE_HOST.equals(type)) {
-            typeView.setText("主持模式");
-        } else if (Constant.ROOM_TYPE_MONOPOLY.equals(type)) {
-            typeView.setText("抢麦模式");
-        } else {
-            typeView.setText("互动模式");
-        }
+
+        RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
+        typeView.setText(roomType.getName());
 
         getView().findViewById(R.id.btn_logout).setOnClickListener(v -> {
             EMClient.getInstance().logout(false);
@@ -53,8 +49,8 @@ public class SettingsFragment extends BaseFragment {
 
         getView().findViewById(R.id.btn_type).setOnClickListener(v -> {
             StringBuilder stringBuilder = new StringBuilder("切换房间互动模式会初始化麦序。");
-            for (RoomType roomType : RoomType.values()) {
-                stringBuilder.append(roomType.getDesc()).append(";");
+            for (RoomType type : RoomType.values()) {
+                stringBuilder.append(type.getDesc()).append(";");
             }
             stringBuilder.append("请确认切换的模式。");
 
@@ -63,18 +59,36 @@ public class SettingsFragment extends BaseFragment {
                     .setTitle("提示")
                     .setMessage(stringBuilder.toString());
 
-            for (RoomType roomType : RoomType.values()) {
-                builder.addButton(roomType.getName(),
+            for (RoomType type : RoomType.values()) {
+                builder.addButton(type.getName(),
                         Constant.COLOR_BLACK,
                         Constant.COLOR_WHITE,
                         (dialog, view) -> {
                             dialog.dismiss();
-                            PreferenceManager.getInstance().setRoomType(roomType.getId());
-                            typeView.setText(roomType.getName());
+                            PreferenceManager.getInstance().setRoomType(type.getId());
+                            typeView.setText(type.getName());
                         });
             }
 
             builder.build().show();
+        });
+
+        SwitchCompat allowRequestSwitch = getView().findViewById(R.id.switch_allow_request);
+        allowRequestSwitch.setChecked(PreferenceManager.getInstance().isAllowRequest());
+        allowRequestSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            PreferenceManager.getInstance().setAllowRequest(isChecked);
+        });
+
+        SwitchCompat autoAgreeSwitch = getView().findViewById(R.id.switch_auto_agree);
+        autoAgreeSwitch.setChecked(PreferenceManager.getInstance().isAutoAgree());
+        autoAgreeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            PreferenceManager.getInstance().setAutoAgree(isChecked);
+        });
+
+        SwitchCompat bgMusicSwitch = getView().findViewById(R.id.switch_bg_music);
+        bgMusicSwitch.setChecked(PreferenceManager.getInstance().withBgMusic());
+        bgMusicSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            PreferenceManager.getInstance().setBgMusic(isChecked);
         });
     }
 }
