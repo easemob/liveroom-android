@@ -1,8 +1,10 @@
 package com.hyphenate.liveroom.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,11 +28,12 @@ import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static com.hyphenate.liveroom.Constant.EXTRA_PASSWORD;
@@ -190,6 +193,8 @@ public class ChatActivity extends BaseActivity {
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
 
         EMClient.getInstance().chatManager().addMessageListener(messageListener);
+
+        requestPermissions();
     }
 
     @Override
@@ -201,6 +206,12 @@ public class ChatActivity extends BaseActivity {
             finish();
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
     }
 
     @Override
@@ -251,6 +262,19 @@ public class ChatActivity extends BaseActivity {
                 });
                 break;
         }
+    }
+
+    @TargetApi(23)
+    private void requestPermissions() {
+        PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
+            @Override
+            public void onGranted() {
+            }
+
+            @Override
+            public void onDenied(String permission) {
+            }
+        });
     }
 
     private void sendRequest(String op) {
