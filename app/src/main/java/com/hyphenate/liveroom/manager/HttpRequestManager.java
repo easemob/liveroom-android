@@ -148,6 +148,84 @@ public class HttpRequestManager {
         requestQueue.add(request);
     }
 
+    public void occupyMic(String roomId, String username) {
+        String url = String.format("%s/app/mic/%s/%s",
+                BASEURL,
+                roomId,
+                username);
+
+        Log.i(TAG, "occupyMic, url: " + url);
+
+        Request request = new StringRequest(url, response -> {
+            Log.i(TAG, "occupyMic onResponse: " + response);
+//            try {
+//                JSONObject object = new JSONObject(response);
+//                JSONArray array = object.optJSONArray("list");
+//
+//                List<ChatRoom> list = new ArrayList<>();
+//                for (int i = 0; i < array.length(); i++) {
+//                    JSONObject obj = array.getJSONObject(i);
+//                    ChatRoom chatRoom = new Gson().fromJson(obj.toString(), ChatRoom.class);
+//                    list.add(chatRoom);
+//                }
+//
+//                if (listener != null) {
+//                    listener.onSuccess(list);
+//                }
+//
+//                Log.i(TAG, "getChatRooms onResponse list: " + Arrays.toString(list.toArray()));
+//            } catch (JSONException e) {
+//                if (listener == null) return;
+//                listener.onFailed(ERR_INTERNAL, e.getMessage());
+//            }
+        }, error -> {
+//            if (listener == null) return;
+//            Pair<Integer, String> result = handleError(error);
+//            listener.onFailed(result.first, result.second);
+        });
+
+        requestQueue.add(request);
+    }
+
+    public void releaseMic(String roomId, String username) {
+        String url = String.format("%s/app/discardmic/%s/%s",
+                BASEURL,
+                roomId,
+                username);
+
+        Log.i(TAG, "releaseMic, url: " + url);
+
+        Request request = new StringRequest(Request.Method.DELETE, url, response -> {
+            Log.i(TAG, "releaseMic onResponse: " + response);
+//            try {
+//                JSONObject object = new JSONObject(response);
+//                JSONArray array = object.optJSONArray("list");
+//
+//                List<ChatRoom> list = new ArrayList<>();
+//                for (int i = 0; i < array.length(); i++) {
+//                    JSONObject obj = array.getJSONObject(i);
+//                    ChatRoom chatRoom = new Gson().fromJson(obj.toString(), ChatRoom.class);
+//                    list.add(chatRoom);
+//                }
+//
+//                if (listener != null) {
+//                    listener.onSuccess(list);
+//                }
+//
+//                Log.i(TAG, "getChatRooms onResponse list: " + Arrays.toString(list.toArray()));
+//            } catch (JSONException e) {
+//                if (listener == null) return;
+//                listener.onFailed(ERR_INTERNAL, e.getMessage());
+//            }
+        }, error -> {
+//            if (listener == null) return;
+//            Pair<Integer, String> result = handleError(error);
+//            listener.onFailed(result.first, result.second);
+        });
+
+        requestQueue.add(request);
+    }
+
     private HttpRequestManager() {
     }
 
