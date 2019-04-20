@@ -46,7 +46,7 @@ public class ChatActivity extends BaseActivity {
     private boolean isAllowRequest;
 
     private ChatRoom chatRoom;
-    private RoomType roomType;
+    private RoomType roomType = RoomType.COMMUNICATION;
 
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
@@ -70,6 +70,11 @@ public class ChatActivity extends BaseActivity {
 
         public Builder setChatRoomEntity(ChatRoom chatRoom) {
             intent.putExtra(Constant.EXTRA_CHAT_ROOM, chatRoom);
+            return this;
+        }
+
+        public Builder setRoomType(String type) {
+            intent.putExtra(Constant.EXTRA_ROOM_TYPE, type);
             return this;
         }
 
@@ -98,6 +103,10 @@ public class ChatActivity extends BaseActivity {
         TextView accountView = findViewById(R.id.txt_account);
         View tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
 
+        roomType = RoomType.from(getIntent().getStringExtra(Constant.EXTRA_ROOM_TYPE));
+        roomTypeView.setText(roomType.getName());
+        roomTypeDescView.setText(roomType.getDesc());
+
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
@@ -122,10 +131,6 @@ public class ChatActivity extends BaseActivity {
                     sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
                 }
             });
-        } else {
-            RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
-            roomTypeView.setText(roomType.getName());
-            roomTypeDescView.setText(roomType.getDesc());
         }
 
         roomNameView.setText(roomName);

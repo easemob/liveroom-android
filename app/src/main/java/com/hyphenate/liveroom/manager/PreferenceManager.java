@@ -17,8 +17,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.hyphenate.liveroom.Constant;
-
 public class PreferenceManager {
     /**
      * name of preference
@@ -29,7 +27,6 @@ public class PreferenceManager {
     private static SharedPreferences.Editor editor;
 
     private static final String SHARED_KEY_CURRENTUSER_USERNAME = "SHARED_KEY_CURRENTUSER_USERNAME";
-    private static final String SHARED_KEY_ROOM_TYPE = "shared_key_room_type";
     private static final String SHARED_KEY_ALLOW_REQUEST = "shared_key_allow_request";
     private static final String SHARED_KEY_AUTO_AGREE = "shared_key_auto_agree";
     private static final String SHARED_KEY_BG_MUSIC = "shared_key_bg_music";
@@ -72,15 +69,6 @@ public class PreferenceManager {
     /**
      * ------------------------------ voice chat room -----------------------------
      */
-
-    public String getRoomType() {
-        return mSharedPreferences.getString(SHARED_KEY_ROOM_TYPE, Constant.ROOM_TYPE_COMMUNICATION);
-    }
-
-    public void setRoomType(String type) {
-        editor.putString(SHARED_KEY_ROOM_TYPE, type);
-        editor.apply();
-    }
 
     public boolean isAllowRequest() {
         return mSharedPreferences.getBoolean(SHARED_KEY_ALLOW_REQUEST, true);

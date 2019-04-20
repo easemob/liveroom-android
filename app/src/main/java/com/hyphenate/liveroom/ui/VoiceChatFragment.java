@@ -127,7 +127,7 @@ public class VoiceChatFragment extends BaseFragment {
                 startAudioTalkingMonitor();
 
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员加入会议,默认publish 语音流.
-                    roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
+                    roomType = RoomType.from(getArguments().getString(Constant.EXTRA_ROOM_TYPE));
                     // set channel attributes.
                     conferenceManager.setConferenceAttribute(Constant.PROPERTY_ADMIN, currentUsername, null);
                     conferenceManager.setConferenceAttribute(Constant.PROPERTY_TYPE, roomType.getId(), null);

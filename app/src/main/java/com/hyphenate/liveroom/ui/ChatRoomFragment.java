@@ -24,6 +24,7 @@ import com.hyphenate.EMError;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
+import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
@@ -94,6 +95,7 @@ public class ChatRoomFragment extends BaseFragment {
                                 Intent i = new ChatActivity.Builder(getActivity())
                                         .setChatRoomEntity(chatRoom)
                                         .setPassword(password)
+                                        .setRoomType(RoomType.COMMUNICATION.getId())
                                         .build();
                                 startActivityForResult(i, REQUEST_JOIN);
                             })

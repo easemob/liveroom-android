@@ -9,15 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.TextView;
 
 import com.hyphenate.chat.EMClient;
-import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
-import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.PreferenceManager;
-import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
 /**
  * Created by zhangsong on 19-3-29
@@ -39,42 +34,12 @@ public class SettingsFragment extends BaseFragment {
         ((Button) getView().findViewById(R.id.btn_logout))
                 .setText(getString(R.string.btn_logout) + " (" + username + ")");
 
-        final TextView typeView = getView().findViewById(R.id.tv_type);
-        RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
-        typeView.setText(roomType.getName());
-
         getView().findViewById(R.id.btn_logout).setOnClickListener(v -> {
             EMClient.getInstance().logout(false);
             if (getActivity() != null) {
                 startActivity(new Intent(getActivity(), LoginActivity.class));
                 getActivity().finish();
             }
-        });
-
-        getView().findViewById(R.id.btn_type).setOnClickListener(v -> {
-            StringBuilder stringBuilder = new StringBuilder("切换房间互动模式会初始化麦序。");
-            for (RoomType type : RoomType.values()) {
-                stringBuilder.append(type.getDesc()).append(";");
-            }
-            stringBuilder.append("请确认切换的模式。");
-
-            EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
-                    .setStyle(EaseTipDialog.TipDialogStyle.INFO)
-                    .setTitle("提示")
-                    .setMessage(stringBuilder.toString());
-
-            for (RoomType type : RoomType.values()) {
-                builder.addButton(type.getName(),
-                        Constant.COLOR_BLACK,
-                        Constant.COLOR_WHITE,
-                        (dialog, view) -> {
-                            dialog.dismiss();
-                            PreferenceManager.getInstance().setRoomType(type.getId());
-                            typeView.setText(type.getName());
-                        });
-            }
-
-            builder.build().show();
         });
 
         SwitchCompat allowRequestSwitch = getView().findViewById(R.id.switch_allow_request);
