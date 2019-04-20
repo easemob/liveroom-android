@@ -22,6 +22,7 @@ import com.hyphenate.chat.EMConferenceMember;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
@@ -29,7 +30,10 @@ import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
 
+import java.io.Serializable;
 import java.util.List;
+
+import static com.hyphenate.liveroom.Constant.EXTRA_PASSWORD;
 
 
 public class ChatActivity extends BaseActivity {
@@ -40,6 +44,9 @@ public class ChatActivity extends BaseActivity {
     private String textRoomId;
     private boolean isCreator;
     private boolean isAllowRequest;
+
+    private ChatRoom chatRoom;
+    private RoomType roomType;
 
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
@@ -56,33 +63,13 @@ public class ChatActivity extends BaseActivity {
             intent.putExtra(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_CHATROOM);
         }
 
-        public Builder setOwnerName(String name) {
-            intent.putExtra(Constant.EXTRA_OWNER_NAME, name);
-            return this;
-        }
-
-        public Builder setRoomName(String name) {
-            intent.putExtra(Constant.EXTRA_ROOM_NAME, name);
-            return this;
-        }
-
-        public Builder setChatroomId(String id) {
-            intent.putExtra(Constant.EXTRA_CHATROOM_ID, id);
-            return this;
-        }
-
-        public Builder setConferenceId(String id) {
-            intent.putExtra(Constant.EXTRA_CONFERENCE_ID, id);
-            return this;
-        }
-
         public Builder setPassword(String password) {
-            intent.putExtra(Constant.EXTRA_PASSWORD, password);
+            intent.putExtra(EXTRA_PASSWORD, password);
             return this;
         }
 
-        public Builder setAllowRequest(boolean allow) {
-            intent.putExtra(Constant.EXTRA_ALLOW_REQUEST, allow);
+        public Builder setChatRoomEntity(ChatRoom chatRoom) {
+            intent.putExtra(Constant.EXTRA_CHAT_ROOM, chatRoom);
             return this;
         }
 
@@ -97,11 +84,12 @@ public class ChatActivity extends BaseActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_chat);
 
-        ownerName = getIntent().getStringExtra(Constant.EXTRA_OWNER_NAME);
+        chatRoom = (ChatRoom) getIntent().getSerializableExtra(Constant.EXTRA_CHAT_ROOM);
+        ownerName = chatRoom.getOwnerName();
         isCreator = PreferenceManager.getInstance().getCurrentUsername().equalsIgnoreCase(ownerName);
-        roomName = getIntent().getStringExtra(Constant.EXTRA_ROOM_NAME);
-        textRoomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
-        isAllowRequest = getIntent().getBooleanExtra(Constant.EXTRA_ALLOW_REQUEST, true);
+        roomName = chatRoom.getRoomName();
+        textRoomId = chatRoom.getRoomId();
+        isAllowRequest = chatRoom.isAllowAudienceTalk();
 
         placeholder = findViewById(R.id.placeholder);
         roomTypeView = findViewById(R.id.tv_room_type);
@@ -188,7 +176,7 @@ public class ChatActivity extends BaseActivity {
                 }
             } else if (VoiceChatFragment.EVENT_ROOM_TYPE_CHANGED == op) {
                 runOnUiThread(() -> {
-                    RoomType roomType = (RoomType) args[0];
+                    roomType = (RoomType) args[0];
                     roomTypeView.setText(roomType.getName());
                     roomTypeDescView.setText(roomType.getDesc());
                 });
@@ -223,31 +211,41 @@ public class ChatActivity extends BaseActivity {
 
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_music:
+                break;
             case R.id.btn_contacts:
                 Intent i = new Intent(ChatActivity.this, MembersActivity.class);
                 i.putExtra(Constant.EXTRA_CHATROOM_ID, textRoomId);
                 startActivity(i);
                 break;
+            case R.id.btn_share:
+                break;
+            case R.id.btn_detail:
+                startActivity(new RoomDetailsActivity.Builder(ChatActivity.this)
+                        .setChatRoomEntity(chatRoom)
+                        .setPassword(getIntent().getStringExtra(EXTRA_PASSWORD))
+                        .setRoomType(roomType.getId())
+                        .build());
+                break;
+            case R.id.btn_exit:
+                if (!isCreator) { // 非语聊室创建者退出
+                    finish();
+                    return;
+                }
+
+                HttpRequestManager.getInstance().deleteChatRoom(textRoomId, new HttpRequestManager.IRequestListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailed(int errCode, String desc) {
+                        Toast.makeText(ChatActivity.this, errCode + " - " + desc, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
         }
-    }
-
-    public void exit(View view) {
-        if (!isCreator) { // 非语聊室创建者退出
-            finish();
-            return;
-        }
-
-        HttpRequestManager.getInstance().deleteChatRoom(textRoomId, new HttpRequestManager.IRequestListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                finish();
-            }
-
-            @Override
-            public void onFailed(int errCode, String desc) {
-                Toast.makeText(ChatActivity.this, errCode + " - " + desc, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void sendRequest(String op) {

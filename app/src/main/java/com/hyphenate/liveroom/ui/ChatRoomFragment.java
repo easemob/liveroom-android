@@ -90,14 +90,10 @@ public class ChatRoomFragment extends BaseFragment {
                             Constant.COLOR_WHITE,
                             (dialog, v) -> {
                                 dialog.dismiss();
-                                String password = dialog.getText(R.id.edit);
+                                final String password = dialog.getText(R.id.edit);
                                 Intent i = new ChatActivity.Builder(getActivity())
-                                        .setOwnerName(chatRoom.getOwnerName())
-                                        .setRoomName(chatRoom.getRoomName())
-                                        .setChatroomId(chatRoom.getRoomId())
-                                        .setConferenceId(chatRoom.getRtcConfrId())
+                                        .setChatRoomEntity(chatRoom)
                                         .setPassword(password)
-                                        .setAllowRequest(chatRoom.isAllowAudienceTalk())
                                         .build();
                                 startActivityForResult(i, REQUEST_JOIN);
                             })

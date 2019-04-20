@@ -27,6 +27,7 @@
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/indicator_talker"
             android:ellipsize="end"
+            android:maxWidth="60dp"
             android:singleLine="true"
             android:text="Shengxi"
             android:textColor="@color/text_normal"
@@ -41,6 +42,16 @@
             android:layout_toRightOf="@+id/txt_name"
             android:src="@drawable/em_ic_king"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_time_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:textColor="@color/text_normal"
+            android:textSize="14sp" />
 
         <View
             android:id="@+id/indicator_talking"

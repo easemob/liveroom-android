@@ -1,6 +1,7 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,6 +15,9 @@ import android.widget.TextView;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.DimensUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
 /**
  * Created by zhangsong on 19-4-8
  */
@@ -22,15 +26,24 @@ public class TalkerView extends FrameLayout implements IBorderView {
         void onClick(TalkerView talkerView, StateTextButton stateTextButton);
     }
 
+    public interface CountDownCallback {
+        void onFinish();
+    }
+
     private static final String TAG = "LayoutTalkerMember";
 
     private StateHelper stateHelper;
+    private String username;
 
     private View talkerView;
     private TextView nameView;
     private ImageView kingView;
+    private TextView countDownTimeView;
     private View talkingView;
     private LinearLayout btnContainer;
+
+    private CountDownTimer countDownTimer;
+    private SimpleDateFormat dateFormat;
 
     public static TalkerView create(Context context) {
         return new TalkerView(context);
@@ -70,11 +83,15 @@ public class TalkerView extends FrameLayout implements IBorderView {
         talkerView = findViewById(R.id.indicator_talker);
         nameView = findViewById(R.id.txt_name);
         kingView = findViewById(R.id.iv_king);
+        countDownTimeView = findViewById(R.id.tv_time_countdown);
         talkingView = findViewById(R.id.indicator_talking);
         btnContainer = findViewById(R.id.container_btn);
 
         stateHelper = new StateHelper();
         stateHelper.init(this, attrs);
+
+        dateFormat = new SimpleDateFormat("mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
     }
 
     @Override
@@ -89,12 +106,13 @@ public class TalkerView extends FrameLayout implements IBorderView {
     }
 
     public TalkerView setName(String name) {
+        username = name;
         nameView.setText(name);
         return this;
     }
 
     public String getName() {
-        return nameView.getText().toString();
+        return username;
     }
 
     public TalkerView canTalk(boolean can) {
@@ -121,6 +139,33 @@ public class TalkerView extends FrameLayout implements IBorderView {
         } else {
             talkingView.setVisibility(GONE);
         }
+        return this;
+    }
+
+    public TalkerView startCountDown(int seconds, final CountDownCallback callback) {
+        countDownTimer = new CountDownTimer(seconds * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                countDownTimeView.setVisibility(VISIBLE);
+                countDownTimeView.setText(dateFormat.format(millisUntilFinished));
+            }
+
+            @Override
+            public void onFinish() {
+                countDownTimeView.setVisibility(GONE);
+                if (callback != null) {
+                    callback.onFinish();
+                }
+            }
+        }.start();
+        return this;
+    }
+
+    public TalkerView stopCountDown() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        countDownTimeView.setVisibility(GONE);
         return this;
     }
 
