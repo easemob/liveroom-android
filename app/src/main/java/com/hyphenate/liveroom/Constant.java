@@ -39,4 +39,8 @@ public class Constant {
     public static final String PROPERTY_ADMIN = "admin";
     public static final String PROPERTY_TYPE = "type";
     public static final String PROPERTY_TALKER = "talker";
+
+    public static final int ERROR_MIC_OCCUPY_FAILED = 1000;
+
+    public static final int SECONDS_MIC_OCCUPIED = 30;
 }

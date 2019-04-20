@@ -27,6 +27,7 @@ import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
+import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
 import com.hyphenate.liveroom.widgets.IBorderView;
@@ -71,6 +72,7 @@ public class VoiceChatFragment extends BaseFragment {
     // Pair<username, talker view>
     private Pair<String, TalkerView>[] talkerViewList = new Pair[MAX_TALKERS];
     private String publishId = null;
+    private ChatRoom chatRoom;
     // 模式
     private RoomType roomType;
     private String currentUsername;
@@ -94,8 +96,8 @@ public class VoiceChatFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // private boolean isCreator;
-        final String confId = ((ChatRoom) getArguments().getSerializable(Constant.EXTRA_CHAT_ROOM)).getRtcConfrId();
+        chatRoom = (ChatRoom) getArguments().getSerializable(Constant.EXTRA_CHAT_ROOM);
+        final String confId = chatRoom.getRtcConfrId();
         final String password = getArguments().getString(Constant.EXTRA_PASSWORD);
         currentUsername = PreferenceManager.getInstance().getCurrentUsername();
         conferenceManager = EMClient.getInstance().conferenceManager();
@@ -278,7 +280,10 @@ public class VoiceChatFragment extends BaseFragment {
                     updatePositionValue(existPosition, null)
                             .setName("已下线")
                             .clearButtons()
+                            .setKing(false)
+                            .setTalking(false)
                             .canTalk(false)
+                            .stopCountDown()
                             .setBorder(IBorderView.Border.NONE);
                 });
             }
@@ -386,7 +391,8 @@ public class VoiceChatFragment extends BaseFragment {
                             Log.i(TAG, "Exit in MONOPOLY room and self occupied microphone, release microphone first.");
                             conferenceManager.setConferenceAttribute(
                                     Constant.PROPERTY_TALKER, "", null);
-                            // TODO: 调用app server释放麦克风接口
+                            // 调用app server释放麦克风接口
+                            HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
                         }
 
                         // 发送下线申请给管理员
@@ -417,16 +423,27 @@ public class VoiceChatFragment extends BaseFragment {
                             return;
                         }
 
-                        // TODO: 调用app server抢麦接口
+                        button.setBorder(IBorderView.Border.GRAY);
 
-                        // 抢麦成功
-                        conferenceManager.openVoiceTransfer();
-                        view.canTalk(true);
-                        // 设置频道属性
-                        conferenceManager.setConferenceAttribute(
-                                Constant.PROPERTY_TALKER, view.getName(), null);
+                        // 调用app server抢麦接口
+                        HttpRequestManager.getInstance().occupyMic(chatRoom.getRoomId(), currentUsername, new HttpRequestManager.IRequestListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) { // 抢麦成功
+                                conferenceManager.openVoiceTransfer();
+                                // 设置频道属性
+                                conferenceManager.setConferenceAttribute(
+                                        Constant.PROPERTY_TALKER, view.getName(), null);
+                                runOnUiThread(() -> view.canTalk(true));
+                            }
 
-                        // TODO: 抢麦失败???
+                            @Override
+                            public void onFailed(int errCode, String desc) {
+                                // 抢麦失败
+                                if (TextUtils.isEmpty(currentTalker)) {
+                                    button.setBorder(IBorderView.Border.GREEN);
+                                }
+                            }
+                        });
                     });
         }
         if (id == BUTTON_MIC_RELEASE) {
@@ -436,16 +453,15 @@ public class VoiceChatFragment extends BaseFragment {
                             return;
                         }
 
-                        // TODO: 调用app server释放麦接口
+                        // 调用app server释放麦接口
+                        HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
 
-                        // 释放成功
                         conferenceManager.closeVoiceTransfer();
-                        view.canTalk(false);
                         // 设置频道属性
                         conferenceManager.setConferenceAttribute(
                                 Constant.PROPERTY_TALKER, "", null);
 
-                        // TODO: 释放失败???
+                        view.canTalk(false);
                     });
         }
 
@@ -680,12 +696,15 @@ public class VoiceChatFragment extends BaseFragment {
                         boolean isSelfOccupied = currentUsername.equals(value);
                         runOnUiThread(() -> {
                             final TalkerView talkerView = talkerViewList[findExistPosition(value)].second;
-                            talkerView.startCountDown(30, () -> {
+                            talkerView.startCountDown(Constant.SECONDS_MIC_OCCUPIED, () -> {
                                 if (isSelfOccupied) { // 如果是自己抢到麦,倒计时结束后释放麦克风
                                     talkerView.canTalk(false);
                                     conferenceManager.closeVoiceTransfer();
                                     conferenceManager.setConferenceAttribute(
                                             Constant.PROPERTY_TALKER, "", null);
+                                    // 调用app server释放麦接口
+                                    HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(),
+                                            currentUsername, null);
                                 }
                             });
                         });
