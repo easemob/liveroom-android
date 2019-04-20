@@ -83,7 +83,7 @@ public class ChatRoomFragment extends BaseFragment {
                     .setText(R.id.tv_mem_limit, chatRoom.getRtcConfrAudienceLimit() + "")
                     .setText(R.id.tv_create_time, chatRoom.getRtcConfrCreateTime())
                     .setText(R.id.tv_allow_request, chatRoom.isAllowAudienceTalk() + "")
-                    .setImage(R.id.image, R.drawable.em_ic_exit)
+                    .setImage(R.id.image, R.drawable.em_ic_delete_white)
                     .setOnClickListener(R.id.image, (dialog, v) -> dialog.dismiss())
                     .addButton("观众加入",
                             Constant.COLOR_BLACK,

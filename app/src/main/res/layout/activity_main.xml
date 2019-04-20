@@ -6,10 +6,10 @@
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:weightSum="3">
+        >
 
         <TextView
             android:id="@+id/btn_room"
@@ -20,14 +20,17 @@
             android:onClick="onClick"
             android:text="@string/title_room_list" />
 
-        <TextView
+        <ImageButton
             android:id="@+id/btn_create"
-            style="@style/activity_main_text_style"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
             android:onClick="onClick"
-            android:text="@string/title_create_room" />
+            android:src="@drawable/em_ic_add" />
 
         <TextView
             android:id="@+id/btn_settings"

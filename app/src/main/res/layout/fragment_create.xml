@@ -24,7 +24,7 @@
         android:layout_marginTop="3dp"
         android:text="@string/room_number_must_consist_of_8_digit_letters_and_numbers"
         android:textColor="@color/text_color_gray"
-        android:textSize="12sp" />
+        android:textSize="10sp" />
 
     <EditText
         android:id="@+id/et_password"
@@ -39,7 +39,7 @@
         android:layout_marginTop="3dp"
         android:text="@string/password_should_not_exceed_16_bits_at_most"
         android:textColor="@color/text_color_gray"
-        android:textSize="12sp" />
+        android:textSize="10sp" />
 
     <Button
         android:id="@+id/btn_create"

@@ -40,13 +40,6 @@
             android:required="false" />
 
         <activity
-            android:name=".ui.SplashActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateVisible">
-
-        </activity>
-
-        <activity
             android:name=".ui.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
             android:screenOrientation="portrait"

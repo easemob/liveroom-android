@@ -12,21 +12,18 @@
 
         <ImageView
             android:id="@+id/iv_tip_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="#81d134"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/em_ic_ok" />
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/em_ic_true" />
 
         <ImageView
             android:id="@+id/iv_cancel"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:padding="5dp"
-            android:src="@drawable/em_ic_exit" />
+            android:src="@drawable/em_ic_delete_white" />
     </RelativeLayout>
 
     <TextView
@@ -36,7 +33,7 @@
         android:layout_marginTop="10dp"
         android:text="正确"
         android:textColor="@android:color/white"
-        android:textSize="20sp" />
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/tv_message"
@@ -44,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:textColor="@color/text_hint"
-        android:textSize="14sp" />
+        android:textSize="12sp" />
 
     <LinearLayout
         android:id="@+id/container_btn"
