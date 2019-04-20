@@ -8,6 +8,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
@@ -34,8 +35,11 @@ public class SettingsFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final TextView typeView = getView().findViewById(R.id.tv_type);
+        final String username = PreferenceManager.getInstance().getCurrentUsername();
+        ((Button) getView().findViewById(R.id.btn_logout))
+                .setText(getString(R.string.btn_logout) + " (" + username + ")");
 
+        final TextView typeView = getView().findViewById(R.id.tv_type);
         RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
         typeView.setText(roomType.getName());
 
