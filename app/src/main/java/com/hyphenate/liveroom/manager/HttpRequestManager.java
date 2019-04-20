@@ -13,6 +13,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.hyphenate.chat.EMConferenceManager;
+import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.entities.ChatRoom;
 
 import org.json.JSONArray;
@@ -148,7 +149,7 @@ public class HttpRequestManager {
         requestQueue.add(request);
     }
 
-    public void occupyMic(String roomId, String username) {
+    public void occupyMic(String roomId, String username, final IRequestListener<Void> listener) {
         String url = String.format("%s/app/mic/%s/%s",
                 BASEURL,
                 roomId,
@@ -158,36 +159,29 @@ public class HttpRequestManager {
 
         Request request = new StringRequest(url, response -> {
             Log.i(TAG, "occupyMic onResponse: " + response);
-//            try {
-//                JSONObject object = new JSONObject(response);
-//                JSONArray array = object.optJSONArray("list");
-//
-//                List<ChatRoom> list = new ArrayList<>();
-//                for (int i = 0; i < array.length(); i++) {
-//                    JSONObject obj = array.getJSONObject(i);
-//                    ChatRoom chatRoom = new Gson().fromJson(obj.toString(), ChatRoom.class);
-//                    list.add(chatRoom);
-//                }
-//
-//                if (listener != null) {
-//                    listener.onSuccess(list);
-//                }
-//
-//                Log.i(TAG, "getChatRooms onResponse list: " + Arrays.toString(list.toArray()));
-//            } catch (JSONException e) {
-//                if (listener == null) return;
-//                listener.onFailed(ERR_INTERNAL, e.getMessage());
-//            }
+            if (listener == null) return;
+            try {
+                JSONObject object = new JSONObject(response);
+                boolean result = object.optBoolean("status", false);
+                if (result) {
+                    listener.onSuccess(null);
+                } else {
+                    listener.onFailed(Constant.ERROR_MIC_OCCUPY_FAILED, "Occupy mic failed.");
+                }
+            } catch (JSONException e) {
+                listener.onFailed(-1, e.getMessage());
+            }
         }, error -> {
-//            if (listener == null) return;
-//            Pair<Integer, String> result = handleError(error);
-//            listener.onFailed(result.first, result.second);
+            if (listener == null) return;
+            Pair<Integer, String> result = handleError(error);
+            Log.i(TAG, "occupyMic onError: " + result.first + " - " + result.second);
+            listener.onFailed(result.first, result.second);
         });
 
         requestQueue.add(request);
     }
 
-    public void releaseMic(String roomId, String username) {
+    public void releaseMic(String roomId, String username, final IRequestListener<Void> listener) {
         String url = String.format("%s/app/discardmic/%s/%s",
                 BASEURL,
                 roomId,
@@ -197,30 +191,13 @@ public class HttpRequestManager {
 
         Request request = new StringRequest(Request.Method.DELETE, url, response -> {
             Log.i(TAG, "releaseMic onResponse: " + response);
-//            try {
-//                JSONObject object = new JSONObject(response);
-//                JSONArray array = object.optJSONArray("list");
-//
-//                List<ChatRoom> list = new ArrayList<>();
-//                for (int i = 0; i < array.length(); i++) {
-//                    JSONObject obj = array.getJSONObject(i);
-//                    ChatRoom chatRoom = new Gson().fromJson(obj.toString(), ChatRoom.class);
-//                    list.add(chatRoom);
-//                }
-//
-//                if (listener != null) {
-//                    listener.onSuccess(list);
-//                }
-//
-//                Log.i(TAG, "getChatRooms onResponse list: " + Arrays.toString(list.toArray()));
-//            } catch (JSONException e) {
-//                if (listener == null) return;
-//                listener.onFailed(ERR_INTERNAL, e.getMessage());
-//            }
+            if (listener == null) return;
+            listener.onSuccess(null);
         }, error -> {
-//            if (listener == null) return;
-//            Pair<Integer, String> result = handleError(error);
-//            listener.onFailed(result.first, result.second);
+            if (listener == null) return;
+            Pair<Integer, String> result = handleError(error);
+            Log.i(TAG, "releaseMic onError: " + result.first + " - " + result.second);
+            listener.onFailed(result.first, result.second);
         });
 
         requestQueue.add(request);

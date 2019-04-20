@@ -34,6 +34,7 @@
     <string name="voice_chatroom_id">voiceChatRoomId</string>
     <string name="room_number_must_consist_of_8_digit_letters_and_numbers">Room number must consist of 8-digit letters and numbers。</string>
     <string name="password_should_not_exceed_16_bits_at_most">Passwords should not exceed 16 bits at most。</string>
+    <string name="room_type_choice">Please select the voice chat room type.</string>
     <string name="submit">Submit</string>
     <!-- create voice chatroom end -->
 

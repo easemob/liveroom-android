@@ -1,8 +1,10 @@
 package com.hyphenate.liveroom.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,11 +28,12 @@ import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static com.hyphenate.liveroom.Constant.EXTRA_PASSWORD;
@@ -46,7 +49,7 @@ public class ChatActivity extends BaseActivity {
     private boolean isAllowRequest;
 
     private ChatRoom chatRoom;
-    private RoomType roomType;
+    private RoomType roomType = RoomType.COMMUNICATION;
 
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
@@ -70,6 +73,11 @@ public class ChatActivity extends BaseActivity {
 
         public Builder setChatRoomEntity(ChatRoom chatRoom) {
             intent.putExtra(Constant.EXTRA_CHAT_ROOM, chatRoom);
+            return this;
+        }
+
+        public Builder setRoomType(String type) {
+            intent.putExtra(Constant.EXTRA_ROOM_TYPE, type);
             return this;
         }
 
@@ -98,6 +106,10 @@ public class ChatActivity extends BaseActivity {
         TextView accountView = findViewById(R.id.txt_account);
         View tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
 
+        roomType = RoomType.from(getIntent().getStringExtra(Constant.EXTRA_ROOM_TYPE));
+        roomTypeView.setText(roomType.getName());
+        roomTypeDescView.setText(roomType.getDesc());
+
         if (!isCreator) {
             tobeTalkerView.setVisibility(View.VISIBLE);
             tobeTalkerView.setOnClickListener((v) -> {
@@ -122,10 +134,6 @@ public class ChatActivity extends BaseActivity {
                     sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
                 }
             });
-        } else {
-            RoomType roomType = RoomType.from(PreferenceManager.getInstance().getRoomType());
-            roomTypeView.setText(roomType.getName());
-            roomTypeDescView.setText(roomType.getDesc());
         }
 
         roomNameView.setText(roomName);
@@ -185,6 +193,8 @@ public class ChatActivity extends BaseActivity {
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
 
         EMClient.getInstance().chatManager().addMessageListener(messageListener);
+
+        requestPermissions();
     }
 
     @Override
@@ -196,6 +206,12 @@ public class ChatActivity extends BaseActivity {
             finish();
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
     }
 
     @Override
@@ -246,6 +262,19 @@ public class ChatActivity extends BaseActivity {
                 });
                 break;
         }
+    }
+
+    @TargetApi(23)
+    private void requestPermissions() {
+        PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
+            @Override
+            public void onGranted() {
+            }
+
+            @Override
+            public void onDenied(String permission) {
+            }
+        });
     }
 
     private void sendRequest(String op) {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="type">
+        <item>互动模式</item>
+        <item>主持模式</item>
+        <item>抢麦模式</item>
+    </string-array>
+</resources>

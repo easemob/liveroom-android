@@ -4,16 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.hyphenate.EMError;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
+import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
@@ -29,6 +34,8 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
     private EditText roomNameView;
     private EditText passwordView;
 
+    private RoomType roomType;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -37,7 +44,27 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
 
         roomNameView = contentView.findViewById(R.id.et_room_name);
         passwordView = contentView.findViewById(R.id.et_password);
+        Spinner spinner = contentView.findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    roomType = RoomType.COMMUNICATION;
+                } else if (position == 1) {
+                    roomType = RoomType.HOST;
+                } else if (position == 2) {
+                    roomType = RoomType.MONOPOLY;
+                }
+                Log.i(TAG, "onItemSelected: " + roomType.getName());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
         contentView.findViewById(R.id.btn_create).setOnClickListener(this);
+
+        roomType = RoomType.COMMUNICATION;
 
         return contentView;
     }
@@ -64,6 +91,11 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         String roomName = roomNameView.getText().toString();
         String password = passwordView.getText().toString();
 
+        if (TextUtils.isEmpty(roomName) || TextUtils.isEmpty(password)) {
+            Toast.makeText(getContext(), "请先输入房间名称和密码 ~", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         HttpRequestManager.getInstance().createChatRoom(roomName, password, "",
                 PreferenceManager.getInstance().isAllowRequest(),
                 new HttpRequestManager.IRequestListener<ChatRoom>() {
@@ -77,6 +109,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                         Intent i = new ChatActivity.Builder(getActivity())
                                 .setChatRoomEntity(chatRoom)
                                 .setPassword(chatRoom.getRtcConfrPassword())
+                                .setRoomType(roomType.getId())
                                 .build();
                         startActivityForResult(i, REQUEST_JOIN);
                     }
