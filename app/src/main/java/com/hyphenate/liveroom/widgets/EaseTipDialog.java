@@ -78,12 +78,10 @@ public class EaseTipDialog extends Dialog {
         if (dialogStyle != TipDialogStyle.DEFAULT) {
             switch (dialogStyle) {
                 case INFO:
-                    ivTipIcon.setBackgroundColor(Color.parseColor("#f2a735"));
-                    ivTipIcon.setImageResource(R.drawable.em_ic_info);
+                    ivTipIcon.setImageResource(R.drawable.em_ic_tips);
                     break;
                 case ERROR:
-                    ivTipIcon.setBackgroundColor(Color.parseColor("#cc3a23"));
-                    ivTipIcon.setImageResource(R.drawable.em_ic_exit);
+                    ivTipIcon.setImageResource(R.drawable.em_ic_error);
                     break;
             }
         }
