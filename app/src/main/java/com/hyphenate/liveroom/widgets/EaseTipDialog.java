@@ -2,7 +2,6 @@ package com.hyphenate.liveroom.widgets;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -32,6 +31,7 @@ public class EaseTipDialog extends Dialog {
     private TipDialogStyle dialogStyle = TipDialogStyle.DEFAULT;
     private String title = "";
     private String content = "";
+    private boolean dismissCancelButton;
 
     private List<ButtonHolder> buttonHolders = new ArrayList<>();
 
@@ -91,7 +91,12 @@ public class EaseTipDialog extends Dialog {
             addButton(holder.title, holder.textColor, holder.bgColor, holder.listener);
         }
 
-        ivCancel.setOnClickListener(v -> dismiss());
+        if (dismissCancelButton) {
+            ivCancel.setVisibility(View.INVISIBLE);
+        } else {
+            ivCancel.setVisibility(View.VISIBLE);
+            ivCancel.setOnClickListener(v -> dismiss());
+        }
     }
 
     private void initViews() {
@@ -121,6 +126,10 @@ public class EaseTipDialog extends Dialog {
         return this;
     }
 
+    public void dismissCancelButton(boolean dismiss) {
+        this.dismissCancelButton = dismiss;
+    }
+
     private View createButton(String title, int textColor, int bgColor, View.OnClickListener listener) {
         TextView button = new TextView(getContext());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -140,6 +149,8 @@ public class EaseTipDialog extends Dialog {
         private Context context;
         private String title = "";
         private String content = "";
+        private boolean cancellable = true;
+        private boolean dismiss = false;
         private TipDialogStyle style = TipDialogStyle.DEFAULT;
         private List<ButtonHolder> buttonHolders = new ArrayList<>();
 
@@ -177,10 +188,22 @@ public class EaseTipDialog extends Dialog {
             return this;
         }
 
+        public Builder setCanceledOnTouchOutside(boolean cancellable) {
+            this.cancellable = cancellable;
+            return this;
+        }
+
+        public Builder dismissCalcelButton(boolean dismiss) {
+            this.dismiss = dismiss;
+            return this;
+        }
+
         public EaseTipDialog build() {
             EaseTipDialog dialog = new EaseTipDialog(context, style);
             dialog.setMessage(content);
             dialog.setTitle(title);
+            dialog.setCanceledOnTouchOutside(cancellable);
+            dialog.dismissCancelButton(dismiss);
             dialog.setButtonHolders(buttonHolders);
             return dialog;
         }

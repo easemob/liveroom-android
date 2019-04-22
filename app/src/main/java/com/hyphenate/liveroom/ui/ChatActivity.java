@@ -42,6 +42,10 @@ import static com.hyphenate.liveroom.Constant.EXTRA_PASSWORD;
 public class ChatActivity extends BaseActivity {
     private static final String TAG = "ChatActivity";
 
+    private static final int STATE_AUDIENCE = 0;
+    private static final int STATE_DURING_REQUEST = 1;
+    private static final int STATE_TALKER = 2;
+
     private String ownerName;
     private String roomName;
     private String textRoomId;
@@ -55,6 +59,7 @@ public class ChatActivity extends BaseActivity {
     private ImageView placeholder;
     private TextView roomTypeView;
     private TextView roomTypeDescView;
+    private ImageView tobeTalkerView;
 
     private VoiceChatFragment voiceChatFragment;
 
@@ -104,14 +109,16 @@ public class ChatActivity extends BaseActivity {
         roomTypeDescView = findViewById(R.id.tv_type_desc);
         TextView roomNameView = findViewById(R.id.txt_room_name);
         TextView accountView = findViewById(R.id.txt_account);
-        View tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
+        tobeTalkerView = findViewById(R.id.iv_request_tobe_talker);
 
         roomType = RoomType.from(getIntent().getStringExtra(Constant.EXTRA_ROOM_TYPE));
         roomTypeView.setText(roomType.getName());
         roomTypeDescView.setText(roomType.getDesc());
 
         if (!isCreator) {
-            tobeTalkerView.setVisibility(View.VISIBLE);
+            if (isAllowRequest) {
+                updateTobeTalkerView(STATE_AUDIENCE);
+            }
             tobeTalkerView.setOnClickListener((v) -> {
                 if (!isAllowRequest) {
                     Toast.makeText(this, "该语聊房间不允许申请连麦 ~", Toast.LENGTH_SHORT).show();
@@ -129,9 +136,12 @@ public class ChatActivity extends BaseActivity {
                             })
                             .build()
                             .show();
+                } else if (result == VoiceChatFragment.RESULT_ALREADY_TALKER) {
+                    updateTobeTalkerView(STATE_TALKER);
                 } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
+                    updateTobeTalkerView(STATE_DURING_REQUEST);
                     // 发送上麦申请
-                    sendRequest(Constant.OP_REQUEST_TOBE_SPEAKER);
+                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER);
                 }
             });
         }
@@ -175,12 +185,11 @@ public class ChatActivity extends BaseActivity {
         voiceChatFragment.setArguments(getIntent().getExtras());
         voiceChatFragment.setOnEventCallback((op, args) -> {
             if (VoiceChatFragment.EVENT_TOBE_AUDIENCE == op) {
-                // TODO: 发送下麦申请
                 if (isCreator) { // 管理员下线其他主播
                     String username = (String) args[0];
                     grantRole(username, EMConferenceManager.EMConferenceRole.Audience);
                 } else { // 主播向管理员发送下线的申请
-                    sendRequest(Constant.OP_REQUEST_TOBE_AUDIENCE);
+                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_AUDIENCE);
                 }
             } else if (VoiceChatFragment.EVENT_ROOM_TYPE_CHANGED == op) {
                 runOnUiThread(() -> {
@@ -188,6 +197,19 @@ public class ChatActivity extends BaseActivity {
                     roomTypeView.setText(roomType.getName());
                     roomTypeDescView.setText(roomType.getDesc());
                 });
+            } else if (VoiceChatFragment.EVENT_BE_TALKER_SUCCESS == op) {
+                runOnUiThread(() -> updateTobeTalkerView(STATE_TALKER));
+            } else if (VoiceChatFragment.EVENT_BE_TALKER_FAILED == op) {
+                runOnUiThread(() -> new EaseTipDialog.Builder(this)
+                        .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                        .setTitle("提示")
+                        .setMessage("该聊天室主播人数已满,请稍后重试 ...")
+                        .addButton("确定", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+                                (dialog, view) -> dialog.dismiss())
+                        .build()
+                        .show());
+            } else if (VoiceChatFragment.EVENT_BE_AUDIENCE_SUCCESS == op) {
+                runOnUiThread(() -> updateTobeTalkerView(STATE_AUDIENCE));
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
@@ -264,6 +286,24 @@ public class ChatActivity extends BaseActivity {
         }
     }
 
+    public void updateTobeTalkerView(int state) {
+        switch (state) {
+            case STATE_AUDIENCE:
+                tobeTalkerView.setImageResource(R.drawable.em_ic_tobe_talker);
+                tobeTalkerView.setVisibility(View.VISIBLE);
+                tobeTalkerView.setClickable(true);
+                break;
+            case STATE_DURING_REQUEST:
+                tobeTalkerView.setImageResource(R.drawable.em_ic_during_tobe_talker);
+                tobeTalkerView.setVisibility(View.VISIBLE);
+                tobeTalkerView.setClickable(false);
+                break;
+            case STATE_TALKER:
+                tobeTalkerView.setVisibility(View.GONE);
+                break;
+        }
+    }
+
     @TargetApi(23)
     private void requestPermissions() {
         PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
@@ -277,10 +317,10 @@ public class ChatActivity extends BaseActivity {
         });
     }
 
-    private void sendRequest(String op) {
+    private void sendRequest(String to, String op) {
         EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
         msg.addBody(new EMCmdMessageBody(""));
-        msg.setTo(ownerName);
+        msg.setTo(to);
         msg.setAttribute(Constant.EM_CONFERENCE_OP, op);
         msg.setMessageStatusCallback(new EMCallBack() {
             @Override
@@ -330,7 +370,7 @@ public class ChatActivity extends BaseActivity {
             for (EMMessage msg : list) {
                 String operation = msg.getStringAttribute(Constant.EM_CONFERENCE_OP, null);
                 Log.i(TAG, "onCmdMessageReceived: " + operation);
-                if (Constant.OP_REQUEST_TOBE_SPEAKER.equals(operation)) {
+                if (Constant.OP_REQUEST_TOBE_SPEAKER.equals(operation)) { // 收到观众上麦申请
                     boolean autoAgreeRequest = PreferenceManager.getInstance().isAutoAgree();
                     if (autoAgreeRequest) {
                         grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
@@ -338,6 +378,8 @@ public class ChatActivity extends BaseActivity {
                         runOnUiThread(() -> {
                             new EaseTipDialog.Builder(ChatActivity.this)
                                     .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                                    .setCanceledOnTouchOutside(false)
+                                    .dismissCalcelButton(true)
                                     .setTitle("提示")
                                     .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
                                     .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
@@ -348,14 +390,26 @@ public class ChatActivity extends BaseActivity {
                                     .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                             (dialog, v) -> {
                                                 dialog.dismiss();
-                                                sendRequest(Constant.OP_REQUEST_TOBE_REJECTED);
+                                                sendRequest(msg.getFrom(), Constant.OP_REQUEST_TOBE_REJECTED);
                                             })
                                     .build()
                                     .show();
                         });
                     }
-                } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) {
+                } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) { // 收到主播下麦申请
                     grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Audience);
+                } else if (Constant.OP_REQUEST_TOBE_REJECTED.equals(operation)) { // 观众上麦被拒绝
+                    runOnUiThread(() -> {
+                        updateTobeTalkerView(STATE_AUDIENCE);
+                        new EaseTipDialog.Builder(ChatActivity.this)
+                                .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                                .setTitle("提示")
+                                .setMessage("您的上麦申请,被管理员拒绝.")
+                                .addButton("知道了", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+                                        (dialog, v) -> dialog.dismiss())
+                                .build()
+                                .show();
+                    });
                 }
             }
         }
