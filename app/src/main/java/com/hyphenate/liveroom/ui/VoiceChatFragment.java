@@ -675,16 +675,18 @@ public class VoiceChatFragment extends BaseFragment {
 
             if (roomType == RoomType.HOST && Constant.PROPERTY_TALKER.equals(key)
                     && action == EMAttributeAction.UPDATE) { // 主持模式
-                if (conferenceRole != EMConferenceManager.EMConferenceRole.Audience) {
+                if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) {
                     // 把上一个发言人的发言按钮border颜色设置为gray
-                    final String previousTalker = currentTalker;
-                    if (!TextUtils.isEmpty(previousTalker)) {
-                        runOnUiThread(() -> {
-                            talkerViewList[findExistPosition(previousTalker)].second
+                    if (!TextUtils.isEmpty(currentTalker)) {
+                        final int previousTalkerPosition = findExistPosition(currentTalker);
+                        if (previousTalkerPosition != -1) {
+                            runOnUiThread(() -> talkerViewList[previousTalkerPosition].second
                                     .findButton(BUTTON_TALK)
-                                    .setBorder(IBorderView.Border.GRAY);
-                        });
+                                    .setBorder(IBorderView.Border.GRAY));
+                        }
                     }
+                }
+                if (conferenceRole != EMConferenceManager.EMConferenceRole.Audience) {
                     // 更新自己的UI状态
                     final int selfPosition = findExistPosition(currentUsername);
                     if (currentUsername.equals(value)) { // 点击了自己的发言按钮
