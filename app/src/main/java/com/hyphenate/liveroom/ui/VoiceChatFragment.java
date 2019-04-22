@@ -48,6 +48,9 @@ public class VoiceChatFragment extends BaseFragment {
 
     public static final int EVENT_TOBE_AUDIENCE = 1;
     public static final int EVENT_ROOM_TYPE_CHANGED = 2;
+    public static final int EVENT_BE_TALKER_SUCCESS = 3;
+    public static final int EVENT_BE_TALKER_FAILED = 4;
+    public static final int EVENT_BE_AUDIENCE_SUCCESS = 5;
 
     public static final int RESULT_NO_HANDLED = 0;
     public static final int RESULT_NO_POSITION = 1;
@@ -190,6 +193,7 @@ public class VoiceChatFragment extends BaseFragment {
         super.onDestroy();
 
         audioManager.setMode(AudioManager.MODE_NORMAL);
+        audioManager.setMicrophoneMute(false);
         closeSpeaker();
 
         stopAudioTalkingMonitor();
@@ -285,8 +289,7 @@ public class VoiceChatFragment extends BaseFragment {
         conferenceManager.unpublish(publishId, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
-                final int existPosition = findExistPosition(currentUsername);
-                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
+                Log.i(TAG, "unpublish success.");
             }
 
             @Override
@@ -608,8 +611,16 @@ public class VoiceChatFragment extends BaseFragment {
                 final int emptyPosition = findEmptyPosition();
                 if (emptyPosition == -1) {
                     Log.i(TAG, "No position left.");
+                    if (onEventCallback != null) {
+                        onEventCallback.onEvent(EVENT_BE_TALKER_FAILED);
+                    }
                     return;
                 }
+
+                if (onEventCallback != null) {
+                    onEventCallback.onEvent(EVENT_BE_TALKER_SUCCESS);
+                }
+
                 // 互动模式下,新晋主播可以说话;主持模式/抢麦模式下新晋主播默认不能说话
                 publish(roomType != RoomType.COMMUNICATION);
 
@@ -635,6 +646,12 @@ public class VoiceChatFragment extends BaseFragment {
                 });
             } else { // 主播变成了观众
                 unpublish(publishId);
+                final int existPosition = findExistPosition(currentUsername);
+                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
+
+                if (onEventCallback != null) {
+                    onEventCallback.onEvent(EVENT_BE_AUDIENCE_SUCCESS);
+                }
             }
         }
 
