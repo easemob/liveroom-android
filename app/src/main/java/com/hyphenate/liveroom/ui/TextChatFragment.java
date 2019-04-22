@@ -445,7 +445,6 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         public void onChatRoomDestroyed(String roomId, String roomName) {
             executeOnUi(() -> {
                 if (roomId.equals(chatRoomId)) {
-                    Toast.makeText(getActivity(), R.string.the_current_chat_room_destroyed, Toast.LENGTH_LONG).show();
                     finishActivity();
                 }
             });
@@ -468,18 +467,12 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
         @Override
         public void onMemberJoined(String roomId, String participant) {
-            if (roomId.equals(chatRoomId)) {
-                executeOnUi(() ->
-                        Toast.makeText(getActivity(), "member join:" + participant, Toast.LENGTH_LONG).show());
-            }
+            Log.i(TAG, "onMemberJoined: " + participant);
         }
 
         @Override
         public void onMemberExited(String roomId, String roomName, String participant) {
-            if (roomId.equals(chatRoomId)) {
-                executeOnUi(() ->
-                        Toast.makeText(getActivity(), "member exit:" + participant, Toast.LENGTH_LONG).show());
-            }
+            Log.i(TAG, "onMemberExited: " + participant);
         }
     }
 

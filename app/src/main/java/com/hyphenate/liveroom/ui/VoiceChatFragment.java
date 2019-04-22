@@ -53,10 +53,15 @@ public class VoiceChatFragment extends BaseFragment {
     public static final int RESULT_NO_POSITION = 1;
     public static final int RESULT_ALREADY_TALKER = 2;
 
-    private static final int BUTTON_MIC = 0;
+    // 开启/关闭麦克风按钮
+    private static final int BUTTON_VOICE = 0;
+    // 下线按钮
     private static final int BUTTON_DISCONN = 1;
+    // 发言按钮
     private static final int BUTTON_TALK = 2;
+    // 抢麦按钮
     private static final int BUTTON_MIC_OCCUPY = 3;
+    // 释放麦按钮
     private static final int BUTTON_MIC_RELEASE = 4;
 
     private static final int MAX_TALKERS = 6;
@@ -112,7 +117,13 @@ public class VoiceChatFragment extends BaseFragment {
                     .setName("已下线")
                     .canTalk(false);
             addMemberView(talkerView);
-            talkerViewList[i] = new Pair<>(null, talkerView);
+            Pair<String, TalkerView> value;
+            if (i == 0) { // 把Admin的TalkerView放置在第一个位置
+                value = new Pair<>(chatRoom.getOwnerName(), talkerView);
+            } else {
+                value = new Pair<>(null, talkerView);
+            }
+            talkerViewList[i] = value;
         }
 
         normalParam = new EMStreamParam();
@@ -131,7 +142,6 @@ public class VoiceChatFragment extends BaseFragment {
                 if (conferenceRole == EMConferenceManager.EMConferenceRole.Admin) { // 管理员加入会议,默认publish 语音流.
                     roomType = RoomType.from(getArguments().getString(Constant.EXTRA_ROOM_TYPE));
                     // set channel attributes.
-                    conferenceManager.setConferenceAttribute(Constant.PROPERTY_ADMIN, currentUsername, null);
                     conferenceManager.setConferenceAttribute(Constant.PROPERTY_TYPE, roomType.getId(), null);
                     if (roomType == RoomType.HOST) { // 主持模式管理员默认可以说话
                         conferenceManager.setConferenceAttribute(Constant.PROPERTY_TALKER, currentUsername, null);
@@ -151,7 +161,7 @@ public class VoiceChatFragment extends BaseFragment {
 
                         if (roomType == RoomType.COMMUNICATION) {
                             talkerView.canTalk(true)
-                                    .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                                    .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
                         } else if (roomType == RoomType.HOST) {
                             talkerView.canTalk(true)
                                     .addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
@@ -233,7 +243,7 @@ public class VoiceChatFragment extends BaseFragment {
                         .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
             } else {
                 talkerView.canTalk(true)
-                        .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                        .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
             }
             talkerView.setName(currentUsername)
                     .setBorder(IBorderView.Border.GRAY)
@@ -275,17 +285,8 @@ public class VoiceChatFragment extends BaseFragment {
         conferenceManager.unpublish(publishId, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
-                int existPosition = findExistPosition(currentUsername);
-                runOnUiThread(() -> {
-                    updatePositionValue(existPosition, null)
-                            .setName("已下线")
-                            .clearButtons()
-                            .setKing(false)
-                            .setTalking(false)
-                            .canTalk(false)
-                            .stopCountDown()
-                            .setBorder(IBorderView.Border.NONE);
-                });
+                final int existPosition = findExistPosition(currentUsername);
+                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
             }
 
             @Override
@@ -366,16 +367,29 @@ public class VoiceChatFragment extends BaseFragment {
         return talkerView;
     }
 
+    private void resetTalkerViewByPosition(int position) {
+        updatePositionValue(position, null)
+                .setName("已下线")
+                .clearButtons()
+                .setKing(false)
+                .setTalking(false)
+                .canTalk(false)
+                .stopCountDown()
+                .setBorder(IBorderView.Border.NONE);
+    }
+
     private StateTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
-        if (id == BUTTON_MIC) {
+        if (id == BUTTON_VOICE) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
-            return v.createButton(getContext(), BUTTON_MIC,
+            return v.createButton(getContext(), BUTTON_VOICE,
                     border != IBorderView.Border.GRAY ? titles[1] : titles[0], border,
                     (view, button) -> {
                         if (button.getBorder() == IBorderView.Border.GRAY) {
+                            view.canTalk(true);
                             button.setBorder(IBorderView.Border.GREEN).setText(titles[1]);
                             conferenceManager.openVoiceTransfer();
                         } else {
+                            view.canTalk(false);
                             button.setBorder(IBorderView.Border.GRAY).setText(titles[0]);
                             conferenceManager.closeVoiceTransfer();
                         }
@@ -404,10 +418,9 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_TALK) { // 只存在于主持模式下
             return v.createButton(getContext(), BUTTON_TALK,
                     "发言", border, (view, button) -> {
-                        // 把上一个发言人的发言按钮border颜色设置为gray
-                        if (currentTalker != null) {
-                            talkerViewList[findExistPosition(currentTalker)].second.findButton(BUTTON_TALK)
-                                    .setBorder(IBorderView.Border.GRAY);
+                        if (button.getBorder() == IBorderView.Border.GREEN) { // 当前正在发言过程中
+                            Log.i(TAG, "BUTTON_TALK button clicked, already in talking state.");
+                            return;
                         }
                         // 把当前被点击人的发言按钮border颜色设置为green
                         button.setBorder(IBorderView.Border.GREEN);
@@ -494,9 +507,8 @@ public class VoiceChatFragment extends BaseFragment {
             subscribe(stream);
 
             // 更新名称已存在的TalkerView, 主要包含admin的TalkerView
-            int existPosition = findExistPosition(stream.getUsername());
-
             TalkerView talkerView;
+            final int existPosition = findExistPosition(stream.getUsername());
             if (existPosition != -1) { // 创建Admin talker view。
                 talkerView = talkerViewList[existPosition].second;
             } else {
@@ -528,32 +540,19 @@ public class VoiceChatFragment extends BaseFragment {
         public void onStreamRemoved(EMConferenceStream stream) {
             Log.i(TAG, "onStreamRemoved: " + stream.getUsername());
             streamMap.remove(stream.getStreamId());
-
-            String username = stream.getUsername();
-            int index = findExistPosition(username);
-            runOnUiThread(() -> {
-                updatePositionValue(index, null)
-                        .setName("已下线")
-                        .clearButtons()
-                        .setKing(false)
-                        .setTalking(false)
-                        .canTalk(false)
-                        .stopCountDown()
-                        .setBorder(IBorderView.Border.NONE);
-            });
+            final int existPosition = findExistPosition(stream.getUsername());
+            if (existPosition != -1) {
+                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
+            }
         }
 
         @Override
         public void onStreamUpdate(EMConferenceStream stream) {
             Log.i(TAG, "onStreamUpdate: ");
-
-            String username = stream.getUsername();
-            runOnUiThread(() -> {
-                int position = findExistPosition(username);
-                if (position != -1) {
-                    talkerViewList[position].second.canTalk(!stream.isAudioOff());
-                }
-            });
+            final int existPosition = findExistPosition(stream.getUsername());
+            if (existPosition != -1) {
+                runOnUiThread(() -> talkerViewList[existPosition].second.canTalk(!stream.isAudioOff()));
+            }
         }
 
         @Override
@@ -581,7 +580,7 @@ public class VoiceChatFragment extends BaseFragment {
             Log.i(TAG, "onSpeakers: " + Arrays.toString(list.toArray()));
             runOnUiThread(() -> {
                 for (String streamId : streamMap.keySet()) {
-                    int p = findExistPosition(streamMap.get(streamId));
+                    final int p = findExistPosition(streamMap.get(streamId));
                     if (p == -1) {
                         continue;
                     }
@@ -605,19 +604,20 @@ public class VoiceChatFragment extends BaseFragment {
             Log.i(TAG, "onRoleChanged: " + conferenceRole);
 
             if (role == EMConferenceManager.EMConferenceRole.Talker) { // 观众变成了主播
-                int position = findEmptyPosition();
-                if (position == -1) {
+                // 寻找一个空位置放置自己的TalkerView
+                final int emptyPosition = findEmptyPosition();
+                if (emptyPosition == -1) {
                     Log.i(TAG, "No position left.");
                     return;
                 }
-
+                // 互动模式下,新晋主播可以说话;主持模式/抢麦模式下新晋主播默认不能说话
                 publish(roomType != RoomType.COMMUNICATION);
 
                 runOnUiThread(() -> {
-                    TalkerView talkerView = updatePositionValue(position, currentUsername);
-                    if (roomType == RoomType.HOST) {
+                    TalkerView talkerView = updatePositionValue(emptyPosition, currentUsername);
+                    if (roomType == RoomType.HOST) { // 主持模式
                         talkerView.canTalk(false);
-                    } else if (roomType == RoomType.MONOPOLY) {
+                    } else if (roomType == RoomType.MONOPOLY) { // 抢麦模式
                         talkerView.canTalk(false)
                                 .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GREEN))
                                 .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
@@ -625,9 +625,9 @@ public class VoiceChatFragment extends BaseFragment {
                         if (!TextUtils.isEmpty(currentTalker)) { // 当前已被某人抢到麦,置灰自己的抢麦按钮
                             talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GRAY);
                         }
-                    } else {
+                    } else { // 互动模式
                         talkerView.canTalk(true)
-                                .addButton(createButton(talkerView, BUTTON_MIC, IBorderView.Border.GREEN));
+                                .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
                     }
                     talkerView.setName(currentUsername)
                             .setBorder(IBorderView.Border.GRAY)
@@ -648,10 +648,6 @@ public class VoiceChatFragment extends BaseFragment {
         @Override
         public void onAttributeUpdated(EMAttributeAction action, String key, String value) {
             Log.i(TAG, "onAttributeUpdated: " + action + " - " + key + " - " + value);
-            // 把admin的名字绑定到第一个TalkerView
-            if (Constant.PROPERTY_ADMIN.equals(key)) {
-                updatePositionValue(0, value);
-            }
             // 第一次加入房间时会获取到当前语聊房间的互动模式
             if (Constant.PROPERTY_TYPE.equals(key)) {
                 roomType = RoomType.from(value);
@@ -660,17 +656,26 @@ public class VoiceChatFragment extends BaseFragment {
                 }
             }
 
-            if (roomType == RoomType.HOST && Constant.PROPERTY_TALKER.equals(key) && action == EMAttributeAction.UPDATE) {
+            if (roomType == RoomType.HOST && Constant.PROPERTY_TALKER.equals(key)
+                    && action == EMAttributeAction.UPDATE) { // 主持模式
                 if (conferenceRole != EMConferenceManager.EMConferenceRole.Audience) {
-                    int p = findExistPosition(currentUsername);
-                    if (currentUsername.equals(value)) {
+                    // 把上一个发言人的发言按钮border颜色设置为gray
+                    final String previousTalker = currentTalker;
+                    if (!TextUtils.isEmpty(previousTalker)) {
+                        runOnUiThread(() -> {
+                            talkerViewList[findExistPosition(previousTalker)].second
+                                    .findButton(BUTTON_TALK)
+                                    .setBorder(IBorderView.Border.GRAY);
+                        });
+                    }
+                    // 更新自己的UI状态
+                    final int selfPosition = findExistPosition(currentUsername);
+                    if (currentUsername.equals(value)) { // 点击了自己的发言按钮
                         conferenceManager.openVoiceTransfer();
-                        // 更新自己canTalk的状态
-                        runOnUiThread(() -> talkerViewList[p].second.canTalk(true));
-                    } else {
+                        runOnUiThread(() -> talkerViewList[selfPosition].second.canTalk(true));
+                    } else { // 点击了别人的发言按钮
                         conferenceManager.closeVoiceTransfer();
-                        // 更新自己canTalk的状态
-                        runOnUiThread(() -> talkerViewList[p].second.canTalk(false));
+                        runOnUiThread(() -> talkerViewList[selfPosition].second.canTalk(false));
                     }
                 }
             }
@@ -678,22 +683,20 @@ public class VoiceChatFragment extends BaseFragment {
             if (roomType == RoomType.MONOPOLY && Constant.PROPERTY_TALKER.equals(key)) { // 抢麦模式
                 if (TextUtils.isEmpty(value)) { // 麦被释放
                     if (!TextUtils.isEmpty(currentTalker)) {
-                        final int position = findExistPosition(currentTalker);
-                        if (position == -1) {
+                        final int previousTalkerPosition = findExistPosition(currentTalker);
+                        if (previousTalkerPosition == -1) {
                             Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + currentTalker);
                         } else {
-                            runOnUiThread(() -> {
-                                talkerViewList[position].second.stopCountDown();
-                            });
+                            runOnUiThread(() -> talkerViewList[previousTalkerPosition].second.stopCountDown());
                         }
                     }
                 } else { // 麦被某主播抢到,开始该主播view上的倒计时
-                    final int position = findExistPosition(value);
-                    if (position == -1) {
+                    final int occupiedPosition = findExistPosition(value);
+                    if (occupiedPosition == -1) {
                         Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + value);
                     } else {
                         // 标记是否为自己抢到麦
-                        boolean isSelfOccupied = currentUsername.equals(value);
+                        final boolean isSelfOccupied = currentUsername.equals(value);
                         runOnUiThread(() -> {
                             final TalkerView talkerView = talkerViewList[findExistPosition(value)].second;
                             talkerView.startCountDown(Constant.SECONDS_MIC_OCCUPIED, () -> {
@@ -718,7 +721,7 @@ public class VoiceChatFragment extends BaseFragment {
                     } else {
                         if (TextUtils.isEmpty(value)) { // 麦被释放
                             // 标记是否为自己抢到麦
-                            boolean isSelfOccupied = currentUsername.equals(currentTalker);
+                            final boolean isSelfOccupied = currentUsername.equals(currentTalker);
                             runOnUiThread(() -> {
                                 // 恢复自己的按钮为可抢麦模式
                                 TalkerView talkerView = talkerViewList[selfPosition].second;
@@ -729,7 +732,7 @@ public class VoiceChatFragment extends BaseFragment {
                             });
                         } else {
                             // 标记是否为自己抢到麦
-                            boolean isSelfOccupied = currentUsername.equals(value);
+                            final boolean isSelfOccupied = currentUsername.equals(value);
                             runOnUiThread(() -> {
                                 // 设置自己按钮为不可抢麦模式
                                 TalkerView talkerView = talkerViewList[selfPosition].second;
