@@ -13,8 +13,17 @@ android {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file("../keystore/hyphenate.keystore")
+            storePassword "easemob"
+            keyAlias "easemob"
+            keyPassword "easemob"
+        }
+    }
     buildTypes {
         release {
+            signingConfig android.signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
