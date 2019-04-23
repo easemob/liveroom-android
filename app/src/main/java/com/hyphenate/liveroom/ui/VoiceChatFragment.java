@@ -197,6 +197,7 @@ public class VoiceChatFragment extends BaseFragment {
         closeSpeaker();
 
         stopAudioTalkingMonitor();
+        releaseMicIfNeeded(currentUsername);
 
         conferenceManager.removeConferenceListener(conferenceListener);
 
@@ -381,6 +382,20 @@ public class VoiceChatFragment extends BaseFragment {
                 .setBorder(IBorderView.Border.NONE);
     }
 
+    private void releaseMicIfNeeded(String occupiedUsername) {
+        // 标记是否为抢麦模式下抢到了麦克风
+        boolean isOccupied = roomType == RoomType.MONOPOLY
+                && occupiedUsername != null
+                && occupiedUsername.equals(currentTalker);
+        if (isOccupied) {
+            Log.i(TAG, "Exit in MONOPOLY room and self occupied microphone, release microphone first.");
+            conferenceManager.setConferenceAttribute(
+                    Constant.PROPERTY_TALKER, "", null);
+            // 调用app server释放麦克风接口
+            HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
+        }
+    }
+
     private StateTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
         if (id == BUTTON_VOICE) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
@@ -401,17 +416,7 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_DISCONN) {
             return v.createButton(getContext(), BUTTON_DISCONN,
                     "下麦", border, (view, button) -> {
-                        // 标记是否为抢麦模式下自己抢到了麦克风
-                        boolean isSelfOccupied = roomType == RoomType.MONOPOLY
-                                && view.getName().equals(currentTalker);
-                        if (isSelfOccupied) {
-                            Log.i(TAG, "Exit in MONOPOLY room and self occupied microphone, release microphone first.");
-                            conferenceManager.setConferenceAttribute(
-                                    Constant.PROPERTY_TALKER, "", null);
-                            // 调用app server释放麦克风接口
-                            HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
-                        }
-
+                        releaseMicIfNeeded(view.getName());
                         // 发送下线申请给管理员
                         if (onEventCallback != null) {
                             onEventCallback.onEvent(EVENT_TOBE_AUDIENCE, view.getName());
@@ -646,6 +651,7 @@ public class VoiceChatFragment extends BaseFragment {
                 });
             } else { // 主播变成了观众
                 unpublish(publishId);
+                releaseMicIfNeeded(currentUsername);
                 final int existPosition = findExistPosition(currentUsername);
                 runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
 
@@ -719,8 +725,12 @@ public class VoiceChatFragment extends BaseFragment {
                         runOnUiThread(() -> {
                             final TalkerView talkerView = talkerViewList[findExistPosition(value)].second;
                             talkerView.startCountDown(Constant.SECONDS_MIC_OCCUPIED, () -> {
+                                // 时间到后即开始设置自己的抢麦按钮可抢
+                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
                                 if (isSelfOccupied) { // 如果是自己抢到麦,倒计时结束后释放麦克风
-                                    talkerView.canTalk(false);
+                                    talkerView.canTalk(false)
+                                            .findButton(BUTTON_MIC_RELEASE)
+                                            .setBorder(IBorderView.Border.GRAY);
                                     conferenceManager.closeVoiceTransfer();
                                     conferenceManager.setConferenceAttribute(
                                             Constant.PROPERTY_TALKER, "", null);
