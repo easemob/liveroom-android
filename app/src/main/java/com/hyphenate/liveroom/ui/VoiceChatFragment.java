@@ -27,6 +27,7 @@ import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
+import com.hyphenate.liveroom.manager.CountDownManager;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
@@ -192,6 +193,8 @@ public class VoiceChatFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
 
+        CountDownManager.getInstance().stopCountDown();
+
         audioManager.setMode(AudioManager.MODE_NORMAL);
         audioManager.setMicrophoneMute(false);
         closeSpeaker();
@@ -244,8 +247,14 @@ public class VoiceChatFragment extends BaseFragment {
                 talkerView.canTalk(false);
             } else if (roomType == RoomType.MONOPOLY) {
                 talkerView.canTalk(false)
-                        .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GREEN))
-                        .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
+                        .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GRAY));
+
+                if (currentUsername.equals(currentTalker)) { // 当前仍为自己抢到麦
+                    talkerView.addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.RED));
+                    CountDownManager.getInstance().startCountDown(Constant.SECONDS_MIC_OCCUPIED, countDownCallback);
+                } else {
+                    talkerView.addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
+                }
             } else {
                 talkerView.canTalk(true)
                         .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
@@ -454,14 +463,17 @@ public class VoiceChatFragment extends BaseFragment {
                                 // 设置频道属性
                                 conferenceManager.setConferenceAttribute(
                                         Constant.PROPERTY_TALKER, view.getName(), null);
-                                runOnUiThread(() -> view.canTalk(true));
+                                runOnUiThread(() -> {
+                                    view.canTalk(true);
+                                    view.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.RED);
+                                });
                             }
 
                             @Override
                             public void onFailed(int errCode, String desc) {
                                 // 抢麦失败
                                 if (TextUtils.isEmpty(currentTalker)) {
-                                    button.setBorder(IBorderView.Border.GREEN);
+                                    runOnUiThread(() -> button.setBorder(IBorderView.Border.GREEN));
                                 }
                             }
                         });
@@ -474,13 +486,24 @@ public class VoiceChatFragment extends BaseFragment {
                             return;
                         }
 
-                        // 调用app server释放麦接口
-                        HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
+                        button.setBorder(IBorderView.Border.GRAY);
 
-                        conferenceManager.closeVoiceTransfer();
-                        // 设置频道属性
-                        conferenceManager.setConferenceAttribute(
-                                Constant.PROPERTY_TALKER, "", null);
+                        // 调用app server释放麦接口
+                        HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername,
+                                new HttpRequestManager.IRequestListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // mute self
+                                        conferenceManager.closeVoiceTransfer();
+                                        // 设置频道属性
+                                        conferenceManager.setConferenceAttribute(
+                                                Constant.PROPERTY_TALKER, "", null);
+                                    }
+
+                                    @Override
+                                    public void onFailed(int errCode, String desc) {
+                                    }
+                                });
 
                         view.canTalk(false);
                     });
@@ -496,6 +519,65 @@ public class VoiceChatFragment extends BaseFragment {
             activity.runOnUiThread(r);
         }
     }
+
+    CountDownManager.CountDownCallback countDownCallback = new CountDownManager.CountDownCallback() {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            // 更新当前抢麦者的倒计时
+            final int previousTalkerPosition = findExistPosition(currentTalker);
+            if (previousTalkerPosition == -1) {
+                Log.e(TAG, "MONOPOLY room, can not get target TalkerView.");
+            } else {
+                runOnUiThread(() -> {
+                    TalkerView talkerView = talkerViewList[previousTalkerPosition].second;
+                    talkerView.showCountDownTime(millisUntilFinished);
+                });
+            }
+        }
+
+        @Override
+        public void onCancel() {
+            // 停止上一个抢麦者的倒计时
+            final int previousTalkerPosition = findExistPosition(currentTalker);
+            if (previousTalkerPosition == -1) {
+                Log.e(TAG, "MONOPOLY room, can not get target TalkerView.");
+            } else {
+                runOnUiThread(() -> {
+                    TalkerView talkerView = talkerViewList[previousTalkerPosition].second;
+                    talkerView.dismissCountDownTime();
+                });
+            }
+
+            final int selfPosition = findExistPosition(currentUsername);
+            if (selfPosition == -1) {
+                Log.e(TAG, "MONOPOLY room, can not get self TalkerView.");
+            } else {
+                runOnUiThread(() -> {
+                    // 恢复自己的按钮为可抢麦模式
+                    TalkerView talkerView = talkerViewList[selfPosition].second;
+                    talkerView.canTalk(false);
+                    talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
+                    talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
+                });
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            this.onCancel();
+
+            // 标记是否为自己抢到麦
+            final boolean isSelfOccupied = currentUsername.equals(currentTalker);
+            if (isSelfOccupied) {
+                conferenceManager.closeVoiceTransfer();
+                conferenceManager.setConferenceAttribute(
+                        Constant.PROPERTY_TALKER, "", null);
+                // 调用app server释放麦接口
+                HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(),
+                        currentUsername, null);
+            }
+        }
+    };
 
     private EMConferenceListener conferenceListener = new EMConferenceListener() {
         @Override
@@ -707,72 +789,84 @@ public class VoiceChatFragment extends BaseFragment {
 
             if (roomType == RoomType.MONOPOLY && Constant.PROPERTY_TALKER.equals(key)) { // 抢麦模式
                 if (TextUtils.isEmpty(value)) { // 麦被释放
-                    if (!TextUtils.isEmpty(currentTalker)) {
-                        final int previousTalkerPosition = findExistPosition(currentTalker);
-                        if (previousTalkerPosition == -1) {
-                            Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + currentTalker);
-                        } else {
-                            runOnUiThread(() -> talkerViewList[previousTalkerPosition].second.stopCountDown());
-                        }
-                    }
-                } else { // 麦被某主播抢到,开始该主播view上的倒计时
-                    final int occupiedPosition = findExistPosition(value);
-                    if (occupiedPosition == -1) {
-                        Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + value);
-                    } else {
-                        // 标记是否为自己抢到麦
-                        final boolean isSelfOccupied = currentUsername.equals(value);
-                        runOnUiThread(() -> {
-                            final TalkerView talkerView = talkerViewList[findExistPosition(value)].second;
-                            talkerView.startCountDown(Constant.SECONDS_MIC_OCCUPIED, () -> {
-                                // 时间到后即开始设置自己的抢麦按钮可抢
-                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
-                                if (isSelfOccupied) { // 如果是自己抢到麦,倒计时结束后释放麦克风
-                                    talkerView.canTalk(false)
-                                            .findButton(BUTTON_MIC_RELEASE)
-                                            .setBorder(IBorderView.Border.GRAY);
-                                    conferenceManager.closeVoiceTransfer();
-                                    conferenceManager.setConferenceAttribute(
-                                            Constant.PROPERTY_TALKER, "", null);
-                                    // 调用app server释放麦接口
-                                    HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(),
-                                            currentUsername, null);
-                                }
-                            });
-                        });
-                    }
+                    // 会触发countDownCallback#onCancel()回调
+                    CountDownManager.getInstance().stopCountDown();
+
+//                    if (!TextUtils.isEmpty(currentTalker)) {
+//                        final int previousTalkerPosition = findExistPosition(currentTalker);
+//                        if (previousTalkerPosition == -1) {
+//                            Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + currentTalker);
+//                        } else {
+//                            runOnUiThread(() -> talkerViewList[previousTalkerPosition].second.stopCountDown());
+//                        }
+//                    }
+                } else { // 麦被某主播抢到,开始倒计时
+                    CountDownManager.getInstance().startCountDown(Constant.SECONDS_MIC_OCCUPIED, countDownCallback);
+
+//                    final int occupiedPosition = findExistPosition(value);
+//                    if (occupiedPosition == -1) {
+//                        Log.e(TAG, "MONOPOLY room, can not get target TalkerView by name: " + value);
+//                    } else {
+
+                    // 标记是否为自己抢到麦
+//                    final boolean isSelfOccupied = currentUsername.equals(value);
+//                    if (isSelfOccupied) {
+//                        final int selfPosition = findExistPosition(value);
+//                        if (selfPosition != -1) {
+//                            runOnUiThread(() -> {
+//                                TalkerView talkerView = talkerViewList[selfPosition].second;
+//                                talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.RED);
+//                            });
+//                        }
+//                    }
+//                            talkerView.startCountDown(Constant.SECONDS_MIC_OCCUPIED, () -> {
+//                                // 时间到后即开始设置自己的抢麦按钮可抢
+//                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
+//                                if (isSelfOccupied) { // 如果是自己抢到麦,倒计时结束后释放麦克风
+//                                    talkerView.canTalk(false)
+//                                            .findButton(BUTTON_MIC_RELEASE)
+//                                            .setBorder(IBorderView.Border.GRAY);
+//                                    conferenceManager.closeVoiceTransfer();
+//                                    conferenceManager.setConferenceAttribute(
+//                                            Constant.PROPERTY_TALKER, "", null);
+//                                    // 调用app server释放麦接口
+//                                    HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(),
+//                                            currentUsername, null);
+//                                }
+//                            });
+//                    }
                 }
 
-                if (conferenceRole != EMConferenceManager.EMConferenceRole.Audience) {
-                    int selfPosition = findExistPosition(currentUsername);
-                    if (selfPosition == -1) {
-                        Log.e(TAG, "MONOPOLY room, can not get self TalkerView.");
-                    } else {
-                        if (TextUtils.isEmpty(value)) { // 麦被释放
-                            // 标记是否为自己抢到麦
-                            final boolean isSelfOccupied = currentUsername.equals(currentTalker);
-                            runOnUiThread(() -> {
-                                // 恢复自己的按钮为可抢麦模式
-                                TalkerView talkerView = talkerViewList[selfPosition].second;
-                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
-                                if (isSelfOccupied) {
-                                    talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
-                                }
-                            });
-                        } else {
-                            // 标记是否为自己抢到麦
-                            final boolean isSelfOccupied = currentUsername.equals(value);
-                            runOnUiThread(() -> {
-                                // 设置自己按钮为不可抢麦模式
-                                TalkerView talkerView = talkerViewList[selfPosition].second;
-                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GRAY);
-                                if (isSelfOccupied) {
-                                    talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.RED);
-                                }
-                            });
-                        }
-                    }
-                }
+//                if (conferenceRole != EMConferenceManager.EMConferenceRole.Audience) {
+//                    int selfPosition = findExistPosition(currentUsername);
+//                    if (selfPosition == -1) {
+//                        Log.e(TAG, "MONOPOLY room, can not get self TalkerView.");
+//                    } else {
+//                        if (TextUtils.isEmpty(value)) { // 麦被释放
+//                            // 标记是否为自己抢到麦
+//                            final boolean isSelfOccupied = currentUsername.equals(currentTalker);
+//                            runOnUiThread(() -> {
+//                                // 恢复自己的按钮为可抢麦模式
+//                                TalkerView talkerView = talkerViewList[selfPosition].second;
+//                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
+//                                if (isSelfOccupied) {
+//                                    talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
+//                                }
+//                            });
+//                        } else {
+//                            // 标记是否为自己抢到麦
+//                            final boolean isSelfOccupied = currentUsername.equals(value);
+//                            runOnUiThread(() -> {
+//                                // 设置自己按钮为不可抢麦模式
+//                                TalkerView talkerView = talkerViewList[selfPosition].second;
+//                                talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GRAY);
+//                                if (isSelfOccupied) {
+//                                    talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.RED);
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
             }
 
             if (Constant.PROPERTY_TALKER.equals(key)) { // 标记当前正在说话的人

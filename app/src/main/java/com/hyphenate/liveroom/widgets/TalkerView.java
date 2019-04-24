@@ -142,6 +142,18 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
+    public TalkerView showCountDownTime(long millisUntilFinished) {
+        countDownTimeView.setVisibility(VISIBLE);
+        countDownTimeView.setText(dateFormat.format(millisUntilFinished));
+        return this;
+    }
+
+    public TalkerView dismissCountDownTime() {
+        countDownTimeView.setVisibility(GONE);
+        countDownTimeView.setText("00:00");
+        return this;
+    }
+
     public TalkerView startCountDown(int seconds, final CountDownCallback callback) {
         countDownTimer = new CountDownTimer(seconds * 1000, 1000) {
             @Override
