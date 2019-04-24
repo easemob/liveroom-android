@@ -26,6 +26,7 @@ import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
+import com.hyphenate.liveroom.utils.CommonUtils;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
@@ -177,6 +178,7 @@ public class ChatRoomFragment extends BaseFragment {
         private ChatRoomFilter dataFilter;
         private List<ChatRoom> chatRooms;
         private List<ChatRoom> copyList;
+        private CharSequence searchTxt;
 
         public RoomAdapter(@NonNull Context context, List<ChatRoom> rooms) {
             chatRooms = rooms;
@@ -227,8 +229,8 @@ public class ChatRoomFragment extends BaseFragment {
             ChatRoom item = getItem(position);
 
             if (item != null) {
-                vh.name.setText(item.getRoomName());
-                vh.introduce.setText(item.getRoomId());
+                CommonUtils.initHightLight(vh.name, searchTxt, item.getRoomName());
+                CommonUtils.initHightLight(vh.introduce, searchTxt, item.getRoomId());
             }
 
             return convertView;
@@ -249,13 +251,14 @@ public class ChatRoomFragment extends BaseFragment {
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
+                searchTxt = prefix;
                 if (prefix == null || prefix.length() == 0) {
                     results.values = copyList;
                     results.count = copyList.size();
                 } else {
                     String prefixString = prefix.toString();
                     List<ChatRoom> newValues = new ArrayList<>();
-                    for (ChatRoom chatRoom : chatRooms) {
+                    for (ChatRoom chatRoom : copyList) {
                         if ((chatRoom.getRoomName() != null && chatRoom.getRoomName().contains(prefixString))
                                 || (chatRoom.getRoomId() != null && chatRoom.getRoomId().contains(prefixString))) {
                             newValues.add(chatRoom);
