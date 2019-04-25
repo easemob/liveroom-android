@@ -62,6 +62,8 @@ public class RoomDetailsActivity extends BaseActivity {
         setTextViewText(R.id.tv_create_time, chatRoom.getRtcConfrCreateTime());
         setTextViewText(R.id.tv_allow_request, chatRoom.isAllowAudienceTalk() + "");
         setTextViewText(R.id.tv_type, roomType.getName());
+        setTextViewText(R.id.tv_room_name, chatRoom.getRoomName());
+        findViewById(R.id.ib_close).setOnClickListener((v) -> finish());
     }
 
     private void setTextViewText(int id, String text) {

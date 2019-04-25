@@ -41,7 +41,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -71,6 +71,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|stateHidden" />
 
+        <activity android:name=".ui.SharedActivity" android:theme="@style/MyDialogStyle" android:screenOrientation="portrait" />
         <!-- 设置环信应用的AppKey -->
         <!--<meta-data-->
         <!--android:name="EASEMOB_APPKEY"-->

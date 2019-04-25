@@ -6,13 +6,31 @@
     android:orientation="vertical"
     android:padding="13dp">
 
-    <TextView
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical|start"
-        android:text="房间详情"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:layout_height="@dimen/top_title_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/ib_close"
+            android:layout_width="@dimen/top_title_height"
+            android:layout_height="@dimen/top_title_height"
+            android:src="@drawable/em_ic_exit"
+            android:background="@android:color/transparent"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:text="房间详情"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +40,17 @@
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tv_room_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            />
 
         <LinearLayout style="@style/dialog_join_layout_style">
 

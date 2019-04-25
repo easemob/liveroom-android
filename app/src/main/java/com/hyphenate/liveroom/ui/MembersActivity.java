@@ -27,6 +27,8 @@ import com.hyphenate.liveroom.manager.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by zhangsong on 19-4-13
@@ -34,15 +36,17 @@ import java.util.List;
 public class MembersActivity extends BaseActivity {
     private static final String TAG = "MembersActivity";
 
-    private EditText searchEdittext;
+    private EditText searchEditText;
     private ImageButton searchButton;
     private ListView memberListView;
+    private ImageButton ibClose;
 
     private String roomId;
     private String ownerName;
     private boolean isAdmin;
     private List<String> dataList = new ArrayList<>();
     private MemberAdapter memberAdapter;
+    private ExecutorService mThreadPool = Executors.newCachedThreadPool();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +56,8 @@ public class MembersActivity extends BaseActivity {
 
         roomId = getIntent().getStringExtra(Constant.EXTRA_CHATROOM_ID);
 
-        searchEdittext = findViewById(R.id.et_search);
-        searchButton = findViewById(R.id.btn_search);
-        memberListView = findViewById(R.id.list_member);
-
-        searchEdittext.addTextChangedListener(textWatcher);
-        searchButton.setOnClickListener((v) -> {
-            hideSoftKeyboard();
-        });
+        initView();
+        initListener();
 
         memberAdapter = new MemberAdapter(this, dataList);
         memberListView.setAdapter(memberAdapter);
@@ -67,8 +65,21 @@ public class MembersActivity extends BaseActivity {
         refreshMembers();
     }
 
+    private void initView() {
+        searchEditText = findViewById(R.id.et_search);
+        searchButton = findViewById(R.id.btn_search);
+        memberListView = findViewById(R.id.list_member);
+        ibClose = findViewById(R.id.ib_close);
+    }
+
+    private void initListener() {
+        searchEditText.addTextChangedListener(textWatcher);
+        searchButton.setOnClickListener((v) -> hideSoftKeyboard());
+        ibClose.setOnClickListener(v -> finish());
+    }
+
     private void refreshMembers() {
-        new Thread(() -> {
+        executeOnChildThread(() -> {
             EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(roomId);
             if (room == null) {
                 return;
@@ -91,11 +102,11 @@ public class MembersActivity extends BaseActivity {
                 dataList.addAll(result.getData());
             } while (result.getCursor() != null && !result.getCursor().isEmpty());
 
-            runOnUiThread(() -> {
+            executeOnUiThread(() -> {
                 memberAdapter.changeList(dataList);
                 memberAdapter.notifyDataSetChanged();
             });
-        }).start();
+        });
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -187,7 +198,7 @@ public class MembersActivity extends BaseActivity {
 
         private void handleKickAction(String username) {
             // 把某人踢出聊天室
-            new Thread(() -> {
+            executeOnChildThread(() -> {
                 try {
                     EMClient.getInstance().chatroomManager().removeChatRoomMembers(roomId,
                             new ArrayList<String>() {{
@@ -198,7 +209,7 @@ public class MembersActivity extends BaseActivity {
                 } catch (HyphenateException e) {
                     e.printStackTrace();
                 }
-            }).start();
+            });
         }
 
         class ViewHolder {
@@ -245,5 +256,13 @@ public class MembersActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    private void executeOnChildThread(Runnable runnable) {
+        mThreadPool.execute(runnable);
+    }
+
+    private void executeOnUiThread(Runnable runnable) {
+        runOnUiThread(runnable);
     }
 }

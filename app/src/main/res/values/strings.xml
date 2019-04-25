@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">LiveRoom</string>
 
     <!-- login start -->
@@ -36,12 +36,17 @@
     <string name="password_should_not_exceed_16_bits_at_most">Passwords should not exceed 16 bits at most。</string>
     <string name="room_type_choice">Please select the voice chat room type.</string>
     <string name="submit">Submit</string>
+    <string name="tip_plz_input_account_and_pwd">Please input account and password!</string>
+    <string name="tip_create_chat_room_failed">Create ChatRoom Failed, errorCode:%d, desc: %s</string>
     <!-- create voice chatroom end -->
 
     <!-- MainActivity start-->
     <string name="connect_conflict">The same account was loggedin in other device</string>
     <string name="em_user_remove">This user has been removed</string>
     <string name="user_forbidden">User is forbidden by server</string>
+    <string name="title_room_list">Room</string>
+    <string name="title_create_room">Create</string>
+    <string name="title_settings">Settings</string>
     <!-- MainActivity end-->
 
     <!-- ChatActivity start -->
@@ -52,12 +57,17 @@
     <string name="user_be_kicked_for_offline">user be kicked for offline</string>
     <string name="alert_kicked_for_offline">You\'ve been kicked for offline, click to rejoin again.</string>
     <string name="rejoining_the_chat_room">Rejoining chat room</string>
-
+    <string name="input_hint_say_your_heart">say me to your heart</string>
     <!-- ChatActivity end -->
 
-    <string name="title_room_list">Room</string>
-    <string name="title_create_room">Create</string>
-    <string name="title_settings">Settings</string>
+    <!--Member list start -->
+    <string name="title_member_list">Member list</string>
+    <!--Member list end -->
+
+    <!--EaseTipDialog start -->
+    <string name="tip_ok">ok</string>
+    <string name="tip_error">error</string>
+    <!--EaseTipDialog end -->
 
     <string name="Is_landing">logining ……</string>
     <string name="Is_the_registered">Registering……</string>
