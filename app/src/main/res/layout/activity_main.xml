@@ -6,7 +6,7 @@
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/item_height"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         >
@@ -22,12 +22,11 @@
 
         <ImageButton
             android:id="@+id/btn_create"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/item_height"
+            android:layout_height="@dimen/item_height"
             android:layout_alignParentRight="true"
             android:background="@android:color/white"
             android:gravity="center"
-            android:padding="15dp"
             android:scaleType="fitCenter"
             android:onClick="onClick"
             android:src="@drawable/em_ic_add" />

@@ -6,13 +6,30 @@
     android:orientation="vertical"
     android:padding="13dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical|start"
-        android:text="成员列表"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:layout_height="@dimen/top_title_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/ib_close"
+            android:layout_width="@dimen/top_title_height"
+            android:layout_height="@dimen/top_title_height"
+            android:src="@drawable/em_ic_exit"
+            android:background="@android:color/transparent"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:text="@string/title_member_list"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -23,12 +40,12 @@
 
         <ImageButton
             android:id="@+id/btn_search"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/item_height"
+            android:layout_height="@dimen/item_height"
             android:layout_alignParentRight="true"
             android:background="@android:color/white"
             android:gravity="center"
-            android:padding="10dp"
+            android:padding="15dp"
             android:scaleType="fitCenter"
             android:src="@drawable/em_ic_search" />
 

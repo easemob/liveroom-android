@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="item_height">48dp</dimen>
+    <dimen name="top_title_height">44dp</dimen>
+    <dimen name="button_height">@dimen/item_height</dimen>
+    <dimen name="chat_input_height">44dp</dimen>
+</resources>

@@ -257,6 +257,13 @@ public class ChatActivity extends BaseActivity {
                 startActivity(i);
                 break;
             case R.id.btn_share:
+                Intent intent = new Intent(ChatActivity.this, SharedActivity.class);
+                intent.putExtra(Constant.EXTRA_ROOM_NAME, roomName);
+                intent.putExtra(Constant.EXTRA_ROOM_ADMIN, ownerName);
+                if (chatRoom != null) {
+                    intent.putExtra(Constant.EXTRA_ROOM_PWD, chatRoom.getRtcConfrPassword());
+                }
+                startActivity(intent);
                 break;
             case R.id.btn_detail:
                 startActivity(new RoomDetailsActivity.Builder(ChatActivity.this)

@@ -7,6 +7,11 @@ public class Constant {
     public static final String EXTRA_ROOM_NAME = "roomName";
     public static final String EXTRA_PASSWORD = "password";
 
+    public static final String EXTRA_ROOM_ADMIN = "roomAdmin";
+    public static final String EXTRA_ROOM_PWD = "roomPwd";
+
+    public static final String DOWNLOAD_APPLINK = "http://www.easemob.com";
+
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_CHATROOM_ID = "chatroomId";
     public static final String EXTRA_CONFERENCE_ID = "conferenceId";
@@ -30,8 +35,8 @@ public class Constant {
     // 抢麦模式
     public static final String ROOM_TYPE_MONOPOLY = "monopoly";
 
-    public static final String MESSAGE_GIFT = "gift +1";
-    public static final String MESSAGE_FAVOURITE = "heart +1";
+    public static final String MESSAGE_GIFT = "send a gift";
+    public static final String MESSAGE_FAVOURITE = "like +1";
 
     public static final int COLOR_WHITE = Color.parseColor("#FFFFFF");
     public static final int COLOR_BLACK = Color.parseColor("#000000");
@@ -43,4 +48,8 @@ public class Constant {
     public static final int ERROR_MIC_OCCUPY_FAILED = 1000;
 
     public static final int SECONDS_MIC_OCCUPIED = 30;
+
+
+
+
 }

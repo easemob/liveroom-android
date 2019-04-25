@@ -22,6 +22,7 @@ import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
+import com.hyphenate.util.EMLog;
 
 /**
  * Created by zhangsong on 19-3-29
@@ -36,6 +37,8 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
 
     private RoomType roomType;
 
+    private EaseTipDialog easeTipDialog;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -44,7 +47,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
 
         roomNameView = contentView.findViewById(R.id.et_room_name);
         passwordView = contentView.findViewById(R.id.et_password);
-        Spinner spinner = contentView.findViewById(R.id.spinner);
+        Spinner spinner = contentView.findViewById(R.id.sp_model);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -65,7 +68,6 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         contentView.findViewById(R.id.btn_create).setOnClickListener(this);
 
         roomType = RoomType.COMMUNICATION;
-
         return contentView;
     }
 
@@ -74,15 +76,15 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_JOIN && resultCode != EMError.EM_NO_ERROR) {
             int error = resultCode;
-            EaseTipDialog.Builder builder = new EaseTipDialog.Builder(getContext())
+            easeTipDialog = new EaseTipDialog.Builder(getContext())
                     .setStyle(EaseTipDialog.TipDialogStyle.ERROR)
-                    .setTitle("错误");
+                    .setTitle(R.string.tip_error).build();
             if (error == EMError.INVALID_PASSWORD) {
-                builder.setMessage("加入语聊房间失败, 密码错误.");
+                easeTipDialog.setMessage("加入语聊房间失败, 密码错误.");
             } else {
-                builder.setMessage("加入语聊房间失败: " + error);
+                easeTipDialog.setMessage("加入语聊房间失败: " + error);
             }
-            builder.build().show();
+            easeTipDialog.show();
         }
     }
 
@@ -92,7 +94,9 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         String password = passwordView.getText().toString();
 
         if (TextUtils.isEmpty(roomName) || TextUtils.isEmpty(password)) {
-            Toast.makeText(getContext(), "请先输入房间名称和密码 ~", Toast.LENGTH_SHORT).show();
+            easeTipDialog = new EaseTipDialog.Builder(getContext()).setStyle(EaseTipDialog.TipDialogStyle.ERROR)
+                    .setTitle(R.string.tip_error).setMessage(R.string.tip_plz_input_account_and_pwd).build();
+            easeTipDialog.show();
             return;
         }
 
@@ -101,6 +105,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
                 new HttpRequestManager.IRequestListener<ChatRoom>() {
                     @Override
                     public void onSuccess(ChatRoom chatRoom) {
+                        if (getActivity() == null) return;
                         getActivity().runOnUiThread(() -> {
                             roomNameView.setText("");
                             passwordView.setText("");
@@ -116,10 +121,29 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
 
                     @Override
                     public void onFailed(int errCode, String desc) {
+                        EMLog.e(TAG, "create ChatRoom Failed, errCode:" + errCode + ", desc:" + desc);
+                        if (getActivity() == null) return;
                         getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getActivity(), errCode + " - " + desc, Toast.LENGTH_SHORT).show();
+                            easeTipDialog = new EaseTipDialog.Builder(getContext()).setStyle(EaseTipDialog.TipDialogStyle.ERROR)
+                                    .setTitle(R.string.tip_error).setMessage(getString(R.string.tip_create_chat_room_failed, errCode, desc)).build();
+                            easeTipDialog.show();
                         });
                     }
                 });
     }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dismissTipDialog();
+    }
+
+    private void dismissTipDialog(){
+        if (easeTipDialog != null && easeTipDialog.isShowing()) {
+            easeTipDialog.dismiss();
+        }
+    }
+
+
 }

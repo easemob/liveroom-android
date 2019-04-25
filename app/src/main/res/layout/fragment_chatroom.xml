@@ -21,8 +21,8 @@
 
         <ImageButton
             android:id="@+id/btn_search"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
             android:layout_alignParentRight="true"
             android:background="@android:color/white"
             android:gravity="center"
