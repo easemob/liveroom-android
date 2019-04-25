@@ -9,10 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.hyphenate.liveroom.utils.CommonUtils;
 
 /**
  * Created by zhangsong on 19-3-29
@@ -33,6 +35,8 @@ public class SettingsFragment extends BaseFragment {
         final String username = PreferenceManager.getInstance().getCurrentUsername();
         ((Button) getView().findViewById(R.id.btn_logout))
                 .setText(getString(R.string.btn_logout) + " (" + username + ")");
+
+        ((TextView)getView().findViewById(R.id.tv_version)).setText(CommonUtils.getVersionName(getContext()));
 
         getView().findViewById(R.id.btn_logout).setOnClickListener(v -> {
             EMClient.getInstance().logout(false);

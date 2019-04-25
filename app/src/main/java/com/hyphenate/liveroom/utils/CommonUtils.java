@@ -16,6 +16,8 @@ package com.hyphenate.liveroom.utils;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -118,5 +120,39 @@ public class CommonUtils {
             }
         }
         view.setText(sp);
+    }
+
+    /**
+     * 获取版本名称
+     *
+     * @param context 上下文
+     * @return
+     */
+    public static String getVersionName(Context context) {
+        PackageInfo pInfo = getPackageInfo(context);
+        return (pInfo == null) ? "" : pInfo.versionName;
+    }
+
+    /**
+     * 获取版本号
+     *
+     * @param context
+     * @return
+     */
+    public static int getVersionCode(Context context) {
+        PackageInfo pInfo = getPackageInfo(context);
+        return pInfo == null ? -1 : pInfo.versionCode;
+    }
+
+    // 通过PackageInfo得到应用的包名
+    private static PackageInfo getPackageInfo(Context context) {
+        try {
+            // 通过PackageManager可以得到PackageInfo
+            PackageManager pManager = context.getPackageManager();
+            return pManager.getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
