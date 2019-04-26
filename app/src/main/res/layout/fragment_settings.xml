@@ -26,8 +26,9 @@
                 android:text="@string/version" />
 
             <TextView
+                android:id="@+id/tv_version"
                 style="@style/settings_cell_right_text_style"
-                android:text="1.01" />
+                />
         </LinearLayout>
 
         <LinearLayout
