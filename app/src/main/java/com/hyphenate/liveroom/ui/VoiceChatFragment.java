@@ -1,7 +1,11 @@
 package com.hyphenate.liveroom.ui;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -88,6 +92,11 @@ public class VoiceChatFragment extends BaseFragment {
     private String currentTalker;
     private EMConferenceManager conferenceManager;
 
+    //蓝牙耳机是否连接
+    private boolean bluetoothIsConnected;
+    private BluetoothConnectionReceiver bluetoothReceiver = new BluetoothConnectionReceiver();
+    private HeadsetReceiver headsetReceiver = new HeadsetReceiver();
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +123,13 @@ public class VoiceChatFragment extends BaseFragment {
 
         audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        registerHeadsetReceiver();
+        checkCurrentBluetoothState();
+        if (bluetoothIsConnected) {
+            changeToBluetooth();
+        } else {
+            changeToSpeaker();
+        }
 
         for (int i = 0; i < MAX_TALKERS; i++) {
             TalkerView talkerView = TalkerView.create(getContext())
@@ -195,7 +211,7 @@ public class VoiceChatFragment extends BaseFragment {
         audioManager.setMode(AudioManager.MODE_NORMAL);
         audioManager.setMicrophoneMute(false);
         closeSpeaker();
-
+        unregisterHeadsetReceiver();
         stopAudioTalkingMonitor();
         releaseMicIfNeeded(currentUsername);
 
@@ -227,6 +243,109 @@ public class VoiceChatFragment extends BaseFragment {
             });
         }
     }
+
+    private void checkCurrentBluetoothState(){
+        bluetoothIsConnected = audioManager.isBluetoothScoAvailableOffCall() && audioManager.isBluetoothScoOn();
+    }
+
+    private class BluetoothConnectionReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED.equals(intent.getAction())) { // 蓝牙连接状态
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, -1);
+                // 连接上，切换到蓝牙耳机播放
+                if (state == BluetoothAdapter.STATE_CONNECTED) {
+                    changeToBluetooth();
+                } else if (state == BluetoothAdapter.STATE_DISCONNECTED) { // 失联，切换到扬声器播放
+                    changeToSpeaker();
+                }
+            } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) { // 本地蓝牙打开或关闭
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_TURNING_OFF) {
+                    // 断开，切换音频输出
+                    changeToSpeaker();
+                    bluetoothIsConnected = false;
+                }
+            }
+        }
+    }
+
+    private class HeadsetReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // 插入和拔出耳机会触发广播
+            if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction())) {
+                // 耳机插入状态 0 拔出, 1 插入
+                int state = intent.getIntExtra("state", 0);
+                // 耳机类型
+                String name = intent.getStringExtra("name");
+                // 耳机是否带有麦克风 0 没有，1 有
+                boolean hasMic = intent.getIntExtra("microphone", 0) == 1;
+                if (state == 1) {
+                    // 耳机已插入
+                    closeSpeaker();
+                } else {
+                    // 耳机已拔出
+                    changeToSpeaker();
+                }
+            }
+        }
+    }
+
+
+    private void registerHeadsetReceiver() {
+        // 蓝牙状态广播监听
+        IntentFilter audioFilter = new IntentFilter();
+        audioFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
+        audioFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        getContext().registerReceiver(bluetoothReceiver, audioFilter);
+        // 耳机监听
+        IntentFilter headsetFilter = new IntentFilter();
+        headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        getContext().registerReceiver(headsetReceiver, headsetFilter);
+    }
+
+    private void unregisterHeadsetReceiver() {
+        getContext().unregisterReceiver(bluetoothReceiver);
+        getContext().unregisterReceiver(headsetReceiver);
+    }
+
+    /**
+     * 切换到外放
+     */
+    private void changeToSpeaker() {
+        if (!audioManager.isSpeakerphoneOn()) {
+            audioManager.stopBluetoothSco();
+            audioManager.setBluetoothScoOn(false);
+            audioManager.setSpeakerphoneOn(true);
+        }
+    }
+
+    private void closeSpeaker() {
+        changeToHeadset();
+    }
+
+    /**
+     * 切换到蓝牙音箱
+     */
+    private void changeToBluetooth() {
+        audioManager.startBluetoothSco();
+        audioManager.setBluetoothScoOn(true);
+        audioManager.setSpeakerphoneOn(false);
+    }
+
+    /**
+     * 切换到听筒
+     */
+    private void changeToHeadset() {
+        if (audioManager.isSpeakerphoneOn()) {
+            audioManager.setSpeakerphoneOn(false);
+        }
+    }
+
+
 
     public int handleTalkerRequest() {
         int p = findEmptyPosition();
@@ -298,18 +417,6 @@ public class VoiceChatFragment extends BaseFragment {
                 EMLog.e(TAG, "unpublish failed: error=" + error + ", msg=" + errorMsg);
             }
         });
-    }
-
-    private void openSpeaker() {
-        if (!audioManager.isSpeakerphoneOn()) {
-            audioManager.setSpeakerphoneOn(true);
-        }
-    }
-
-    private void closeSpeaker() {
-        if (audioManager.isSpeakerphoneOn()) {
-            audioManager.setSpeakerphoneOn(false);
-        }
     }
 
     private void startAudioTalkingMonitor() {
@@ -660,6 +767,8 @@ public class VoiceChatFragment extends BaseFragment {
                 }
             }
         }
+
+
 
         /**
          * 自己设置的频道属性自己也可以收到该回调
