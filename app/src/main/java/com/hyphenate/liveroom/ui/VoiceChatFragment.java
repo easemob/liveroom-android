@@ -55,6 +55,10 @@ public class VoiceChatFragment extends BaseFragment {
     public static final int EVENT_BE_TALKER_SUCCESS = 3;
     public static final int EVENT_BE_TALKER_FAILED = 4;
     public static final int EVENT_BE_AUDIENCE_SUCCESS = 5;
+    public static final int EVENT_PLAY_MUSIC = 6;
+    public static final int EVENT_STOP_MUSIC = 7;
+    // 创建房间默认开启了背景音乐
+    public static final int EVENT_PLAY_MUSIC_DEFAULT = 8;
 
     public static final int RESULT_NO_HANDLED = 0;
     public static final int RESULT_NO_POSITION = 1;
@@ -189,6 +193,12 @@ public class VoiceChatFragment extends BaseFragment {
                                     .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GREEN))
                                     .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
                         }
+
+                        if (PreferenceManager.getInstance().withBgMusic()) {
+                            if (onEventCallback != null) {
+                                onEventCallback.onEvent(EVENT_PLAY_MUSIC_DEFAULT);
+                            }
+                        }
                     });
                 }
             }
@@ -244,7 +254,7 @@ public class VoiceChatFragment extends BaseFragment {
         }
     }
 
-    private void checkCurrentBluetoothState(){
+    private void checkCurrentBluetoothState() {
         bluetoothIsConnected = audioManager.isBluetoothScoAvailableOffCall() && audioManager.isBluetoothScoOn();
     }
 
@@ -344,7 +354,6 @@ public class VoiceChatFragment extends BaseFragment {
             audioManager.setSpeakerphoneOn(false);
         }
     }
-
 
 
     public int handleTalkerRequest() {
@@ -769,7 +778,6 @@ public class VoiceChatFragment extends BaseFragment {
         }
 
 
-
         /**
          * 自己设置的频道属性自己也可以收到该回调
          *
@@ -785,6 +793,17 @@ public class VoiceChatFragment extends BaseFragment {
                 roomType = RoomType.from(value);
                 if (onEventCallback != null) {
                     onEventCallback.onEvent(EVENT_ROOM_TYPE_CHANGED, roomType);
+                }
+            }
+
+            // 获取当前房间的伴音情况
+            if (Constant.PROPERTY_MUSIC.equals(key)) {
+                if (onEventCallback != null) {
+                    if (action == EMAttributeAction.DELETE) {
+                        onEventCallback.onEvent(EVENT_STOP_MUSIC, value);
+                    } else {
+                        onEventCallback.onEvent(EVENT_PLAY_MUSIC, value);
+                    }
                 }
             }
 
