@@ -46,6 +46,7 @@
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"
                     android:src="@drawable/em_ic_music"
+                    android:visibility="gone"
                     hyphenate:border="gray" />
 
                 <com.hyphenate.liveroom.widgets.StateImageButton

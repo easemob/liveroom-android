@@ -32,6 +32,8 @@ import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
 import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
+import com.hyphenate.liveroom.widgets.IBorderView;
+import com.hyphenate.liveroom.widgets.StateImageButton;
 import com.hyphenate.util.EasyUtils;
 
 import java.util.List;
@@ -55,6 +57,7 @@ public class ChatActivity extends BaseActivity {
     private ChatRoom chatRoom;
     private RoomType roomType = RoomType.COMMUNICATION;
 
+    private StateImageButton audioMixingButton;
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
     private TextView roomTypeView;
@@ -104,6 +107,7 @@ public class ChatActivity extends BaseActivity {
         textRoomId = chatRoom.getRoomId();
         isAllowRequest = chatRoom.isAllowAudienceTalk();
 
+        audioMixingButton = findViewById(R.id.btn_music);
         placeholder = findViewById(R.id.placeholder);
         roomTypeView = findViewById(R.id.tv_room_type);
         roomTypeDescView = findViewById(R.id.tv_type_desc);
@@ -144,6 +148,8 @@ public class ChatActivity extends BaseActivity {
                     sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER);
                 }
             });
+        } else { // 管理员视角显示伴音按钮
+            audioMixingButton.setVisibility(View.VISIBLE);
         }
 
         roomNameView.setText(roomName);
@@ -210,6 +216,15 @@ public class ChatActivity extends BaseActivity {
                         .show());
             } else if (VoiceChatFragment.EVENT_BE_AUDIENCE_SUCCESS == op) {
                 runOnUiThread(() -> updateTobeTalkerView(STATE_AUDIENCE));
+            } else if (VoiceChatFragment.EVENT_PLAY_MUSIC == op) {
+                // 需要在加入音视频会议成功后调用
+                EMClient.getInstance().conferenceManager().startAudioMixing("/assets/audio.mp3", -1);
+                EMClient.getInstance().conferenceManager().adjustAudioMixingVolume(10);
+            } else if (VoiceChatFragment.EVENT_STOP_MUSIC == op) {
+                // 需要在加入音视频会议成功后调用
+                EMClient.getInstance().conferenceManager().stopAudioMixing();
+            } else if (VoiceChatFragment.EVENT_PLAY_MUSIC_DEFAULT == op) { // 加入音视频会议成功后回调
+                onClick(audioMixingButton);
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
@@ -250,6 +265,15 @@ public class ChatActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_music:
+                if (audioMixingButton.getBorder() == IBorderView.Border.GRAY) {
+                    audioMixingButton.setBorder(IBorderView.Border.GREEN);
+                    // 设置频道属性,自己收到频道属性变化后设置伴音
+                    EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
+                } else {
+                    audioMixingButton.setBorder(IBorderView.Border.GRAY);
+                    // 设置频道属性,自己收到频道属性变化后设置伴音
+                    EMClient.getInstance().conferenceManager().delConferenceAttribute(Constant.PROPERTY_MUSIC, null);
+                }
                 break;
             case R.id.btn_contacts:
                 Intent i = new Intent(ChatActivity.this, MembersActivity.class);
