@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
+import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -218,7 +219,11 @@ public class ChatActivity extends BaseActivity {
                 runOnUiThread(() -> updateTobeTalkerView(STATE_AUDIENCE));
             } else if (VoiceChatFragment.EVENT_PLAY_MUSIC == op) {
                 // 需要在加入音视频会议成功后调用
-                EMClient.getInstance().conferenceManager().startAudioMixing("/assets/audio.mp3", -1);
+                final int result = EMClient.getInstance().conferenceManager().startAudioMixing("/assets/audio.mp3", -1);
+                if (result != EMError.EM_NO_ERROR) {
+                    runOnUiThread(() ->
+                            Toast.makeText(this, "伴音开启失败: " + result, Toast.LENGTH_SHORT).show());
+                }
                 EMClient.getInstance().conferenceManager().adjustAudioMixingVolume(10);
             } else if (VoiceChatFragment.EVENT_STOP_MUSIC == op) {
                 // 需要在加入音视频会议成功后调用
@@ -272,7 +277,7 @@ public class ChatActivity extends BaseActivity {
                 } else {
                     audioMixingButton.setBorder(IBorderView.Border.GRAY);
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    EMClient.getInstance().conferenceManager().delConferenceAttribute(Constant.PROPERTY_MUSIC, null);
+                    EMClient.getInstance().conferenceManager().deleteConferenceAttribute(Constant.PROPERTY_MUSIC, null);
                 }
                 break;
             case R.id.btn_contacts:
