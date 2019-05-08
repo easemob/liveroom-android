@@ -43,6 +43,7 @@ import com.hyphenate.liveroom.widgets.StateTextButton;
 import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.util.EMLog;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,7 @@ public class VoiceChatFragment extends BaseFragment {
     // Map<streamId, username>
     private Map<String, String> streamMap = new HashMap<>();
     // Pair<username, talker view>
-    private Pair<String, TalkerView>[] talkerViewList = new Pair[MAX_TALKERS];
+    private List<Pair<String, TalkerView>> talkerViews = new ArrayList<>(MAX_TALKERS);
     private String publishId = null;
     private ChatRoom chatRoom;
     // 模式
@@ -151,7 +152,7 @@ public class VoiceChatFragment extends BaseFragment {
             } else {
                 value = new Pair<>(null, talkerView);
             }
-            talkerViewList[i] = value;
+            talkerViews.add(value);
         }
 
         normalParam = new EMStreamParam();
@@ -485,7 +486,7 @@ public class VoiceChatFragment extends BaseFragment {
     // 找一个未被使用的位置
     private int findEmptyPosition() {
         for (int i = 0; i < MAX_TALKERS; ++i) {
-            if (talkerViewList[i].first == null) {
+            if (talkerViews.get(i).first == null) {
                 return i;
             }
         }
@@ -494,7 +495,7 @@ public class VoiceChatFragment extends BaseFragment {
 
     private int findExistPosition(String key) {
         for (int i = 0; i < MAX_TALKERS; ++i) {
-            if (key != null && key.equals(talkerViewList[i].first)) {
+            if (key != null && key.equals(talkerViews.get(i).first)) {
                 return i;
             }
         }
@@ -502,20 +503,26 @@ public class VoiceChatFragment extends BaseFragment {
     }
 
     private TalkerView updatePositionValue(int position, String targetKey) {
-        TalkerView talkerView = talkerViewList[position].second;
-        talkerViewList[position] = new Pair<>(targetKey, talkerView);
+        TalkerView talkerView = talkerViews.remove(position).second;
+        talkerViews.add(position, new Pair<>(targetKey, talkerView));
         return talkerView;
     }
 
     private void resetTalkerViewByPosition(int position) {
-        updatePositionValue(position, null)
-                .setName("已下线")
+        TalkerView talkerView = talkerViews.get(position).second;
+        talkerView.setName("已下线")
                 .clearButtons()
                 .setKing(false)
                 .setTalking(false)
                 .canTalk(false)
                 .stopCountDown()
                 .setBorder(IBorderView.Border.NONE);
+
+        talkerViews.remove(position);
+        talkerViews.add(MAX_TALKERS - 1, new Pair<>(null, talkerView));
+
+        memberContainer.removeView(talkerView);
+        memberContainer.addView(talkerView);
     }
 
     private void releaseMicIfNeeded(String occupiedUsername) {
@@ -524,7 +531,7 @@ public class VoiceChatFragment extends BaseFragment {
                 && occupiedUsername != null
                 && occupiedUsername.equals(currentTalker);
         if (isOccupied) {
-            Log.i(TAG, "Exit in MONOPOLY room and self occupied microphone, release microphone first.");
+            Log.i(TAG, "Self occupied microphone, release microphone.");
             attributesManager.addOrUpdateConferenceAttribute(Constant.PROPERTY_TALKER, "").send(null);
             // 调用app server释放麦克风接口
             HttpRequestManager.getInstance().releaseMic(chatRoom.getRoomId(), currentUsername, null);
@@ -645,7 +652,7 @@ public class VoiceChatFragment extends BaseFragment {
             TalkerView talkerView;
             final int existPosition = findExistPosition(stream.getUsername());
             if (existPosition != -1) { // 创建Admin talker view。
-                talkerView = talkerViewList[existPosition].second;
+                talkerView = talkerViews.get(existPosition).second;
             } else {
                 // 寻找空位置放置其他主播
                 int emptyPosition = findEmptyPosition();
@@ -690,7 +697,7 @@ public class VoiceChatFragment extends BaseFragment {
             Log.i(TAG, "onStreamUpdate: ");
             final int existPosition = findExistPosition(stream.getUsername());
             if (existPosition != -1) {
-                runOnUiThread(() -> talkerViewList[existPosition].second.canTalk(!stream.isAudioOff()));
+                runOnUiThread(() -> talkerViews.get(existPosition).second.canTalk(!stream.isAudioOff()));
             }
         }
 
@@ -730,9 +737,9 @@ public class VoiceChatFragment extends BaseFragment {
                     }
 
                     if (list.contains(streamId)) {
-                        talkerViewList[p].second.setTalking(true);
+                        talkerViews.get(p).second.setTalking(true);
                     } else {
-                        talkerViewList[p].second.setTalking(false);
+                        talkerViews.get(p).second.setTalking(false);
                     }
                 }
             });
@@ -862,7 +869,7 @@ public class VoiceChatFragment extends BaseFragment {
                 if (!TextUtils.isEmpty(currentTalker)) {
                     final int previousTalkerPosition = findExistPosition(currentTalker);
                     if (previousTalkerPosition != -1) {
-                        runOnUiThread(() -> talkerViewList[previousTalkerPosition].second
+                        runOnUiThread(() -> talkerViews.get(previousTalkerPosition).second
                                 .findButton(BUTTON_TALK)
                                 .setBorder(IBorderView.Border.GRAY));
                     }
@@ -875,12 +882,12 @@ public class VoiceChatFragment extends BaseFragment {
                 if (currentUsername.equals(talkerEntry.value)) { // 点击了自己的发言按钮
                     conferenceManager.openVoiceTransfer();
                     if (selfPosition != -1) {
-                        runOnUiThread(() -> talkerViewList[selfPosition].second.canTalk(true));
+                        runOnUiThread(() -> talkerViews.get(selfPosition).second.canTalk(true));
                     }
                 } else { // 点击了别人的发言按钮
                     conferenceManager.closeVoiceTransfer();
                     if (selfPosition != -1) {
-                        runOnUiThread(() -> talkerViewList[selfPosition].second.canTalk(false));
+                        runOnUiThread(() -> talkerViews.get(selfPosition).second.canTalk(false));
                     }
                 }
             }
@@ -913,7 +920,7 @@ public class VoiceChatFragment extends BaseFragment {
                     Log.e(TAG, "MONOPOLY room, can not get self TalkerView.");
                 } else {
                     runOnUiThread(() -> {
-                        TalkerView talkerView = talkerViewList[selfPosition].second;
+                        TalkerView talkerView = talkerViews.get(selfPosition).second;
                         talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GRAY);
                         if (isSelfOccupiedMic) {
                             talkerView.canTalk(true);
@@ -935,7 +942,7 @@ public class VoiceChatFragment extends BaseFragment {
                         final int currentTalkerPosition = findExistPosition(talkerEntry.value);
                         if (currentTalkerPosition != -1) {
                             runOnUiThread(() -> {
-                                TalkerView talkerView = talkerViewList[currentTalkerPosition].second;
+                                TalkerView talkerView = talkerViews.get(currentTalkerPosition).second;
                                 talkerView.setCountDown(millisUntilFinished);
                             });
                         }
@@ -968,7 +975,7 @@ public class VoiceChatFragment extends BaseFragment {
             Log.e(TAG, "MONOPOLY room, can not get target TalkerView.");
         } else {
             runOnUiThread(() -> {
-                TalkerView talkerView = talkerViewList[previousTalkerPosition].second;
+                TalkerView talkerView = talkerViews.get(previousTalkerPosition).second;
                 talkerView.stopCountDown();
             });
         }
@@ -979,7 +986,7 @@ public class VoiceChatFragment extends BaseFragment {
             Log.e(TAG, "MONOPOLY room, can not get self TalkerView.");
         } else {
             runOnUiThread(() -> {
-                TalkerView talkerView = talkerViewList[selfPosition].second;
+                TalkerView talkerView = talkerViews.get(selfPosition).second;
                 talkerView.canTalk(false);
                 talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
                 talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
