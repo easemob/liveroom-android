@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
-import com.hyphenate.EMError;
+import com.hyphenate.EMConferenceListener;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -146,7 +146,7 @@ public class ChatActivity extends BaseActivity {
                 } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
                     updateTobeTalkerView(STATE_DURING_REQUEST);
                     // 发送上麦申请
-                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER);
+                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER, voiceChatFragment.getStreamId());
                 }
             });
         } else { // 管理员视角显示伴音按钮
@@ -196,7 +196,7 @@ public class ChatActivity extends BaseActivity {
                     String username = (String) args[0];
                     grantRole(username, EMConferenceManager.EMConferenceRole.Audience);
                 } else { // 主播向管理员发送下线的申请
-                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_AUDIENCE);
+                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_AUDIENCE, voiceChatFragment.getStreamId());
                 }
             } else if (VoiceChatFragment.EVENT_ROOM_TYPE_CHANGED == op) {
                 runOnUiThread(() -> {
@@ -217,17 +217,6 @@ public class ChatActivity extends BaseActivity {
                         .show());
             } else if (VoiceChatFragment.EVENT_BE_AUDIENCE_SUCCESS == op) {
                 runOnUiThread(() -> updateTobeTalkerView(STATE_AUDIENCE));
-            } else if (VoiceChatFragment.EVENT_PLAY_MUSIC == op) {
-                // 需要在加入音视频会议成功后调用
-                final int result = EMClient.getInstance().conferenceManager().startAudioMixing("/assets/audio.mp3", -1);
-                if (result != EMError.EM_NO_ERROR) {
-                    runOnUiThread(() ->
-                            Toast.makeText(this, "伴音开启失败: " + result, Toast.LENGTH_SHORT).show());
-                }
-                EMClient.getInstance().conferenceManager().adjustAudioMixingVolume(10);
-            } else if (VoiceChatFragment.EVENT_STOP_MUSIC == op) {
-                // 需要在加入音视频会议成功后调用
-                EMClient.getInstance().conferenceManager().stopAudioMixing();
             } else if (VoiceChatFragment.EVENT_PLAY_MUSIC_DEFAULT == op) { // 加入音视频会议成功后回调
                 onClick(audioMixingButton);
             }
@@ -273,11 +262,13 @@ public class ChatActivity extends BaseActivity {
                 if (audioMixingButton.getBorder() == IBorderView.Border.GRAY) {
                     audioMixingButton.setBorder(IBorderView.Border.GREEN);
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    EMClient.getInstance().conferenceManager().setConferenceAttribute(Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
+                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.ADD,
+                            Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
                 } else {
                     audioMixingButton.setBorder(IBorderView.Border.GRAY);
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    EMClient.getInstance().conferenceManager().deleteConferenceAttribute(Constant.PROPERTY_MUSIC, null);
+                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.DELETE,
+                            Constant.PROPERTY_MUSIC, null, null);
                 }
                 break;
             case R.id.btn_contacts:
@@ -307,10 +298,10 @@ public class ChatActivity extends BaseActivity {
                     return;
                 }
 
+                // 请求app server,移除该聊天室item.
                 HttpRequestManager.getInstance().deleteChatRoom(textRoomId, new HttpRequestManager.IRequestListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        finish();
                     }
 
                     @Override
@@ -318,6 +309,8 @@ public class ChatActivity extends BaseActivity {
                         Toast.makeText(ChatActivity.this, errCode + " - " + desc, Toast.LENGTH_SHORT).show();
                     }
                 });
+                // 会反应到VoiceChatFragment和TextChatFragment的onDestroy中.
+                finish();
                 break;
         }
     }
@@ -353,11 +346,14 @@ public class ChatActivity extends BaseActivity {
         });
     }
 
-    private void sendRequest(String to, String op) {
+    private void sendRequest(String to, String op, String streamId) {
         EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
-        msg.addBody(new EMCmdMessageBody(""));
+        EMCmdMessageBody cmdBody = new EMCmdMessageBody("");
+        cmdBody.deliverOnlineOnly(true);
+        msg.addBody(cmdBody);
         msg.setTo(to);
         msg.setAttribute(Constant.EM_CONFERENCE_OP, op);
+        msg.setAttribute(Constant.EM_CONFERENCE_ID, streamId);
         msg.setMessageStatusCallback(new EMCallBack() {
             @Override
             public void onSuccess() {
@@ -403,9 +399,14 @@ public class ChatActivity extends BaseActivity {
 
         @Override
         public void onCmdMessageReceived(List<EMMessage> list) {
+            String currentStreamId = voiceChatFragment.getStreamId();
             for (EMMessage msg : list) {
+                String streamId = msg.getStringAttribute(Constant.EM_CONFERENCE_ID, null);
+                if (currentStreamId == null || !currentStreamId.equals(streamId)) {
+                    continue;
+                }
+
                 String operation = msg.getStringAttribute(Constant.EM_CONFERENCE_OP, null);
-                Log.i(TAG, "onCmdMessageReceived: " + operation);
                 if (Constant.OP_REQUEST_TOBE_SPEAKER.equals(operation)) { // 收到观众上麦申请
                     boolean autoAgreeRequest = PreferenceManager.getInstance().isAutoAgree();
                     if (autoAgreeRequest) {
@@ -426,7 +427,7 @@ public class ChatActivity extends BaseActivity {
                                     .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
                                             (dialog, v) -> {
                                                 dialog.dismiss();
-                                                sendRequest(msg.getFrom(), Constant.OP_REQUEST_TOBE_REJECTED);
+                                                sendRequest(msg.getFrom(), Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
                                             })
                                     .build()
                                     .show();
@@ -434,7 +435,7 @@ public class ChatActivity extends BaseActivity {
                     }
                 } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) { // 收到主播下麦申请
                     grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Audience);
-                } else if (Constant.OP_REQUEST_TOBE_REJECTED.equals(operation)) { // 观众上麦被拒绝
+                } else if (Constant.OP_REQUEST_BE_REJECTED.equals(operation)) { // 观众上麦被拒绝
                     runOnUiThread(() -> {
                         updateTobeTalkerView(STATE_AUDIENCE);
                         new EaseTipDialog.Builder(ChatActivity.this)

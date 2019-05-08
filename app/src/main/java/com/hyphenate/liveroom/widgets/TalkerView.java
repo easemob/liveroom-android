@@ -1,7 +1,6 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
-import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,14 +25,11 @@ public class TalkerView extends FrameLayout implements IBorderView {
         void onClick(TalkerView talkerView, StateTextButton stateTextButton);
     }
 
-    public interface CountDownCallback {
-        void onFinish();
-    }
-
     private static final String TAG = "LayoutTalkerMember";
 
     private StateHelper stateHelper;
     private String username;
+    private boolean canTalk;
 
     private View talkerView;
     private TextView nameView;
@@ -42,7 +38,6 @@ public class TalkerView extends FrameLayout implements IBorderView {
     private View talkingView;
     private LinearLayout btnContainer;
 
-    private CountDownTimer countDownTimer;
     private SimpleDateFormat dateFormat;
 
     public static TalkerView create(Context context) {
@@ -116,10 +111,12 @@ public class TalkerView extends FrameLayout implements IBorderView {
     }
 
     public TalkerView canTalk(boolean can) {
+        canTalk = can;
         if (can) {
             talkerView.setBackgroundResource(R.drawable.em_dot_on);
         } else {
             talkerView.setBackgroundResource(R.drawable.em_dot_off);
+            talkingView.setVisibility(GONE);
         }
         return this;
     }
@@ -134,6 +131,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
     }
 
     public TalkerView setTalking(boolean talking) {
+        if (!canTalk) return this;
+
         if (talking) {
             talkingView.setVisibility(VISIBLE);
         } else {
@@ -142,29 +141,14 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public TalkerView startCountDown(int seconds, final CountDownCallback callback) {
-        countDownTimer = new CountDownTimer(seconds * 1000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                countDownTimeView.setVisibility(VISIBLE);
-                countDownTimeView.setText(dateFormat.format(millisUntilFinished));
-            }
-
-            @Override
-            public void onFinish() {
-                countDownTimeView.setVisibility(GONE);
-                if (callback != null) {
-                    callback.onFinish();
-                }
-            }
-        }.start();
+    public TalkerView setCountDown(long millisUntilFinished) {
+        countDownTimeView.setVisibility(VISIBLE);
+        countDownTimeView.setText(dateFormat.format(millisUntilFinished));
         return this;
     }
 
     public TalkerView stopCountDown() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+        countDownTimeView.setText("");
         countDownTimeView.setVisibility(GONE);
         return this;
     }
