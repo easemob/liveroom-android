@@ -75,7 +75,7 @@ public class ConferenceAttributesManager {
         if (senderMap == null) {
             senderMap = new HashMap<>(attrsMap);
         }
-        attrsMap.remove(key);
+        senderMap.remove(key);
         return this;
     }
 
