@@ -905,7 +905,7 @@ public class VoiceChatFragment extends BaseFragment {
                 if (isSelfOccupiedMic) {
                     conferenceManager.closeVoiceTransfer();
                 }
-                resetMyTalkerViewInMonopolyMode();
+                resetTalkerViewInMonopolyMode();
             } else {
                 // 如果是自己抢到麦则打开麦克风,否则关闭自己的麦克风
                 final boolean isSelfOccupiedMic = currentUsername.equals(talkerEntry.value);
@@ -914,6 +914,8 @@ public class VoiceChatFragment extends BaseFragment {
                 } else {
                     conferenceManager.closeVoiceTransfer();
                 }
+                // 停止上一个抢麦者的倒计时
+                resetPreviousTalkerViewInMonopolyMode();
                 // 有人抢到麦,更新自己的按钮状态
                 final int selfPosition = findExistPosition(currentUsername);
                 if (selfPosition == -1) {
@@ -957,7 +959,7 @@ public class VoiceChatFragment extends BaseFragment {
                         // 释放麦
                         releaseMicIfNeeded(currentUsername);
                         // 倒计时结束,更新UI
-                        resetMyTalkerViewInMonopolyMode();
+                        resetTalkerViewInMonopolyMode();
                     }
                 });
             }
@@ -968,17 +970,9 @@ public class VoiceChatFragment extends BaseFragment {
         }
     };
 
-    private void resetMyTalkerViewInMonopolyMode() {
+    private void resetTalkerViewInMonopolyMode() {
         // 停止上一个抢麦者的倒计时
-        final int previousTalkerPosition = findExistPosition(currentTalker);
-        if (previousTalkerPosition == -1) {
-            Log.e(TAG, "MONOPOLY room, can not get target TalkerView.");
-        } else {
-            runOnUiThread(() -> {
-                TalkerView talkerView = talkerViews.get(previousTalkerPosition).second;
-                talkerView.stopCountDown();
-            });
-        }
+        resetPreviousTalkerViewInMonopolyMode();
 
         // 恢复自己的按钮为可抢麦模式
         final int selfPosition = findExistPosition(currentUsername);
@@ -990,6 +984,18 @@ public class VoiceChatFragment extends BaseFragment {
                 talkerView.canTalk(false);
                 talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
                 talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
+            });
+        }
+    }
+
+    private void resetPreviousTalkerViewInMonopolyMode() {
+        final int previousTalkerPosition = findExistPosition(currentTalker);
+        if (previousTalkerPosition == -1) {
+            Log.e(TAG, "MONOPOLY room, can not get target TalkerView.");
+        } else {
+            runOnUiThread(() -> {
+                TalkerView talkerView = talkerViews.get(previousTalkerPosition).second;
+                talkerView.stopCountDown();
             });
         }
     }

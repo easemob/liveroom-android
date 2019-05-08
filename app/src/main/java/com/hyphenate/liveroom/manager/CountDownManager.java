@@ -36,6 +36,9 @@ public class CountDownManager {
     }
 
     public void startCountDown(int seconds, final CountDownCallback callback) {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
         if (countDownCallback != null) {
             countDownCallback.onCancel();
         }
