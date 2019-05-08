@@ -34,7 +34,7 @@ import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.liveroom.widgets.IBorderView;
-import com.hyphenate.liveroom.widgets.StateImageButton;
+import com.hyphenate.liveroom.widgets.BorderImageButton;
 import com.hyphenate.util.EasyUtils;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class ChatActivity extends BaseActivity {
     private ChatRoom chatRoom;
     private RoomType roomType = RoomType.COMMUNICATION;
 
-    private StateImageButton audioMixingButton;
+    private BorderImageButton audioMixingButton;
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
     private TextView roomTypeView;

@@ -22,12 +22,12 @@ import java.util.TimeZone;
  */
 public class TalkerView extends FrameLayout implements IBorderView {
     public interface OnClickListener {
-        void onClick(TalkerView talkerView, StateTextButton stateTextButton);
+        void onClick(TalkerView talkerView, BorderTextButton stateTextButton);
     }
 
     private static final String TAG = "LayoutTalkerMember";
 
-    private StateHelper stateHelper;
+    private BorderHelper stateHelper;
     private String username;
     private boolean canTalk;
 
@@ -44,9 +44,9 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return new TalkerView(context);
     }
 
-    public StateTextButton createButton(Context context, int btnId, String title, Border border
+    public BorderTextButton createButton(Context context, int btnId, String title, Border border
             , OnClickListener listener) {
-        StateTextButton button = new StateTextButton(context);
+        BorderTextButton button = new BorderTextButton(context);
         button.setTag(btnId);
         button.setTextSize(10);
         int padding = DimensUtil.dp2px(context, 4);
@@ -82,7 +82,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         talkingView = findViewById(R.id.indicator_talking);
         btnContainer = findViewById(R.id.container_btn);
 
-        stateHelper = new StateHelper();
+        stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
 
         dateFormat = new SimpleDateFormat("mm:ss");
@@ -153,7 +153,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public TalkerView addButton(StateTextButton button) {
+    public TalkerView addButton(BorderTextButton button) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         if (btnContainer.getChildCount() == 0) {
@@ -170,8 +170,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public StateTextButton removeButton(int btnId) {
-        StateTextButton button = findButton(btnId);
+    public BorderTextButton removeButton(int btnId) {
+        BorderTextButton button = findButton(btnId);
         if (button == null) {
             return null;
         }
@@ -185,7 +185,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public StateTextButton findButton(int btnId) {
+    public BorderTextButton findButton(int btnId) {
         View child = null;
         for (int i = 0; i < btnContainer.getChildCount(); ++i) {
             if ((int) btnContainer.getChildAt(i).getTag() == btnId) {
@@ -193,6 +193,6 @@ public class TalkerView extends FrameLayout implements IBorderView {
                 break;
             }
         }
-        return child != null ? (StateTextButton) child : null;
+        return child != null ? (BorderTextButton) child : null;
     }
 }

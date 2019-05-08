@@ -29,7 +29,7 @@
         android:src="@drawable/em_ic_king"
         android:visibility="gone" />
 
-    <com.hyphenate.liveroom.widgets.StateTextButton
+    <com.hyphenate.liveroom.widgets.BorderTextButton
         android:id="@+id/btn_kickoff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

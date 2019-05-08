@@ -39,7 +39,7 @@ import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.DimensUtil;
 import com.hyphenate.liveroom.widgets.IBorderView;
-import com.hyphenate.liveroom.widgets.StateTextButton;
+import com.hyphenate.liveroom.widgets.BorderTextButton;
 import com.hyphenate.liveroom.widgets.TalkerView;
 import com.hyphenate.util.EMLog;
 
@@ -538,7 +538,7 @@ public class VoiceChatFragment extends BaseFragment {
         }
     }
 
-    private StateTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
+    private BorderTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
         if (id == BUTTON_VOICE) {
             String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
             return v.createButton(getContext(), BUTTON_VOICE,
