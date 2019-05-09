@@ -41,7 +41,7 @@
                 android:layout_alignParentRight="true"
                 android:orientation="horizontal">
 
-                <com.hyphenate.liveroom.widgets.StateImageButton
+                <com.hyphenate.liveroom.widgets.BorderImageButton
                     android:id="@+id/btn_music"
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"
@@ -49,28 +49,28 @@
                     android:visibility="gone"
                     hyphenate:border="gray" />
 
-                <com.hyphenate.liveroom.widgets.StateImageButton
+                <com.hyphenate.liveroom.widgets.BorderImageButton
                     android:id="@+id/btn_contacts"
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"
                     android:src="@drawable/em_ic_contacts"
                     hyphenate:border="gray" />
 
-                <com.hyphenate.liveroom.widgets.StateImageButton
+                <com.hyphenate.liveroom.widgets.BorderImageButton
                     android:id="@+id/btn_share"
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"
                     android:src="@drawable/em_ic_share"
                     hyphenate:border="gray" />
 
-                <com.hyphenate.liveroom.widgets.StateImageButton
+                <com.hyphenate.liveroom.widgets.BorderImageButton
                     android:id="@+id/btn_detail"
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"
                     android:src="@drawable/em_ic_equalizer"
                     hyphenate:border="gray" />
 
-                <com.hyphenate.liveroom.widgets.StateImageButton
+                <com.hyphenate.liveroom.widgets.BorderImageButton
                     android:id="@+id/btn_exit"
                     style="@style/chat_controller_btn_style"
                     android:onClick="onClick"

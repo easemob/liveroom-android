@@ -99,7 +99,9 @@ public class MembersActivity extends BaseActivity {
                 } catch (HyphenateException e) {
                     e.printStackTrace();
                 }
-                dataList.addAll(result.getData());
+                if (result.getData() != null) {
+                    dataList.addAll(result.getData());
+                }
             } while (result.getCursor() != null && !result.getCursor().isEmpty());
 
             executeOnUiThread(() -> {
@@ -186,12 +188,12 @@ public class MembersActivity extends BaseActivity {
             } else {
                 vh.kingView.setVisibility(View.GONE);
 
-                if (isAdmin) {
-                    vh.kickOffBtn.setVisibility(View.VISIBLE);
-                    vh.kickOffBtn.setOnClickListener((v) -> {
-                        handleKickAction(username);
-                    });
-                }
+//                if (isAdmin) {
+//                    vh.kickOffBtn.setVisibility(View.VISIBLE);
+//                    vh.kickOffBtn.setOnClickListener((v) -> {
+//                        handleKickAction(username);
+//                    });
+//                }
             }
             return convertView;
         }

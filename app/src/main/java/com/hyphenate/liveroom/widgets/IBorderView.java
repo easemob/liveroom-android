@@ -38,7 +38,7 @@ public interface IBorderView {
 
     public Border getBorder();
 
-    public static final class StateHelper {
+    public static final class BorderHelper {
         private Border border = Border.NONE;
 
         public void changeBorder(View v, Border border) {

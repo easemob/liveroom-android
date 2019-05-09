@@ -1,7 +1,6 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
-import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,17 +22,14 @@ import java.util.TimeZone;
  */
 public class TalkerView extends FrameLayout implements IBorderView {
     public interface OnClickListener {
-        void onClick(TalkerView talkerView, StateTextButton stateTextButton);
-    }
-
-    public interface CountDownCallback {
-        void onFinish();
+        void onClick(TalkerView talkerView, BorderTextButton stateTextButton);
     }
 
     private static final String TAG = "LayoutTalkerMember";
 
-    private StateHelper stateHelper;
+    private BorderHelper stateHelper;
     private String username;
+    private boolean canTalk;
 
     private View talkerView;
     private TextView nameView;
@@ -42,16 +38,15 @@ public class TalkerView extends FrameLayout implements IBorderView {
     private View talkingView;
     private LinearLayout btnContainer;
 
-    private CountDownTimer countDownTimer;
     private SimpleDateFormat dateFormat;
 
     public static TalkerView create(Context context) {
         return new TalkerView(context);
     }
 
-    public StateTextButton createButton(Context context, int btnId, String title, Border border
+    public BorderTextButton createButton(Context context, int btnId, String title, Border border
             , OnClickListener listener) {
-        StateTextButton button = new StateTextButton(context);
+        BorderTextButton button = new BorderTextButton(context);
         button.setTag(btnId);
         button.setTextSize(10);
         int padding = DimensUtil.dp2px(context, 4);
@@ -87,7 +82,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         talkingView = findViewById(R.id.indicator_talking);
         btnContainer = findViewById(R.id.container_btn);
 
-        stateHelper = new StateHelper();
+        stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
 
         dateFormat = new SimpleDateFormat("mm:ss");
@@ -116,10 +111,12 @@ public class TalkerView extends FrameLayout implements IBorderView {
     }
 
     public TalkerView canTalk(boolean can) {
+        canTalk = can;
         if (can) {
             talkerView.setBackgroundResource(R.drawable.em_dot_on);
         } else {
             talkerView.setBackgroundResource(R.drawable.em_dot_off);
+            talkingView.setVisibility(GONE);
         }
         return this;
     }
@@ -134,6 +131,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
     }
 
     public TalkerView setTalking(boolean talking) {
+        if (!canTalk) return this;
+
         if (talking) {
             talkingView.setVisibility(VISIBLE);
         } else {
@@ -142,34 +141,19 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public TalkerView startCountDown(int seconds, final CountDownCallback callback) {
-        countDownTimer = new CountDownTimer(seconds * 1000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                countDownTimeView.setVisibility(VISIBLE);
-                countDownTimeView.setText(dateFormat.format(millisUntilFinished));
-            }
-
-            @Override
-            public void onFinish() {
-                countDownTimeView.setVisibility(GONE);
-                if (callback != null) {
-                    callback.onFinish();
-                }
-            }
-        }.start();
+    public TalkerView setCountDown(long millisUntilFinished) {
+        countDownTimeView.setVisibility(VISIBLE);
+        countDownTimeView.setText(dateFormat.format(millisUntilFinished));
         return this;
     }
 
     public TalkerView stopCountDown() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+        countDownTimeView.setText("");
         countDownTimeView.setVisibility(GONE);
         return this;
     }
 
-    public TalkerView addButton(StateTextButton button) {
+    public TalkerView addButton(BorderTextButton button) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         if (btnContainer.getChildCount() == 0) {
@@ -186,8 +170,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public StateTextButton removeButton(int btnId) {
-        StateTextButton button = findButton(btnId);
+    public BorderTextButton removeButton(int btnId) {
+        BorderTextButton button = findButton(btnId);
         if (button == null) {
             return null;
         }
@@ -201,7 +185,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         return this;
     }
 
-    public StateTextButton findButton(int btnId) {
+    public BorderTextButton findButton(int btnId) {
         View child = null;
         for (int i = 0; i < btnContainer.getChildCount(); ++i) {
             if ((int) btnContainer.getChildAt(i).getTag() == btnId) {
@@ -209,6 +193,6 @@ public class TalkerView extends FrameLayout implements IBorderView {
                 break;
             }
         }
-        return child != null ? (StateTextButton) child : null;
+        return child != null ? (BorderTextButton) child : null;
     }
 }
