@@ -26,6 +26,7 @@ import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
+import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.CommonUtils;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
@@ -136,6 +137,15 @@ public class ChatRoomFragment extends BaseFragment {
         HttpRequestManager.getInstance().getChatRooms(0, 200, new HttpRequestManager.IRequestListener<List<ChatRoom>>() {
             @Override
             public void onSuccess(List<ChatRoom> chatRooms) {
+                // 每次刷新清除自己创建的房间.
+                String currentUsername = PreferenceManager.getInstance().getCurrentUsername();
+                for (int i = chatRooms.size() - 1; i >= 0; i--) {
+                    if (currentUsername.equals(chatRooms.get(i).getOwnerName())) {
+                        HttpRequestManager.getInstance().deleteChatRoom(chatRooms.get(i).getRoomId(), null);
+                        chatRooms.remove(i);
+                    }
+                }
+
                 dataList.clear();
                 dataList.addAll(chatRooms);
                 getActivity().runOnUiThread(() -> {

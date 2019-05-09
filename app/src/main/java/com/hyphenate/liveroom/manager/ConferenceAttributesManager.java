@@ -81,8 +81,10 @@ public class ConferenceAttributesManager {
 
     public void send(EMValueCallBack<Void> callBack) {
         conferenceManager.setConferenceAttribute(Constant.PROPERTY_ATTRS, getAttrValue(), callBack);
-        senderMap.clear();
-        senderMap = null;
+        if (senderMap != null) {
+            senderMap.clear();
+            senderMap = null;
+        }
     }
 
     public void parse(String json) {
@@ -138,7 +140,7 @@ public class ConferenceAttributesManager {
 
     private String getAttrValue() {
         if (senderMap == null) {
-            return null;
+            return "{}";
         }
 
         Set<Map.Entry<String, String>> set = senderMap.entrySet();

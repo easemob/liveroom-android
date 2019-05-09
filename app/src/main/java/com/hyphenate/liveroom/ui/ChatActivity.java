@@ -302,15 +302,17 @@ public class ChatActivity extends BaseActivity {
                 HttpRequestManager.getInstance().deleteChatRoom(textRoomId, new HttpRequestManager.IRequestListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        // 会反应到VoiceChatFragment和TextChatFragment的onDestroy中.
+                        finish();
                     }
 
                     @Override
                     public void onFailed(int errCode, String desc) {
                         Toast.makeText(ChatActivity.this, errCode + " - " + desc, Toast.LENGTH_SHORT).show();
+                        // 会反应到VoiceChatFragment和TextChatFragment的onDestroy中.
+                        finish();
                     }
                 });
-                // 会反应到VoiceChatFragment和TextChatFragment的onDestroy中.
-                finish();
                 break;
         }
     }
