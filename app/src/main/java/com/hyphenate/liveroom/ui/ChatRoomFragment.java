@@ -62,7 +62,7 @@ public class ChatRoomFragment extends BaseFragment {
         searchButton = contentView.findViewById(R.id.btn_search);
         pullToRefreshLayout = contentView.findViewById(R.id.layout_pull_refresh);
         roomListView = contentView.findViewById(R.id.list_room);
-
+        roomListView.setEmptyView(contentView.findViewById(R.id.emptyView));
         searchEdittext.addTextChangedListener(textWatcher);
         searchButton.setOnClickListener((v) -> {
             hideSoftKeyboard();

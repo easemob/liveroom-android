@@ -17,7 +17,8 @@ public class SharedActivity extends BaseActivity {
     private TextView tvRoomName;
     private TextView tvRoomAdmin;
     private TextView tvRoomPwd;
-    private Button btnShare;
+    private Button btnShareWechat;
+    private Button btnShareQQ;
 
     private String roomName;
     private String roomAdmin;
@@ -37,12 +38,14 @@ public class SharedActivity extends BaseActivity {
         tvRoomName = findViewById(R.id.tv_room_name);
         tvRoomAdmin = findViewById(R.id.tv_room_admin);
         tvRoomPwd = findViewById(R.id.tv_room_password);
-        btnShare = findViewById(R.id.btn_share);
+        btnShareWechat = findViewById(R.id.btn_share_wechat);
+        btnShareQQ = findViewById(R.id.btn_share_qq);
     }
 
     private void initListener() {
         ibClose.setOnClickListener((v) -> finish());
-        btnShare.setOnClickListener((v) -> shareRoom());
+        btnShareWechat.setOnClickListener((v) -> shareRoomToWechat());
+        btnShareQQ.setOnClickListener((v)-> shareRoomToQQ());
     }
 
     private void setDatas() {
@@ -56,11 +59,23 @@ public class SharedActivity extends BaseActivity {
         tvRoomPwd.setText("密码：" + getNoEmptyString(roomPwd));
     }
 
-    private void shareRoom() {
+    private void shareRoomToWechat() {
+        String shareContent = getShareContent();
+        SystemShareUtils.shareWeChatFriend(this, "语聊房间", shareContent);
+        finish();
+    }
+
+
+    private void shareRoomToQQ() {
+        String shareContent = getShareContent();
+        SystemShareUtils.shareQQFriend(this, "语聊房间", shareContent);
+        finish();
+    }
+
+    private String getShareContent(){
         String shareContent = "房间：" + getNoEmptyString(roomName) + " \n" + "房主："
                 + getNoEmptyString(roomAdmin) + " \n" + "密码：" + getNoEmptyString(roomPwd) + " \n" + "下载地址：" + Constant.DOWNLOAD_APPLINK;
-        SystemShareUtils.shareTextAndPicToWechat(this, SystemShareUtils.NAME_ACTIVITY_WECHAT_FRIEND, shareContent, null);
-        finish();
+        return shareContent;
     }
 
     private String getNoEmptyString(String content) {

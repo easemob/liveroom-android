@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.util.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,7 +20,7 @@ public class EaseChatRowText extends EaseChatRow {
 
 	public EaseChatRowText(Context context, EMMessage message, int position, BaseAdapter adapter) {
 		super(context, message, position, adapter);
-		dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:MM:ss");
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	}
 
 	@Override

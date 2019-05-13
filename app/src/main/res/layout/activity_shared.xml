@@ -91,13 +91,24 @@
         />
 
     <Button
-        android:id="@+id/btn_share"
+        android:id="@+id/btn_share_wechat"
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_height"
         android:layout_marginTop="15sp"
         android:background="@android:color/white"
         android:textColor="@android:color/black"
         android:text="分享给微信好友"
+        android:textSize="17sp"
+        />
+
+    <Button
+        android:id="@+id/btn_share_qq"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="15sp"
+        android:background="@android:color/white"
+        android:textColor="@android:color/black"
+        android:text="分享给QQ好友"
         android:textSize="17sp"
         />
 </LinearLayout>

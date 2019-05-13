@@ -100,6 +100,13 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
             return;
         }
 
+        if (TextUtils.isEmpty(password)) {
+            easeTipDialog = new EaseTipDialog.Builder(getContext()).setStyle(EaseTipDialog.TipDialogStyle.ERROR)
+                    .setTitle(R.string.tip_error).setMessage(R.string.tip_plz_input_account_and_pwd).build();
+            easeTipDialog.show();
+            return;
+        }
+
         HttpRequestManager.getInstance().createChatRoom(roomName, password, "",
                 PreferenceManager.getInstance().isAllowRequest(),
                 new HttpRequestManager.IRequestListener<ChatRoom>() {
