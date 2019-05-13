@@ -167,7 +167,7 @@ public class LoginActivity extends BaseActivity {
 
 
     private String getInputUsername() {
-        return etUsername.getText().toString().trim();
+        return etUsername.getText().toString().trim().toLowerCase();
     }
 
     private String getInputPassword() {
