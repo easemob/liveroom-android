@@ -1,7 +1,6 @@
 package com.hyphenate.liveroom.manager;
 
 import android.os.CountDownTimer;
-import android.util.Log;
 
 /**
  * Created by zhangsong on 19-4-24
@@ -21,7 +20,6 @@ public class CountDownManager {
 
     private CountDownTimer countDownTimer;
     private CountDownCallback countDownCallback;
-    private int startSecond;
 
     public static CountDownManager getInstance() {
         if (INSTANCE == null) {
@@ -45,21 +43,13 @@ public class CountDownManager {
             countDownCallback.onCancel();
         }
 
-        startSecond = seconds;
         countDownCallback = callback;
         // 原生CountDownTimer会出现跳秒问题
-        countDownTimer = new CountDownTimer(seconds * 2 * 1000, 1000) {
+        countDownTimer = new CountDownTimer(seconds * 1000, 200) {
             @Override
             public void onTick(long millisUntilFinished) {
-                startSecond--;
-
                 if (countDownCallback != null) {
-                    countDownCallback.onTick(startSecond * 1000);
-                }
-
-                if (startSecond == 0) {
-                    onFinish();
-                    cancel();
+                    countDownCallback.onTick(millisUntilFinished);
                 }
             }
 
