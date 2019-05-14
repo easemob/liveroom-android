@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
     }
 
     private void exitLogin() {
+        EMClient.getInstance().logout(false);
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
             if (error == EMError.USER_REMOVED) {
                 Toast.makeText(getApplicationContext(), R.string.em_user_remove, Toast.LENGTH_LONG).show();
                 exitLogin();
-            } else if (error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
+            } else if (error == EMError.USER_LOGIN_ANOTHER_DEVICE || error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
                 Toast.makeText(getApplicationContext(), R.string.connect_conflict, Toast.LENGTH_LONG).show();
                 exitLogin();
             } else if (error == EMError.SERVER_SERVICE_RESTRICTED) {
