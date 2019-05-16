@@ -15,6 +15,7 @@ import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.DimensUtil;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -40,8 +41,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
     private LinearLayout btnContainer;
 
     private int[] voiceAnimSrc = {R.drawable.em_ic_speaking_1, R.drawable.em_ic_speaking_2, R.drawable.em_ic_speaking_3};
-
-    private SimpleDateFormat dateFormat;
+    private static final int VOICE_INTERVAL_TIME = 150; //ms
 
     public static TalkerView create(Context context) {
         return new TalkerView(context);
@@ -88,13 +88,11 @@ public class TalkerView extends FrameLayout implements IBorderView {
         stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
 
-        dateFormat = new SimpleDateFormat("mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
     }
 
     private void showVoiceAnimation(){
         realTalkingAnim();
-        postDelayed(voiceAnimThread, 150);
+        postDelayed(voiceAnimThread, VOICE_INTERVAL_TIME);
     }
 
     private void stopVoiceAnimation(){
@@ -109,7 +107,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
         @Override
         public void run() {
             realTalkingAnim();
-            postDelayed(voiceAnimThread, 150);
+            postDelayed(voiceAnimThread, VOICE_INTERVAL_TIME);
         }
     };
 
@@ -170,7 +168,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
 
     public TalkerView setCountDown(long millisUntilFinished) {
         countDownTimeView.setVisibility(VISIBLE);
-        countDownTimeView.setText(dateFormat.format(millisUntilFinished));
+        countDownTimeView.setText(String.format(Locale.getDefault(), "%ds", millisUntilFinished/1000));
         return this;
     }
 
