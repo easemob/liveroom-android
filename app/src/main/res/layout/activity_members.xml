@@ -49,7 +49,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/em_ic_search" />
 
-        <EditText
+        <com.hyphenate.liveroom.widgets.ClearableEditText
             android:id="@+id/et_search"
             style="@style/login_input_style"
             android:layout_marginRight="5dp"

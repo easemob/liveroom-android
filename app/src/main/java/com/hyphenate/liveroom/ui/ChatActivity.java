@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,8 +35,6 @@ import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
 import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
-import com.hyphenate.liveroom.widgets.IBorderView;
-import com.hyphenate.liveroom.widgets.BorderImageButton;
 import com.hyphenate.util.EasyUtils;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class ChatActivity extends BaseActivity {
     private ChatRoom chatRoom;
     private RoomType roomType = RoomType.COMMUNICATION;
 
-    private BorderImageButton audioMixingButton;
+    private Button audioMixingButton;
     // 点赞或者礼物图片显示占位符
     private ImageView placeholder;
     private TextView roomTypeView;
@@ -259,17 +259,17 @@ public class ChatActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_music:
-                if (audioMixingButton.getBorder() == IBorderView.Border.GRAY) {
-                    audioMixingButton.setBorder(IBorderView.Border.GREEN);
+                boolean isActived = audioMixingButton.isActivated();
+                if (!isActived) {
                     // 设置频道属性,自己收到频道属性变化后设置伴音
                     voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.ADD,
                             Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
                 } else {
-                    audioMixingButton.setBorder(IBorderView.Border.GRAY);
                     // 设置频道属性,自己收到频道属性变化后设置伴音
                     voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.DELETE,
                             Constant.PROPERTY_MUSIC, null, null);
                 }
+                audioMixingButton.setActivated(!isActived);
                 break;
             case R.id.btn_contacts:
                 Intent i = new Intent(ChatActivity.this, MembersActivity.class);
