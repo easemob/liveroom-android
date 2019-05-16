@@ -188,12 +188,12 @@ public class MembersActivity extends BaseActivity {
             } else {
                 vh.kingView.setVisibility(View.GONE);
 
-//                if (isAdmin) {
-//                    vh.kickOffBtn.setVisibility(View.VISIBLE);
-//                    vh.kickOffBtn.setOnClickListener((v) -> {
-//                        handleKickAction(username);
-//                    });
-//                }
+                if (isAdmin) {
+                    vh.kickOffBtn.setVisibility(View.VISIBLE);
+                    vh.kickOffBtn.setOnClickListener((v) -> {
+                        handleKickAction(username);
+                    });
+                }
             }
             return convertView;
         }
