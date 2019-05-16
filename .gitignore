@@ -6,3 +6,4 @@ app/app.iml
 *.iml
 build/
 keystore/
+.DS_Store

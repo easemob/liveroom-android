@@ -8,7 +8,7 @@
         android:id="@+id/layout_alert_kicked_off"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/ease_alert_click_bg"
+        android:background="@drawable/em_alert_click_bg"
         android:gravity="center_vertical"
         android:visibility="gone">
 

@@ -105,11 +105,17 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
             @Override
             public void onHeartClicked(View view) {
                 sendTextMessage(Constant.MESSAGE_FAVOURITE);
+                if (onEventCallback != null) {
+                    onEventCallback.onEvent(MSG_FAVOURITE);
+                }
             }
 
             @Override
             public void onGiftClicked(View view) {
                 sendTextMessage(Constant.MESSAGE_GIFT);
+                if (onEventCallback != null) {
+                    onEventCallback.onEvent(MSG_GIFT);
+                }
             }
 
             @Override

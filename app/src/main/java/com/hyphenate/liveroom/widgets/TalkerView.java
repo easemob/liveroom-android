@@ -15,6 +15,8 @@ import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.DimensUtil;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 /**
@@ -35,10 +37,11 @@ public class TalkerView extends FrameLayout implements IBorderView {
     private TextView nameView;
     private ImageView kingView;
     private TextView countDownTimeView;
-    private View talkingView;
+    private ImageView talkingView;
     private LinearLayout btnContainer;
 
-    private SimpleDateFormat dateFormat;
+    private int[] voiceAnimSrc = {R.drawable.em_ic_speaking_1, R.drawable.em_ic_speaking_2, R.drawable.em_ic_speaking_3};
+    private static final int VOICE_INTERVAL_TIME = 150; //ms
 
     public static TalkerView create(Context context) {
         return new TalkerView(context);
@@ -85,9 +88,29 @@ public class TalkerView extends FrameLayout implements IBorderView {
         stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
 
-        dateFormat = new SimpleDateFormat("mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
     }
+
+    private void showVoiceAnimation(){
+        realTalkingAnim();
+        postDelayed(voiceAnimThread, VOICE_INTERVAL_TIME);
+    }
+
+    private void stopVoiceAnimation(){
+        removeCallbacks(voiceAnimThread);
+    }
+
+    private void realTalkingAnim(){
+        talkingView.setImageResource(voiceAnimSrc[new Random().nextInt(3)]);
+    }
+
+    Runnable voiceAnimThread = new Runnable() {
+        @Override
+        public void run() {
+            realTalkingAnim();
+            postDelayed(voiceAnimThread, VOICE_INTERVAL_TIME);
+        }
+    };
+
 
     @Override
     public TalkerView setBorder(Border state) {
@@ -114,9 +137,11 @@ public class TalkerView extends FrameLayout implements IBorderView {
         canTalk = can;
         if (can) {
             talkerView.setBackgroundResource(R.drawable.em_dot_on);
+            showVoiceAnimation();
         } else {
             talkerView.setBackgroundResource(R.drawable.em_dot_off);
             talkingView.setVisibility(GONE);
+            stopVoiceAnimation();
         }
         return this;
     }
@@ -143,7 +168,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
 
     public TalkerView setCountDown(long millisUntilFinished) {
         countDownTimeView.setVisibility(VISIBLE);
-        countDownTimeView.setText(dateFormat.format(millisUntilFinished));
+        countDownTimeView.setText(String.format(Locale.getDefault(), "%ds", millisUntilFinished/1000));
         return this;
     }
 
