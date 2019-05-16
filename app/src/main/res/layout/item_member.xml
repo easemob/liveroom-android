@@ -35,8 +35,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="2dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="2dp"
         android:text="踢出"
         android:visibility="gone"
         hyphenate:border="green" />
