@@ -834,7 +834,6 @@ public class VoiceChatFragment extends BaseFragment {
                         runOnUiThread(() ->
                                 Toast.makeText(getActivity(), "伴音开启失败: " + result, Toast.LENGTH_SHORT).show());
                     }
-                    EMClient.getInstance().conferenceManager().adjustAudioMixingVolume(10);
                 }
             }
 

@@ -66,7 +66,7 @@ public class HttpRequestManager {
             requestObj.put("password", password);
             requestObj.put("desc", desc);
             requestObj.put("allowAudienceTalk", allowAudienceTalk);
-            requestObj.put("imChatRoomMaxusers", 200);
+            requestObj.put("imChatRoomMaxusers", 50);
             requestObj.put("confrDelayMillis", 60000);
             requestObj.put("memRole", EMConferenceManager.EMConferenceRole.Audience.code); // 1 - 观众，3 - 主播，7 - Admin
         } catch (JSONException e) {
