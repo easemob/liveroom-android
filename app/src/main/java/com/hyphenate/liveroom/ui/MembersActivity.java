@@ -236,7 +236,7 @@ public class MembersActivity extends BaseActivity {
                 } else {
                     String prefixString = prefix.toString();
                     List<String> newValues = new ArrayList<>();
-                    for (String chatRoom : chatRooms) {
+                    for (String chatRoom : copyList) {
                         if ((chatRoom != null && chatRoom.contains(prefixString))) {
                             newValues.add(chatRoom);
                         }
