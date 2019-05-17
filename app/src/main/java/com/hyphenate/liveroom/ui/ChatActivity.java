@@ -11,13 +11,11 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
-import com.hyphenate.EMConferenceListener;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -66,6 +64,7 @@ public class ChatActivity extends BaseActivity {
     private ImageView tobeTalkerView;
 
     private VoiceChatFragment voiceChatFragment;
+    private TextChatFragment textChatFragment;
 
     public static class Builder {
         private Intent intent;
@@ -156,7 +155,7 @@ public class ChatActivity extends BaseActivity {
         roomNameView.setText(roomName);
         accountView.setText(textRoomId);
 
-        TextChatFragment textChatFragment = new TextChatFragment();
+        textChatFragment = new TextChatFragment();
         textChatFragment.setArguments(getIntent().getExtras());
         textChatFragment.setOnEventCallback((operation, args) -> {
             Log.i(TAG, "OnEventCallback: " + operation);
@@ -219,6 +218,8 @@ public class ChatActivity extends BaseActivity {
                 runOnUiThread(() -> updateTobeTalkerView(STATE_AUDIENCE));
             } else if (VoiceChatFragment.EVENT_PLAY_MUSIC_DEFAULT == op) { // 加入音视频会议成功后回调
                 onClick(audioMixingButton);
+            } else if (VoiceChatFragment.EVENT_OCCUPY_SUCCESS == op) {
+                textChatFragment.sendTextMessage(String.format("[@%s] 抢麦成功", args[0]));
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
@@ -262,12 +263,14 @@ public class ChatActivity extends BaseActivity {
                 boolean isActived = audioMixingButton.isActivated();
                 if (!isActived) {
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.ADD,
+                    EMClient.getInstance().conferenceManager().setConferenceAttribute(
                             Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
+                    textChatFragment.sendTextMessage("开始歌曲");
                 } else {
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.DELETE,
-                            Constant.PROPERTY_MUSIC, null, null);
+                    EMClient.getInstance().conferenceManager().deleteConferenceAttribute(
+                            Constant.PROPERTY_MUSIC, null);
+                    textChatFragment.sendTextMessage("停止歌曲");
                 }
                 audioMixingButton.setActivated(!isActived);
                 break;
@@ -384,6 +387,11 @@ public class ChatActivity extends BaseActivity {
                     @Override
                     public void onSuccess(String s) {
                         Log.i(TAG, "grantRole onSuccess: " + s);
+                        if (targetRole == EMConferenceManager.EMConferenceRole.Talker) {
+                            textChatFragment.sendTextMessage(String.format("[@%s] 上麦", username));
+                        } else if (targetRole == EMConferenceManager.EMConferenceRole.Audience) {
+                            textChatFragment.sendTextMessage(String.format("[@%s] 下麦", username));
+                        }
                     }
 
                     @Override
