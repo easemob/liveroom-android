@@ -291,6 +291,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         }
 
         if (chatType == Constant.CHATTYPE_CHATROOM) {
+            sendTextMessage("我走了");
             EMClient.getInstance().chatroomManager().leaveChatRoom(chatRoomId);
         }
     }
@@ -320,6 +321,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
                     kickedForOfflineLayout.setVisibility(View.GONE);
                 });
+                sendTextMessage("我来了");
             }
 
             @Override
@@ -348,7 +350,8 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
             }
 
             // if the message is for current conversation
-            if (username.equals(chatRoomId) || message.getTo().equals(chatRoomId) || message.conversationId().equals(chatRoomId)) {
+            if (username.equals(chatRoomId) || message.getTo().equals(chatRoomId)
+                    || message.conversationId().equals(chatRoomId)) {
                 if (onEventCallback != null) {
                     EMMessageBody body = message.getBody();
                     if (body instanceof EMTextMessageBody) {
@@ -400,7 +403,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         }
     }
 
-    protected void sendTextMessage(String content) {
+    public void sendTextMessage(String content) {
         EMMessage message = EMMessage.createTxtSendMessage(content, chatRoomId);
         sendMessage(message);
     }

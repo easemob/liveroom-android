@@ -61,6 +61,7 @@ public class VoiceChatFragment extends BaseFragment {
     public static final int EVENT_BE_AUDIENCE_SUCCESS = 5;
     // 创建房间默认开启了背景音乐
     public static final int EVENT_PLAY_MUSIC_DEFAULT = 6;
+    public static final int EVENT_OCCUPY_SUCCESS = 7;
 
     public static final int RESULT_NO_HANDLED = 0;
     public static final int RESULT_NO_POSITION = 1;
@@ -890,6 +891,9 @@ public class VoiceChatFragment extends BaseFragment {
                     final boolean isSelfOccupiedMic = currentUsername.equals(talkerEntry.value);
                     if (isSelfOccupiedMic) {
                         conferenceManager.openVoiceTransfer();
+                        if (onEventCallback != null) {
+                            onEventCallback.onEvent(EVENT_OCCUPY_SUCCESS, currentUsername);
+                        }
                     } else {
                         conferenceManager.closeVoiceTransfer();
                     }
