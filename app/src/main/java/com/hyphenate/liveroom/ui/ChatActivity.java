@@ -11,13 +11,11 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
-import com.hyphenate.EMConferenceListener;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -262,12 +260,12 @@ public class ChatActivity extends BaseActivity {
                 boolean isActived = audioMixingButton.isActivated();
                 if (!isActived) {
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.ADD,
+                    EMClient.getInstance().conferenceManager().setConferenceAttribute(
                             Constant.PROPERTY_MUSIC, "/assets/audio.mp3", null);
                 } else {
                     // 设置频道属性,自己收到频道属性变化后设置伴音
-                    voiceChatFragment.handleConferenceAttribute(EMConferenceListener.EMAttributeAction.DELETE,
-                            Constant.PROPERTY_MUSIC, null, null);
+                    EMClient.getInstance().conferenceManager().deleteConferenceAttribute(
+                            Constant.PROPERTY_MUSIC, null);
                 }
                 audioMixingButton.setActivated(!isActived);
                 break;
