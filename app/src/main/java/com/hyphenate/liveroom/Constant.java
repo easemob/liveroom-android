@@ -36,13 +36,12 @@ public class Constant {
     // 抢麦模式
     public static final String ROOM_TYPE_MONOPOLY = "monopoly";
 
-    public static final String MESSAGE_GIFT = "send a gift";
-    public static final String MESSAGE_FAVOURITE = "like +1";
+    public static final String MESSAGE_GIFT = "send a gift.";
+    public static final String MESSAGE_FAVOURITE = "like +1.";
 
     public static final int COLOR_WHITE = Color.parseColor("#FFFFFF");
     public static final int COLOR_BLACK = Color.parseColor("#000000");
 
-    public static final String PROPERTY_ATTRS = "attrs";
     public static final String PROPERTY_TYPE = "type";
     public static final String PROPERTY_TALKER = "talker";
     public static final String PROPERTY_MUSIC = "music";
