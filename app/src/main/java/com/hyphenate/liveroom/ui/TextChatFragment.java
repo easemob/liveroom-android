@@ -291,7 +291,6 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         }
 
         if (chatType == Constant.CHATTYPE_CHATROOM) {
-            sendTextMessage("我走了");
             EMClient.getInstance().chatroomManager().leaveChatRoom(chatRoomId);
         }
     }
