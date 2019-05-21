@@ -1,6 +1,10 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -59,16 +63,23 @@ public interface IBorderView {
             }
         }
 
+        public void changeBorder(View v, Border border,@ColorInt int bgColor) {
+            changeBorder(v, border);
+            GradientDrawable background = (GradientDrawable) v.getBackground();
+            background.setColor(bgColor);
+        }
+
         public void init(View v, AttributeSet attrs) {
             if (v instanceof IBorderView) {
                 if (attrs != null) {
                     TypedArray typedArray = v.getContext().getResources()
                             .obtainAttributes(attrs, R.styleable.BorderView);
-                    Integer i = typedArray.getInteger(R.styleable.BorderView_border, 0);
+                    int i = typedArray.getInt(R.styleable.BorderView_border, 0);
                     border = Border.from(i);
-                }
+                    typedArray.recycle();
 
-                changeBorder(v, border);
+                    changeBorder(v, border);
+                }
             } else {
                 throw new IllegalArgumentException("View not an IBorderView impl.");
             }

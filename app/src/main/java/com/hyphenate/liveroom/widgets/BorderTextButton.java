@@ -1,8 +1,12 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.view.Gravity;
+
+import com.hyphenate.liveroom.R;
 
 /**
  * Created by zhangsong on 19-4-8
@@ -31,8 +35,17 @@ public class BorderTextButton extends AppCompatTextView implements IBorderView {
 
     @Override
     public BorderTextButton setBorder(Border state) {
-        borderHelper.changeBorder(this, state);
+        borderHelper.changeBorder(this, state, Color.BLACK);
+        internalSetTextColor(state);
         return this;
+    }
+
+    private void internalSetTextColor(Border state) {
+        if (state == Border.NONE) {
+            setTextColor(getResources().getColor(R.color.text_disable));
+        } else {
+            setTextColor(getResources().getColor(R.color.text_normal));
+        }
     }
 
     @Override

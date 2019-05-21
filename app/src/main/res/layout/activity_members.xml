@@ -54,6 +54,7 @@
             style="@style/login_input_style"
             android:layout_marginRight="5dp"
             android:layout_toLeftOf="@+id/btn_search"
+            android:paddingRight="5dp"
             android:hint="搜索" />
     </RelativeLayout>
 
