@@ -297,6 +297,7 @@ public class ChatActivity extends BaseActivity {
                 break;
             case R.id.btn_exit:
                 if (!isCreator) { // 非语聊室创建者退出
+                    textChatFragment.sendTextMessage("我走了");
                     finish();
                     return;
                 }
