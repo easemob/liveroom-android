@@ -36,7 +36,7 @@ public class HttpRequestManager {
 
     private static final String TAG = "HttpRequestManager";
 
-    private static final String BASEURL = "http://turn2.easemob.com:8082";
+    private static final String BASEURL = "http://tcapp.easemob.com";
     private static final int ERR_INTERNAL = -1;
 
     private static volatile HttpRequestManager INSTANCE;
