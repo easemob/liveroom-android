@@ -32,11 +32,12 @@
     <!-- create voice chatroom start -->
     <string name="create_voice_chat_room">Create VoiceChatRoom</string>
     <string name="voice_chatroom_id">voiceChatRoomId</string>
-    <string name="room_number_must_consist_of_8_digit_letters_and_numbers">Room number must consist of 8-digit letters and numbers。</string>
+    <string name="room_number_should_not_exceed_16_bits_at_most">Room number should not exceed 16 bits。</string>
     <string name="password_should_not_exceed_16_bits_at_most">Passwords should not exceed 16 bits at most。</string>
     <string name="room_type_choice">Please select the voice chat room type.</string>
-    <string name="submit">Submit</string>
+    <string name="create">Create</string>
     <string name="tip_plz_input_account_and_pwd">Please input account and password!</string>
+    <string name="tip_plz_username_password_not_exceed_16_bits">User name and password should not exceed 16 bits!</string>
     <string name="tip_create_chat_room_failed">Create ChatRoom Failed, errorCode:%d, desc: %s</string>
     <!-- create voice chatroom end -->
 

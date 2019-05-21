@@ -16,13 +16,14 @@
         android:id="@+id/et_room_name"
         style="@style/login_input_style"
         android:layout_marginTop="18dp"
-        android:hint="@string/voice_chatroom_id" />
+        android:hint="@string/voice_chatroom_id"
+        android:maxLength="16" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
-        android:text="@string/room_number_must_consist_of_8_digit_letters_and_numbers"
+        android:text="@string/room_number_should_not_exceed_16_bits_at_most"
         android:textColor="@color/text_color_gray"
         android:textSize="10sp" />
 
@@ -31,7 +32,8 @@
         style="@style/login_input_style"
         android:layout_marginTop="10dp"
         android:hint="@string/password"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLength="16" />
 
     <TextView
         android:layout_width="match_parent"
@@ -66,5 +68,5 @@
         android:id="@+id/btn_create"
         style="@style/login_button_style"
         android:layout_marginTop="20dp"
-        android:text="@string/submit" />
+        android:text="@string/create" />
 </LinearLayout>

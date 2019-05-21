@@ -100,9 +100,9 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
             return;
         }
 
-        if (TextUtils.isEmpty(password)) {
+        if (roomName.length() > 16 || password.length() > 16) {
             easeTipDialog = new EaseTipDialog.Builder(getContext()).setStyle(EaseTipDialog.TipDialogStyle.ERROR)
-                    .setTitle(R.string.tip_error).setMessage(R.string.tip_plz_input_account_and_pwd).build();
+                    .setTitle(R.string.tip_error).setMessage(R.string.tip_plz_username_password_not_exceed_16_bits).build();
             easeTipDialog.show();
             return;
         }
@@ -146,7 +146,7 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
         dismissTipDialog();
     }
 
-    private void dismissTipDialog(){
+    private void dismissTipDialog() {
         if (easeTipDialog != null && easeTipDialog.isShowing()) {
             easeTipDialog.dismiss();
         }

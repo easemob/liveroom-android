@@ -32,11 +32,12 @@
     <!-- create voice chatroom start -->
     <string name="create_voice_chat_room">创建</string>
     <string name="voice_chatroom_id">房间号</string>
-    <string name="room_number_must_consist_of_8_digit_letters_and_numbers">房间号必须由8位的字母、数字组成。</string>
+    <string name="room_number_should_not_exceed_16_bits_at_most">房间号最多不能超过16位。</string>
     <string name="password_should_not_exceed_16_bits_at_most">密码最多不能超过16位。</string>
-    <string name="room_type_choice">语聊房间互动模式</string>
-    <string name="submit">提交</string>
+    <string name="room_type_choice">设置语聊房间玩法模式</string>
+    <string name="create">创建</string>
     <string name="tip_plz_input_account_and_pwd">请先输入房间名称和密码!</string>
+    <string name="tip_plz_username_password_not_exceed_16_bits">用户名和密码最多不能超过16位!</string>
     <string name="tip_create_chat_room_failed">创建房间失败, 错误码:%d, 详细: %s</string>
     <!-- create voice chatroom end -->
 
