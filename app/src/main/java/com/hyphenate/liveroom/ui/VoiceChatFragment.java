@@ -190,7 +190,7 @@ public class VoiceChatFragment extends BaseFragment {
 
                         if (roomType == RoomType.COMMUNICATION) {
                             talkerView.canTalk(true)
-                                    .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
+                                    .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GRAY));
                         } else if (roomType == RoomType.HOST) {
                             talkerView.canTalk(true)
                                     .addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.NONE));
@@ -532,13 +532,13 @@ public class VoiceChatFragment extends BaseFragment {
             return v.createButton(getContext(), BUTTON_VOICE,
                     "发言", border,
                     (view, button) -> {
-                        if (button.getBorder() == IBorderView.Border.GRAY) {
+                        if (button.getBorder() == IBorderView.Border.GREEN) {
                             view.canTalk(true);
-                            button.setBorder(IBorderView.Border.GREEN);
+                            button.setBorder(IBorderView.Border.GRAY);
                             conferenceManager.openVoiceTransfer();
                         } else {
                             view.canTalk(false);
-                            button.setBorder(IBorderView.Border.GRAY);
+                            button.setBorder(IBorderView.Border.GREEN);
                             conferenceManager.closeVoiceTransfer();
                         }
                     });
@@ -784,7 +784,7 @@ public class VoiceChatFragment extends BaseFragment {
                         }
                     } else { // 互动模式
                         talkerView.canTalk(true)
-                                .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
+                                .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GRAY));
                     }
                     talkerView.setName(currentUsername, getResources().getColor(R.color.text_normal))
                             .setBorder(IBorderView.Border.GRAY)
