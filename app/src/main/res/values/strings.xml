@@ -32,7 +32,7 @@
     <!-- create voice chatroom start -->
     <string name="create_voice_chat_room">Create VoiceChatRoom</string>
     <string name="voice_chatroom_id">voiceChatRoomId</string>
-    <string name="room_number_should_not_exceed_16_bits_at_most">Room number should not exceed 16 bits。</string>
+    <string name="room_number_should_not_exceed_16_bits_at_most">Room numbers can be composed of letters and numbers, and Chinese is not supported. Room number should not exceed 16 bits。</string>
     <string name="password_should_not_exceed_16_bits_at_most">Passwords should not exceed 16 bits at most。</string>
     <string name="room_type_choice">Please select the voice chat room type.</string>
     <string name="create">Create</string>
