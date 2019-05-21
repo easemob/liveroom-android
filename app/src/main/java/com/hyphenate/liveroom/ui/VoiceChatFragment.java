@@ -10,6 +10,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ComplexColorCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -141,7 +142,7 @@ public class VoiceChatFragment extends BaseFragment {
 
         for (int i = 0; i < MAX_TALKERS; i++) {
             TalkerView talkerView = TalkerView.create(getContext())
-                    .setName("已下线")
+                    .setName("disconnected", getResources().getColor(R.color.text_disable))
                     .canTalk(false);
             addMemberView(talkerView);
             Pair<String, TalkerView> value;
@@ -183,7 +184,7 @@ public class VoiceChatFragment extends BaseFragment {
                     // 管理员设置自己的TalkerView
                     runOnUiThread(() -> {
                         TalkerView talkerView = updatePositionValue(0, currentUsername);
-                        talkerView.setName(currentUsername)
+                        talkerView.setName(currentUsername, getResources().getColor(R.color.text_normal))
                                 .setKing(true)
                                 .setBorder(IBorderView.Border.GRAY);
 
@@ -192,11 +193,11 @@ public class VoiceChatFragment extends BaseFragment {
                                     .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
                         } else if (roomType == RoomType.HOST) {
                             talkerView.canTalk(true)
-                                    .addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
+                                    .addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.NONE));
                         } else if (roomType == RoomType.MONOPOLY) {
                             talkerView.canTalk(false)
                                     .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GREEN))
-                                    .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
+                                    .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.NONE));
                         }
 
                         // 加入会议成功后开启伴音功能,伴音功能接口需要加入会议成功后调用.
@@ -386,7 +387,7 @@ public class VoiceChatFragment extends BaseFragment {
                 talkerView.canTalk(true)
                         .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
             }
-            talkerView.setName(currentUsername)
+            talkerView.setName(currentUsername, getResources().getColor(R.color.text_normal))
                     .setBorder(IBorderView.Border.GRAY)
                     .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
 
@@ -498,7 +499,7 @@ public class VoiceChatFragment extends BaseFragment {
 
     private void resetTalkerViewByPosition(int position) {
         TalkerView talkerView = talkerViews.get(position).second;
-        talkerView.setName("已下线")
+        talkerView.setName("disconnected", getResources().getColor(R.color.text_disable))
                 .clearButtons()
                 .setKing(false)
                 .setTalking(false)
@@ -528,17 +529,16 @@ public class VoiceChatFragment extends BaseFragment {
 
     private BorderTextButton createButton(TalkerView v, int id, IBorderView.Border border) {
         if (id == BUTTON_VOICE) {
-            String[] titles = new String[]{"打开麦克风", "关闭麦克风"};
             return v.createButton(getContext(), BUTTON_VOICE,
-                    border != IBorderView.Border.GRAY ? titles[1] : titles[0], border,
+                    "发言", border,
                     (view, button) -> {
                         if (button.getBorder() == IBorderView.Border.GRAY) {
                             view.canTalk(true);
-                            button.setBorder(IBorderView.Border.GREEN).setText(titles[1]);
+                            button.setBorder(IBorderView.Border.GREEN);
                             conferenceManager.openVoiceTransfer();
                         } else {
                             view.canTalk(false);
-                            button.setBorder(IBorderView.Border.GRAY).setText(titles[0]);
+                            button.setBorder(IBorderView.Border.GRAY);
                             conferenceManager.closeVoiceTransfer();
                         }
                     });
@@ -556,12 +556,12 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_TALK) { // 只存在于主持模式下
             return v.createButton(getContext(), BUTTON_TALK,
                     "发言", border, (view, button) -> {
-                        if (button.getBorder() == IBorderView.Border.GREEN) { // 当前正在发言过程中
+                        if (button.getBorder() == IBorderView.Border.NONE) { // 当前正在发言过程中
                             Log.i(TAG, "BUTTON_TALK button clicked, already in talking state.");
                             return;
                         }
                         // 把当前被点击人的发言按钮border颜色设置为green
-                        button.setBorder(IBorderView.Border.GREEN);
+                        button.setBorder(IBorderView.Border.NONE);
                         // 设置频道属性
                         conferenceManager.setConferenceAttribute(Constant.PROPERTY_TALKER, view.getName(), null);
                     });
@@ -569,11 +569,11 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_MIC_OCCUPY) { // 抢麦按钮
             return v.createButton(getContext(), BUTTON_MIC_OCCUPY,
                     "抢麦", border, (view, button) -> {
-                        if (button.getBorder() == IBorderView.Border.GRAY) { // 当前为不可抢麦状态
+                        if (button.getBorder() == IBorderView.Border.NONE) { // 当前为不可抢麦状态
                             return;
                         }
 
-                        button.setBorder(IBorderView.Border.GRAY);
+                        button.setBorder(IBorderView.Border.NONE);
 
                         // 调用app server抢麦接口
                         HttpRequestManager.getInstance().occupyMic(chatRoom.getRoomId(), currentUsername, new HttpRequestManager.IRequestListener<Void>() {
@@ -598,9 +598,11 @@ public class VoiceChatFragment extends BaseFragment {
         if (id == BUTTON_MIC_RELEASE) {
             return v.createButton(getContext(), BUTTON_MIC_RELEASE,
                     "释放麦", border, (view, button) -> {
-                        if (button.getBorder() == IBorderView.Border.GRAY) { // 未占用麦克风
+                        if (button.getBorder() == IBorderView.Border.NONE) { // 未占用麦克风
                             return;
                         }
+
+                        button.setBorder(IBorderView.Border.NONE);
                         // 释放麦
                         releaseMicIfNeeded(currentUsername);
                     });
@@ -612,7 +614,7 @@ public class VoiceChatFragment extends BaseFragment {
 
     private void runOnUiThread(Runnable r) {
         Activity activity = getActivity();
-        if (activity != null) {
+        if (activity != null && !activity.isFinishing()) {
             activity.runOnUiThread(r);
         }
     }
@@ -650,7 +652,7 @@ public class VoiceChatFragment extends BaseFragment {
             }
 
             runOnUiThread(() -> {
-                talkerView.setName(stream.getUsername())
+                talkerView.setName(stream.getUsername(), getResources().getColor(R.color.text_normal))
                         .canTalk(!stream.isAudioOff());
                 if (existPosition != -1) {
                     talkerView.setKing(true);
@@ -660,7 +662,7 @@ public class VoiceChatFragment extends BaseFragment {
                         if (stream.getUsername().equals(currentTalker)) {
                             talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
                         } else {
-                            talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GRAY));
+                            talkerView.addButton(createButton(talkerView, BUTTON_TALK, IBorderView.Border.GREEN));
                         }
                     }
                     talkerView.addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
@@ -767,24 +769,24 @@ public class VoiceChatFragment extends BaseFragment {
                         boolean isSelfOccupiedMic = currentUsername.equals(currentTalker);
 
                         if (isMicOccupied) {
-                            talkerView.addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GRAY));
+                            talkerView.addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.NONE));
                             if (isSelfOccupiedMic) {
                                 talkerView.canTalk(true)
                                         .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.RED));
                             } else {
                                 talkerView.canTalk(false)
-                                        .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
+                                        .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.NONE));
                             }
                         } else {
                             talkerView.canTalk(false)
                                     .addButton(createButton(talkerView, BUTTON_MIC_OCCUPY, IBorderView.Border.GREEN))
-                                    .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.GRAY));
+                                    .addButton(createButton(talkerView, BUTTON_MIC_RELEASE, IBorderView.Border.NONE));
                         }
                     } else { // 互动模式
                         talkerView.canTalk(true)
                                 .addButton(createButton(talkerView, BUTTON_VOICE, IBorderView.Border.GREEN));
                     }
-                    talkerView.setName(currentUsername)
+                    talkerView.setName(currentUsername, getResources().getColor(R.color.text_normal))
                             .setBorder(IBorderView.Border.GRAY)
                             .addButton(createButton(talkerView, BUTTON_DISCONN, IBorderView.Border.RED));
                 });
@@ -850,7 +852,7 @@ public class VoiceChatFragment extends BaseFragment {
                         if (previousTalkerPosition != -1) {
                             runOnUiThread(() -> talkerViews.get(previousTalkerPosition).second
                                     .findButton(BUTTON_TALK)
-                                    .setBorder(IBorderView.Border.GRAY));
+                                    .setBorder(IBorderView.Border.GREEN));
                         }
                     }
                 }
@@ -905,13 +907,13 @@ public class VoiceChatFragment extends BaseFragment {
                     } else {
                         runOnUiThread(() -> {
                             TalkerView talkerView = talkerViews.get(selfPosition).second;
-                            talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GRAY);
+                            talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.NONE);
                             if (isSelfOccupiedMic) {
                                 talkerView.canTalk(true);
                                 talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.RED);
                             } else {
                                 talkerView.canTalk(false);
-                                talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
+                                talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.NONE);
                             }
                         });
                     }
@@ -966,7 +968,7 @@ public class VoiceChatFragment extends BaseFragment {
                 TalkerView talkerView = talkerViews.get(selfPosition).second;
                 talkerView.canTalk(false);
                 talkerView.findButton(BUTTON_MIC_OCCUPY).setBorder(IBorderView.Border.GREEN);
-                talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.GRAY);
+                talkerView.findButton(BUTTON_MIC_RELEASE).setBorder(IBorderView.Border.NONE);
             });
         }
     }

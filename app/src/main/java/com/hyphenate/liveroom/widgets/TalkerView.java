@@ -1,6 +1,8 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -54,8 +56,8 @@ public class TalkerView extends FrameLayout implements IBorderView {
         button.setTextSize(10);
         int padding = DimensUtil.dp2px(context, 4);
         button.setPadding(padding, padding, padding, padding);
-        button.setGravity(Gravity.CENTER);
         button.setMinWidth(DimensUtil.dp2px(context, 60));
+        button.setGravity(Gravity.CENTER);
         button.setText(title);
         button.setBorder(border);
         button.setOnClickListener(v -> {
@@ -85,9 +87,10 @@ public class TalkerView extends FrameLayout implements IBorderView {
         talkingView = findViewById(R.id.indicator_talking);
         btnContainer = findViewById(R.id.container_btn);
 
+        setBackground(getResources().getDrawable(R.drawable.em_bg_border_none));
+
         stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
-
     }
 
     private void showVoiceAnimation(){
@@ -111,7 +114,6 @@ public class TalkerView extends FrameLayout implements IBorderView {
         }
     };
 
-
     @Override
     public TalkerView setBorder(Border state) {
         stateHelper.changeBorder(this, state);
@@ -126,6 +128,13 @@ public class TalkerView extends FrameLayout implements IBorderView {
     public TalkerView setName(String name) {
         username = name;
         nameView.setText(name);
+        return this;
+    }
+
+    public TalkerView setName(String name, @ColorInt int textColor) {
+        username = name;
+        nameView.setText(name);
+        nameView.setTextColor(textColor);
         return this;
     }
 
