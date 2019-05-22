@@ -148,7 +148,7 @@ public class ChatRoomFragment extends BaseFragment {
 
                 dataList.clear();
                 dataList.addAll(chatRooms);
-                getActivity().runOnUiThread(() -> {
+                runOnUiThread(() -> {
                     roomAdapter.changeList(dataList);
                     roomAdapter.notifyDataSetChanged();
 
@@ -160,9 +160,18 @@ public class ChatRoomFragment extends BaseFragment {
 
             @Override
             public void onFailed(int errCode, String desc) {
-                Toast.makeText(getActivity(), errCode + " - " + desc, Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(getActivity(), errCode + " - " + desc, Toast.LENGTH_SHORT).show();
+                });
             }
         });
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        if (getActivity() == null) {
+            return;
+        }
+        getActivity().runOnUiThread(runnable);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
