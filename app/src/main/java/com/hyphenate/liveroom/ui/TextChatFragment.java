@@ -33,6 +33,7 @@ import com.hyphenate.liveroom.Constant;
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.utils.CommonUtils;
+import com.hyphenate.liveroom.utils.SoundPlayUtil;
 import com.hyphenate.liveroom.widgets.EaseChatInputMenu;
 import com.hyphenate.liveroom.widgets.EaseChatMessageList;
 import com.hyphenate.util.EMLog;
@@ -69,6 +70,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     private boolean isMessageListInited;
     protected boolean isRoaming = false;
     private ExecutorService fetchQueue;
+    private SoundPlayUtil soundPlayUtil;
 
     @Nullable
     @Override
@@ -83,7 +85,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         fragmentArgs = getArguments();
         chatType = fragmentArgs.getInt(Constant.EXTRA_CHAT_TYPE, Constant.CHATTYPE_SINGLE);
         chatRoomId = ((ChatRoom) fragmentArgs.getSerializable(Constant.EXTRA_CHAT_ROOM)).getRoomId();
-
+        soundPlayUtil = new SoundPlayUtil(getContext());
         initView();
         setUpView();
     }
@@ -108,6 +110,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
                 if (onEventCallback != null) {
                     onEventCallback.onEvent(MSG_FAVOURITE);
                 }
+                playLikeSound();
             }
 
             @Override
@@ -116,6 +119,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
                 if (onEventCallback != null) {
                     onEventCallback.onEvent(MSG_GIFT);
                 }
+                playGiftSound();
             }
 
             @Override
@@ -286,6 +290,9 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (soundPlayUtil != null) {
+            soundPlayUtil.release();
+        }
         if (chatRoomListener != null) {
             EMClient.getInstance().chatroomManager().removeChatRoomListener(chatRoomListener);
         }
@@ -357,8 +364,10 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
                         String content = ((EMTextMessageBody) body).getMessage();
                         if (Constant.MESSAGE_FAVOURITE.equals(content)) {
                             onEventCallback.onEvent(MSG_FAVOURITE);
+                            playLikeSound();
                         } else if (Constant.MESSAGE_GIFT.equals(content)) {
                             onEventCallback.onEvent(MSG_GIFT);
+                            playGiftSound();
                         }
                     }
                 }
@@ -423,6 +432,18 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
         if (isMessageListInited) {
             messageList.refreshSelectLast();
+        }
+    }
+
+    private void playLikeSound() {
+        if (soundPlayUtil != null) {
+            soundPlayUtil.playLike();
+        }
+    }
+
+    private void playGiftSound() {
+        if (soundPlayUtil != null) {
+            soundPlayUtil.playGift();
         }
     }
 
