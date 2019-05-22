@@ -46,12 +46,20 @@ public class ChatActivity extends BaseActivity {
     private static final int STATE_AUDIENCE = 0;
     private static final int STATE_DURING_REQUEST = 1;
     private static final int STATE_TALKER = 2;
+    // voice conference join success.
+    private static final int STATE_VOICE_JOIN = 0x1;
+    // text chat room join success.
+    private static final int STATE_TEXT_JOIN = 0x2;
+    // voice conference and text chat room join success.
+    private static final int STATE_ALL_JOIN = STATE_VOICE_JOIN | STATE_TEXT_JOIN;
 
     private String ownerName;
     private String roomName;
     private String textRoomId;
     private boolean isCreator;
     private boolean isAllowRequest;
+
+    private int joinState = 0;
 
     private ChatRoom chatRoom;
     private RoomType roomType = RoomType.COMMUNICATION;
@@ -157,33 +165,38 @@ public class ChatActivity extends BaseActivity {
 
         textChatFragment = new TextChatFragment();
         textChatFragment.setArguments(getIntent().getExtras());
-        textChatFragment.setOnEventCallback((operation, args) -> {
-            Log.i(TAG, "OnEventCallback: " + operation);
-            runOnUiThread(() -> {
-                placeholder.setVisibility(View.VISIBLE);
-                AnimationSet set = AnimationUtil.create();
-                set.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
+        textChatFragment.setOnEventCallback((op, args) -> {
+            Log.i(TAG, "OnEventCallback: " + op);
+            if (TextChatFragment.MSG_FAVOURITE == op || TextChatFragment.MSG_GIFT == op) {
+                runOnUiThread(() -> {
+                    placeholder.setVisibility(View.VISIBLE);
+                    AnimationSet set = AnimationUtil.create();
+                    set.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        placeholder.setVisibility(View.GONE);
-                        placeholder.setImageResource(0);
-                    }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            placeholder.setVisibility(View.GONE);
+                            placeholder.setImageResource(0);
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+                    if (TextChatFragment.MSG_FAVOURITE == op) {
+                        placeholder.setImageResource(R.drawable.em_ic_favorite);
+                    } else {
+                        placeholder.setImageResource(R.drawable.em_ic_giftcard);
                     }
+                    placeholder.startAnimation(set);
                 });
-                if (operation == TextChatFragment.MSG_FAVOURITE) {
-                    placeholder.setImageResource(R.drawable.em_ic_favorite);
-                } else if (operation == TextChatFragment.MSG_GIFT) {
-                    placeholder.setImageResource(R.drawable.em_ic_giftcard);
-                }
-                placeholder.startAnimation(set);
-            });
+            } else if (TextChatFragment.EVENT_JOIN_SUCCESS == op) {
+                joinState |= STATE_TEXT_JOIN;
+                checkJoinState();
+            }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_chat, textChatFragment).commit();
 
@@ -220,6 +233,9 @@ public class ChatActivity extends BaseActivity {
                 onClick(audioMixingButton);
             } else if (VoiceChatFragment.EVENT_OCCUPY_SUCCESS == op) {
                 textChatFragment.sendTextMessage(String.format("[@%s] 抢麦成功", args[0]));
+            } else if (op == TextChatFragment.EVENT_JOIN_SUCCESS) {
+                joinState |= STATE_VOICE_JOIN;
+                checkJoinState();
             }
         });
         getSupportFragmentManager().beginTransaction().add(R.id.container_member, voiceChatFragment).commit();
@@ -401,6 +417,14 @@ public class ChatActivity extends BaseActivity {
                     }
                 }
         );
+    }
+
+    private void checkJoinState() {
+        Log.i(TAG, "checkJoinState, current join state: " + joinState);
+        if ((joinState & STATE_ALL_JOIN) == STATE_ALL_JOIN) {
+            // 文字聊天室和语音会议都加入成功
+            textChatFragment.sendTextMessage("我来了");
+        }
     }
 
     private EMMessageListener messageListener = new EMMessageListener() {

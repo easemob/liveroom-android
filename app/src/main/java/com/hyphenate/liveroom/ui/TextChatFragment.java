@@ -47,6 +47,7 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
     public static final int MSG_FAVOURITE = 0;
     public static final int MSG_GIFT = 1;
+    public static final int EVENT_JOIN_SUCCESS = 8;
 
     protected Bundle fragmentArgs;
     protected int chatType;
@@ -316,6 +317,12 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
                 if (getActivity() == null || !chatRoomId.equals(emChatRoom.getId())) {
                     return;
                 }
+
+                if (onEventCallback != null) {
+                    // async
+                    onEventCallback.onEvent(EVENT_JOIN_SUCCESS);
+                }
+
                 getActivity().runOnUiThread(() -> {
                     pd.dismiss();
                     EMChatRoom room = EMClient.getInstance().chatroomManager().getChatRoom(chatRoomId);
@@ -327,7 +334,6 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
 
                     kickedForOfflineLayout.setVisibility(View.GONE);
                 });
-                sendTextMessage("我来了");
             }
 
             @Override

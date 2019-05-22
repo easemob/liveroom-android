@@ -10,7 +10,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.res.ComplexColorCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -63,6 +62,7 @@ public class VoiceChatFragment extends BaseFragment {
     // 创建房间默认开启了背景音乐
     public static final int EVENT_PLAY_MUSIC_DEFAULT = 6;
     public static final int EVENT_OCCUPY_SUCCESS = 7;
+    public static final int EVENT_JOIN_SUCCESS = 8;
 
     public static final int RESULT_NO_HANDLED = 0;
     public static final int RESULT_NO_POSITION = 1;
@@ -162,6 +162,11 @@ public class VoiceChatFragment extends BaseFragment {
         conferenceManager.joinConference(confId, password, new EMValueCallBack<EMConference>() {
             @Override
             public void onSuccess(final EMConference value) {
+                if (onEventCallback != null) {
+                    // async
+                    onEventCallback.onEvent(EVENT_JOIN_SUCCESS);
+                }
+
                 conferenceRole = value.getConferenceRole();
                 streamId = value.getConferenceId();
                 EMLog.e(TAG, "join conference success, role: " + conferenceRole);
@@ -830,6 +835,8 @@ public class VoiceChatFragment extends BaseFragment {
                     // 需要在加入音视频会议成功后调用
                     EMClient.getInstance().conferenceManager().stopAudioMixing();
                 } else {
+                    // 需要在加入音视频会议成功后调用, 调节伴音音量为原文件30%
+                    EMClient.getInstance().conferenceManager().adjustAudioMixingVolume(30);
                     // 需要在加入音视频会议成功后调用
                     final int result = EMClient.getInstance().conferenceManager().startAudioMixing("/assets/audio.mp3", -1);
                     if (result != EMError.EM_NO_ERROR) {
