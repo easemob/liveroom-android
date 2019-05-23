@@ -309,6 +309,17 @@ public class TextChatFragment extends BaseFragment implements EMMessageListener 
         }
     }
 
+    public boolean isInChatRoom(String memberName) {
+        EMChatRoom chatRoom = EMClient.getInstance().chatroomManager().getChatRoom(chatRoomId);
+        if (chatRoom == null)
+            return false;
+        List<String> members = chatRoom.getMemberList();
+        if (members != null && !members.isEmpty()) {
+            return members.contains(memberName);
+        }
+        return false;
+    }
+
     protected void onChatRoomViewCreation() {
         final ProgressDialog pd = ProgressDialog.show(getActivity(), "", getString(R.string.joining));
         EMClient.getInstance().chatroomManager().joinChatRoom(chatRoomId, new EMValueCallBack<EMChatRoom>() {

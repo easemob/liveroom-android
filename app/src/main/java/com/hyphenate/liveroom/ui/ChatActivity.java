@@ -404,6 +404,10 @@ public class ChatActivity extends BaseActivity {
                     @Override
                     public void onSuccess(String s) {
                         Log.i(TAG, "grantRole onSuccess: " + s);
+                        if (!textChatFragment.isInChatRoom(username)) {
+                            Log.d(TAG, username + " is not the chatRoom member");
+                            return;
+                        }
                         if (targetRole == EMConferenceManager.EMConferenceRole.Talker) {
                             textChatFragment.sendTextMessage(String.format("[@%s] 上麦", username));
                         } else if (targetRole == EMConferenceManager.EMConferenceRole.Audience) {
