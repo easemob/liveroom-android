@@ -28,6 +28,7 @@ import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.CommonUtils;
+import com.hyphenate.liveroom.utils.PermissionsUtil;
 import com.hyphenate.liveroom.widgets.EaseDialog;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 
@@ -93,6 +94,10 @@ public class ChatRoomFragment extends BaseFragment {
                             Constant.COLOR_WHITE,
                             (dialog, v) -> {
                                 dialog.dismiss();
+                                if (!PermissionsUtil.hasRecordAudioPermission(getActivity())) {
+                                    PermissionsUtil.showPermissionFailedUi(getActivity());
+                                    return;
+                                }
                                 final String password = dialog.getText(R.id.edit);
                                 Intent i = new ChatActivity.Builder(getActivity())
                                         .setChatRoomEntity(chatRoom)
