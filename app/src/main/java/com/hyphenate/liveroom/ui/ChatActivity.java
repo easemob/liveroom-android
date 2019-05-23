@@ -29,8 +29,6 @@ import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
-import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
-import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
@@ -242,7 +240,6 @@ public class ChatActivity extends BaseActivity {
 
         EMClient.getInstance().chatManager().addMessageListener(messageListener);
 
-        requestPermissions();
     }
 
     @Override
@@ -254,12 +251,6 @@ public class ChatActivity extends BaseActivity {
             finish();
             startActivity(intent);
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
     }
 
     @Override
@@ -353,19 +344,6 @@ public class ChatActivity extends BaseActivity {
                 tobeTalkerView.setVisibility(View.GONE);
                 break;
         }
-    }
-
-    @TargetApi(23)
-    private void requestPermissions() {
-        PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
-            @Override
-            public void onGranted() {
-            }
-
-            @Override
-            public void onDenied(String permission) {
-            }
-        });
     }
 
     private void sendRequest(String to, String op, String streamId) {

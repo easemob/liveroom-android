@@ -10,10 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.hyphenate.EMError;
 import com.hyphenate.liveroom.R;
@@ -21,6 +19,7 @@ import com.hyphenate.liveroom.entities.ChatRoom;
 import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.hyphenate.liveroom.utils.PermissionsUtil;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EMLog;
 
@@ -92,6 +91,11 @@ public class CreateFragment extends BaseFragment implements View.OnClickListener
     public void onClick(View v) {
         String roomName = roomNameView.getText().toString();
         String password = passwordView.getText().toString();
+
+        if (!PermissionsUtil.hasRecordAudioPermission(getActivity())) {
+            PermissionsUtil.showPermissionFailedUi(getActivity());
+            return;
+        }
 
         if (TextUtils.isEmpty(roomName) || TextUtils.isEmpty(password)) {
             easeTipDialog = new EaseTipDialog.Builder(getContext()).setStyle(EaseTipDialog.TipDialogStyle.ERROR)

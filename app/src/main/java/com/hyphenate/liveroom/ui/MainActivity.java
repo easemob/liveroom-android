@@ -1,7 +1,9 @@
 package com.hyphenate.liveroom.ui;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,8 @@ import com.hyphenate.EMConnectionListener;
 import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsManager;
+import com.hyphenate.liveroom.runtimepermissions.PermissionsResultAction;
 
 public class MainActivity extends AppCompatActivity implements EMConnectionListener {
 
@@ -26,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
         selectItem(0);
 
         registerIMConnectListener();
+        requestPermissions();
     }
 
     private void registerIMConnectListener() {
@@ -37,6 +42,25 @@ public class MainActivity extends AppCompatActivity implements EMConnectionListe
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @TargetApi(23)
+    private void requestPermissions() {
+        PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
+            @Override
+            public void onGranted() {
+            }
+
+            @Override
+            public void onDenied(String permission) {
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
     }
 
     public void onClick(View v) {
