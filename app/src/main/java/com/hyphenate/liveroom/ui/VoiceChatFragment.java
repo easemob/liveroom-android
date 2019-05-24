@@ -121,8 +121,18 @@ public class VoiceChatFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        if (getArguments() == null) {
+            Log.e(TAG, "getArguments is no values");
+            return;
+        }
         chatRoom = (ChatRoom) getArguments().getSerializable(Constant.EXTRA_CHAT_ROOM);
+        if (chatRoom == null) {
+            Log.e(TAG, "chatRoom is null");
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
+            return;
+        }
         final String confId = chatRoom.getRtcConfrId();
         final String password = getArguments().getString(Constant.EXTRA_PASSWORD);
         currentUsername = PreferenceManager.getInstance().getCurrentUsername();
@@ -303,6 +313,8 @@ public class VoiceChatFragment extends BaseFragment {
 
 
     private void registerHeadsetReceiver() {
+        if (getContext() == null)
+            return;
         // 蓝牙状态广播监听
         IntentFilter audioFilter = new IntentFilter();
         audioFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
@@ -315,6 +327,8 @@ public class VoiceChatFragment extends BaseFragment {
     }
 
     private void unregisterHeadsetReceiver() {
+        if (getContext() == null)
+            return;
         getContext().unregisterReceiver(bluetoothReceiver);
         getContext().unregisterReceiver(headsetReceiver);
     }
@@ -452,6 +466,9 @@ public class VoiceChatFragment extends BaseFragment {
     }
 
     private void addMemberView(TalkerView memberView) {
+        if (getContext() == null) {
+            return;
+        }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         int margin = DimensUtil.dp2px(getContext(), 1);

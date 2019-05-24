@@ -30,6 +30,7 @@ import com.hyphenate.liveroom.entities.RoomType;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
 import com.hyphenate.liveroom.utils.AnimationUtil;
+import com.hyphenate.liveroom.utils.OnMultiClickListener;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
 
@@ -129,29 +130,32 @@ public class ChatActivity extends BaseActivity {
             if (isAllowRequest) {
                 updateTobeTalkerView(STATE_AUDIENCE);
             }
-            tobeTalkerView.setOnClickListener((v) -> {
-                if (!isAllowRequest) {
-                    Toast.makeText(this, "该语聊房间不允许申请连麦 ~", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            tobeTalkerView.setOnClickListener(new OnMultiClickListener() {
+                @Override
+                public void onMultiClick(View v) {
+                    if (!isAllowRequest) {
+                        Toast.makeText(getApplicationContext(), "该语聊房间不允许申请连麦 ~", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                int result = voiceChatFragment.handleTalkerRequest();
-                if (result == VoiceChatFragment.RESULT_NO_POSITION) {
-                    new EaseTipDialog.Builder(this)
-                            .setStyle(EaseTipDialog.TipDialogStyle.INFO)
-                            .setTitle("提示")
-                            .setMessage("该聊天室主播人数已满,请稍后重试 ...")
-                            .addButton("确定", Constant.COLOR_BLACK, Constant.COLOR_WHITE, (dialog, view) -> {
-                                dialog.dismiss();
-                            })
-                            .build()
-                            .show();
-                } else if (result == VoiceChatFragment.RESULT_ALREADY_TALKER) {
-                    updateTobeTalkerView(STATE_TALKER);
-                } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
-                    updateTobeTalkerView(STATE_DURING_REQUEST);
-                    // 发送上麦申请
-                    sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER, voiceChatFragment.getStreamId());
+                    int result = voiceChatFragment.handleTalkerRequest();
+                    if (result == VoiceChatFragment.RESULT_NO_POSITION) {
+                        new EaseTipDialog.Builder(ChatActivity.this)
+                                .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+                                .setTitle("提示")
+                                .setMessage("该聊天室主播人数已满,请稍后重试 ...")
+                                .addButton("确定", Constant.COLOR_BLACK, Constant.COLOR_WHITE, (dialog, view) -> {
+                                    dialog.dismiss();
+                                })
+                                .build()
+                                .show();
+                    } else if (result == VoiceChatFragment.RESULT_ALREADY_TALKER) {
+                        updateTobeTalkerView(STATE_TALKER);
+                    } else if (result == VoiceChatFragment.RESULT_NO_HANDLED) {
+                        updateTobeTalkerView(STATE_DURING_REQUEST);
+                        // 发送上麦申请
+                        sendRequest(ownerName, Constant.OP_REQUEST_TOBE_SPEAKER, voiceChatFragment.getStreamId());
+                    }
                 }
             });
         } else { // 管理员视角显示伴音按钮
