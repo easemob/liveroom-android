@@ -1,7 +1,6 @@
 package com.hyphenate.liveroom.widgets;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -15,11 +14,11 @@ import android.widget.TextView;
 
 import com.hyphenate.liveroom.R;
 import com.hyphenate.liveroom.utils.DimensUtil;
+import com.hyphenate.liveroom.widgets.border.NoneBorderDrawable;
+import com.hyphenate.liveroom.widgets.border.RectBorderDrawable;
 
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Random;
-import java.util.TimeZone;
 
 /**
  * Created by zhangsong on 19-4-8
@@ -42,7 +41,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
     private ImageView talkingView;
     private LinearLayout btnContainer;
 
-    private int[] voiceAnimSrc = {R.drawable.em_ic_speaking_1, R.drawable.em_ic_speaking_2, R.drawable.em_ic_speaking_3};
+    private int[] voiceAnimSrc = {R.drawable.em_ic_speaking_0, R.drawable.em_ic_speaking_1, R.drawable.em_ic_speaking_2, R.drawable.em_ic_speaking_3};
     private static final int VOICE_INTERVAL_TIME = 150; //ms
 
     public static TalkerView create(Context context) {
@@ -87,8 +86,6 @@ public class TalkerView extends FrameLayout implements IBorderView {
         talkingView = findViewById(R.id.indicator_talking);
         btnContainer = findViewById(R.id.container_btn);
 
-        setBackground(getResources().getDrawable(R.drawable.em_bg_border_none));
-
         stateHelper = new BorderHelper();
         stateHelper.init(this, attrs);
     }
@@ -100,10 +97,15 @@ public class TalkerView extends FrameLayout implements IBorderView {
 
     private void stopVoiceAnimation(){
         removeCallbacks(voiceAnimThread);
+        resetTalkingViewStyle();
     }
 
     private void realTalkingAnim(){
-        talkingView.setImageResource(voiceAnimSrc[new Random().nextInt(3)]);
+        talkingView.setImageResource(voiceAnimSrc[new Random().nextInt(3) + 1]);
+    }
+
+    private void resetTalkingViewStyle() {
+        talkingView.setImageResource(voiceAnimSrc[0]);
     }
 
     Runnable voiceAnimThread = new Runnable() {
@@ -146,11 +148,10 @@ public class TalkerView extends FrameLayout implements IBorderView {
         canTalk = can;
         if (can) {
             talkerView.setBackgroundResource(R.drawable.em_dot_on);
-            showVoiceAnimation();
+            talkingView.setVisibility(VISIBLE);
         } else {
             talkerView.setBackgroundResource(R.drawable.em_dot_off);
             talkingView.setVisibility(GONE);
-            stopVoiceAnimation();
         }
         return this;
     }
@@ -168,9 +169,9 @@ public class TalkerView extends FrameLayout implements IBorderView {
         if (!canTalk) return this;
 
         if (talking) {
-            talkingView.setVisibility(VISIBLE);
+            showVoiceAnimation();
         } else {
-            talkingView.setVisibility(GONE);
+            stopVoiceAnimation();
         }
         return this;
     }
@@ -216,6 +217,7 @@ public class TalkerView extends FrameLayout implements IBorderView {
     public TalkerView clearButtons() {
         btnContainer.removeAllViews();
         btnContainer.setVisibility(GONE);
+        countDownTimeView.setVisibility(GONE);
         return this;
     }
 

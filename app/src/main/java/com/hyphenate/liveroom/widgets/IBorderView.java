@@ -9,6 +9,10 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.hyphenate.liveroom.R;
+import com.hyphenate.liveroom.widgets.border.GrayBorderDrawable;
+import com.hyphenate.liveroom.widgets.border.GreenBorderDrawable;
+import com.hyphenate.liveroom.widgets.border.NoneBorderDrawable;
+import com.hyphenate.liveroom.widgets.border.RedBorderDrawable;
 
 /**
  * Created by zhangsong on 19-4-8
@@ -46,27 +50,25 @@ public interface IBorderView {
         private Border border = Border.NONE;
 
         public void changeBorder(View v, Border border) {
-            this.border = border;
-            switch (border) {
-                case NONE:
-                    v.setBackgroundResource(R.drawable.em_bg_border_none);
-                    break;
-                case GRAY:
-                    v.setBackgroundResource(R.drawable.em_bg_border_gray);
-                    break;
-                case GREEN:
-                    v.setBackgroundResource(R.drawable.em_bg_border_green);
-                    break;
-                case RED:
-                    v.setBackgroundResource(R.drawable.em_bg_border_red);
-                    break;
-            }
+            changeBorder(v, border, v.getResources().getColor(R.color.color_gray));
         }
 
         public void changeBorder(View v, Border border,@ColorInt int bgColor) {
-            changeBorder(v, border);
-            GradientDrawable background = (GradientDrawable) v.getBackground();
-            background.setColor(bgColor);
+            this.border = border;
+            switch (border) {
+                case NONE:
+                    v.setBackground(new NoneBorderDrawable(v.getContext(), bgColor));
+                    break;
+                case GRAY:
+                    v.setBackground(new GrayBorderDrawable(v.getContext(), bgColor));
+                    break;
+                case GREEN:
+                    v.setBackground(new GreenBorderDrawable(v.getContext(), bgColor));
+                    break;
+                case RED:
+                    v.setBackground(new RedBorderDrawable(v.getContext(), bgColor));
+                    break;
+            }
         }
 
         public void init(View v, AttributeSet attrs) {
@@ -77,9 +79,8 @@ public interface IBorderView {
                     int i = typedArray.getInt(R.styleable.BorderView_border, 0);
                     border = Border.from(i);
                     typedArray.recycle();
-
-                    changeBorder(v, border);
                 }
+                changeBorder(v, border);
             } else {
                 throw new IllegalArgumentException("View not an IBorderView impl.");
             }

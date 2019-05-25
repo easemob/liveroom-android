@@ -6,6 +6,7 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
 import com.hyphenate.liveroom.manager.HttpRequestManager;
 import com.hyphenate.liveroom.manager.PreferenceManager;
+import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * Created by zhangsong on 19-3-28
@@ -29,6 +30,9 @@ public class HomeApp extends Application {
 
         PreferenceManager.init(this);
         HttpRequestManager.getInstance().init(this);
+
+        // bugly, please replace your appid
+        CrashReport.initCrashReport(getApplicationContext(), "314722b37d", false);
     }
 
     public Application getApp() {
