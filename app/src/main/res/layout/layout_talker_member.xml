@@ -59,6 +59,7 @@
             android:scaleType="centerCrop"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:src="@drawable/em_ic_speaking_0"
             android:visibility="gone" />
     </RelativeLayout>
 
