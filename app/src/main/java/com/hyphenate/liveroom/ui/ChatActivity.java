@@ -1,10 +1,10 @@
 package com.hyphenate.liveroom.ui;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -33,8 +33,8 @@ import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.utils.OnMultiClickListener;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
-
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.hyphenate.liveroom.Constant.EXTRA_PASSWORD;
 
@@ -73,6 +73,8 @@ public class ChatActivity extends BaseActivity {
     private VoiceChatFragment voiceChatFragment;
     private TextChatFragment textChatFragment;
 
+    private ConcurrentLinkedQueue<String> mTobeSpeakerRequest = new ConcurrentLinkedQueue<>();
+
     public static class Builder {
         private Intent intent;
 
@@ -82,7 +84,7 @@ public class ChatActivity extends BaseActivity {
         }
 
         public Builder setPassword(String password) {
-            intent.putExtra(EXTRA_PASSWORD, password);
+            intent.putExtra(Constant.EXTRA_PASSWORD, password);
             return this;
         }
 
@@ -265,6 +267,7 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mTobeSpeakerRequest.clear();
         EMClient.getInstance().chatManager().removeMessageListener(messageListener);
     }
 
@@ -433,26 +436,8 @@ public class ChatActivity extends BaseActivity {
                     if (autoAgreeRequest) {
                         grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
                     } else {
-                        runOnUiThread(() -> {
-                            new EaseTipDialog.Builder(ChatActivity.this)
-                                    .setStyle(EaseTipDialog.TipDialogStyle.INFO)
-                                    .setCanceledOnTouchOutside(false)
-                                    .dismissCalcelButton(true)
-                                    .setTitle("提示")
-                                    .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
-                                    .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
-                                            (dialog, v) -> {
-                                                dialog.dismiss();
-                                                grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
-                                            })
-                                    .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
-                                            (dialog, v) -> {
-                                                dialog.dismiss();
-                                                sendRequest(msg.getFrom(), Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
-                                            })
-                                    .build()
-                                    .show();
-                        });
+                        mTobeSpeakerRequest.offer(msg.getFrom());
+                        notifyShowDialog();
                     }
                 } else if (Constant.OP_REQUEST_TOBE_AUDIENCE.equals(operation)) { // 收到主播下麦申请
                     grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Audience);
@@ -488,4 +473,62 @@ public class ChatActivity extends BaseActivity {
         public void onMessageChanged(EMMessage emMessage, Object o) {
         }
     };
+
+    private boolean showingRequestDialog;
+
+    private void notifyShowDialog() {
+        runOnUiThread(() -> {
+            if (!mTobeSpeakerRequest.isEmpty() && !showingRequestDialog) {
+                String msgFrom = mTobeSpeakerRequest.poll();
+                if (msgFrom == null) {
+                    return;
+                }
+                int emptyPosition = voiceChatFragment.findEmptyPosition();
+                if (emptyPosition == -1) {
+                    // no empty position
+                    sendRequest(msgFrom, Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+                    return;
+                }
+                showingRequestDialog = true;
+
+                new AlertDialog.Builder(ChatActivity.this)
+                        .setTitle("提示")
+                        .setIcon(R.drawable.em_ic_tips)
+                        .setMessage(msgFrom + " 申请上麦互动，同意吗？")
+                        .setOnCancelListener(dialog -> {
+                            sendRequest(msgFrom, Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+                            showingRequestDialog = false;
+                            notifyShowDialog();
+                        })
+                        .setPositiveButton("同意", (dialog, which) -> {
+                            grantRole(msgFrom, EMConferenceManager.EMConferenceRole.Talker);
+                            showingRequestDialog = false;
+                            notifyShowDialog();
+                        })
+                        .setNegativeButton("拒绝", (dialog, which) -> {
+                            sendRequest(msgFrom, Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+                            showingRequestDialog = false;
+                            notifyShowDialog();
+                        }).show();
+            }
+//                            new EaseTipDialog.Builder(ChatActivity.this)
+//                                    .setStyle(EaseTipDialog.TipDialogStyle.INFO)
+//                                    .setCanceledOnTouchOutside(false)
+//                                    .dismissCalcelButton(true)
+//                                    .setTitle("提示")
+//                                    .setMessage(msg.getFrom() + " 申请上麦互动，同意吗？")
+//                                    .addButton("同意", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+//                                            (dialog, v) -> {
+//                                                dialog.dismiss();
+//                                                grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
+//                                            })
+//                                    .addButton("拒绝", Constant.COLOR_BLACK, Constant.COLOR_WHITE,
+//                                            (dialog, v) -> {
+//                                                dialog.dismiss();
+//                                                sendRequest(msg.getFrom(), Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+//                                            })
+//                                    .build()
+//                                    .show();
+        });
+    }
 }
