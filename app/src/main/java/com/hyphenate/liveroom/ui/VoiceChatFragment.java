@@ -495,7 +495,7 @@ public class VoiceChatFragment extends BaseFragment {
     }
 
     // 找一个未被使用的位置
-    private int findEmptyPosition() {
+    public int findEmptyPosition() {
         for (int i = 0; i < MAX_TALKERS; ++i) {
             if (talkerViews.get(i).first == null) {
                 return i;
