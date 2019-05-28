@@ -64,14 +64,14 @@ public class CountDownManager {
     }
 
     public void stopCountDown() {
-        if (countDownCallback != null) {
-            countDownCallback.onCancel();
-            countDownCallback = null;
-        }
-
         if (countDownTimer != null) {
             countDownTimer.cancel();
             countDownTimer = null;
+        }
+
+        if (countDownCallback != null) {
+            countDownCallback.onCancel();
+            countDownCallback = null;
         }
     }
 }
