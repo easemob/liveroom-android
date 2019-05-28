@@ -33,6 +33,7 @@ import com.hyphenate.liveroom.utils.AnimationUtil;
 import com.hyphenate.liveroom.utils.OnMultiClickListener;
 import com.hyphenate.liveroom.widgets.EaseTipDialog;
 import com.hyphenate.util.EasyUtils;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -403,6 +404,10 @@ public class ChatActivity extends BaseActivity {
                     @Override
                     public void onError(int i, String s) {
                         Log.i(TAG, "grantRole onError: " + i + " - " + s);
+                        // 如果改变角色失败,通知申请方改变申请上麦按钮为可上麦.
+                        if (targetRole == EMConferenceManager.EMConferenceRole.Talker) {
+                            sendRequest(username, Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+                        }
                     }
                 }
         );
@@ -434,7 +439,13 @@ public class ChatActivity extends BaseActivity {
                 if (Constant.OP_REQUEST_TOBE_SPEAKER.equals(operation)) { // 收到观众上麦申请
                     boolean autoAgreeRequest = PreferenceManager.getInstance().isAutoAgree();
                     if (autoAgreeRequest) {
-                        grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
+                        int emptyPosition = voiceChatFragment.findEmptyPosition();
+                        if (emptyPosition == -1) {
+                            // no empty position
+                            sendRequest(msg.getFrom(), Constant.OP_REQUEST_BE_REJECTED, voiceChatFragment.getStreamId());
+                        } else {
+                            grantRole(msg.getFrom(), EMConferenceManager.EMConferenceRole.Talker);
+                        }
                     } else {
                         mTobeSpeakerRequest.offer(msg.getFrom());
                         notifyShowDialog();

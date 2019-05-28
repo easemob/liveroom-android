@@ -521,19 +521,21 @@ public class VoiceChatFragment extends BaseFragment {
 
     private void resetTalkerViewByPosition(int position) {
         TalkerView talkerView = talkerViews.get(position).second;
-        talkerView.setName("disconnected", getResources().getColor(R.color.text_disable))
-                .clearButtons()
-                .setKing(false)
-                .setTalking(false)
-                .canTalk(false)
-                .stopCountDown()
-                .setBorder(IBorderView.Border.NONE);
-
         talkerViews.remove(position);
         talkerViews.add(MAX_TALKERS - 1, new Pair<>(null, talkerView));
 
-        memberContainer.removeView(talkerView);
-        memberContainer.addView(talkerView);
+        runOnUiThread(() -> {
+            talkerView.setName("disconnected", getResources().getColor(R.color.text_disable))
+                    .clearButtons()
+                    .setKing(false)
+                    .setTalking(false)
+                    .canTalk(false)
+                    .stopCountDown()
+                    .setBorder(IBorderView.Border.NONE);
+
+            memberContainer.removeView(talkerView);
+            memberContainer.addView(talkerView);
+        });
     }
 
     private void releaseMicIfNeeded(String occupiedUsername) {
@@ -698,7 +700,7 @@ public class VoiceChatFragment extends BaseFragment {
             streamMap.remove(stream.getStreamId());
             final int existPosition = findExistPosition(stream.getUsername());
             if (existPosition != -1) {
-                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
+                resetTalkerViewByPosition(existPosition);
             }
         }
 
@@ -815,8 +817,8 @@ public class VoiceChatFragment extends BaseFragment {
             } else { // 主播变成了观众
                 unpublish(publishId);
                 releaseMicIfNeeded(currentUsername);
-                final int existPosition = findExistPosition(currentUsername);
-                runOnUiThread(() -> resetTalkerViewByPosition(existPosition));
+                int existPosition = findExistPosition(currentUsername);
+                resetTalkerViewByPosition(existPosition);
 
                 if (onEventCallback != null) {
                     onEventCallback.onEvent(EVENT_BE_AUDIENCE_SUCCESS);
