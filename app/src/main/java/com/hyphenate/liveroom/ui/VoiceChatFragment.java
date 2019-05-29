@@ -417,11 +417,7 @@ public class VoiceChatFragment extends BaseFragment {
     }
 
     private void publish(boolean pauseVoice) {
-        if (pauseVoice) {
-            normalParam.setAudioOff(true);
-        } else {
-            normalParam.setAudioOff(false);
-        }
+        normalParam.setAudioOff(pauseVoice);
         conferenceManager.publish(normalParam, new EMValueCallBack<String>() {
             @Override
             public void onSuccess(String value) {
