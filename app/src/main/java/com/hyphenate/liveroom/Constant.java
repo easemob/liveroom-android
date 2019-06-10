@@ -10,7 +10,7 @@ public class Constant {
     public static final String EXTRA_ROOM_ADMIN = "roomAdmin";
     public static final String EXTRA_ROOM_PWD = "roomPwd";
 
-    public static final String DOWNLOAD_APPLINK = "http://www.easemob.com";
+    public static final String DOWNLOAD_APPLINK = "http://www.easemob.com/download/im#tcdemo";
 
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_CHATROOM_ID = "chatroomId";
